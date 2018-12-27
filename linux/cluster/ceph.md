@@ -1,0 +1,5 @@
+> In [computing](https://en.wikipedia.org/wiki/Computing), **Ceph** (pronounced [/ˈsɛf/](https://en.wikipedia.org/wiki/Help:IPA/English) or [/ˈkɛf/](https://en.wikipedia.org/wiki/Help:IPA/English)) is a [free-software](https://en.wikipedia.org/wiki/Free-software) [storage](https://en.wikipedia.org/wiki/Computer_data_storage) [platform](https://en.wikipedia.org/wiki/Computing_platform), implements [object storage](https://en.wikipedia.org/wiki/Object_storage) on a single distributed [computer cluster](https://en.wikipedia.org/wiki/Computer_cluster), and provides interfaces for object-, [block-](https://en.wikipedia.org/wiki/Block_storage) and [file](https://en.wikipedia.org/wiki/Computer_file)-level storage. 
+>
+> Ceph aims primarily for completely distributed operation without a [single point of failure](https://en.wikipedia.org/wiki/Single_point_of_failure), scalable to the [exabyte](https://en.wikipedia.org/wiki/Exabyte) level, and freely available. 
+
+分布式集群上实现对象存储，提供对象、块和文件级存储接口。分布式操作，无单点故障。

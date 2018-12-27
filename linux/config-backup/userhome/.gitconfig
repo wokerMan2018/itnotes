@@ -1,0 +1,21 @@
+[user]
+	name = levinit
+	email = levinit@outlook.com
+[credential]
+	helper = store
+[core]
+	editor = nano -w
+	quotepath = false
+[color]
+	ui = true
+[format]
+	pretty = oneline
+[merge]
+	tool = diffuse
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+[cola]
+	spellcheck = false

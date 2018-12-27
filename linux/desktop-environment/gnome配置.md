@@ -1,0 +1,250 @@
+[TOC]
+
+提示：archlinux及其衍生版本用户可使用aur helper工具搜索关键字进行下载安装以下扩展、主题、图标等。
+
+# shell附加组件
+
+注：**需先安装有gnome-tweaks。**
+
+shell扩展安装来源：
+
+-  https://extensions.gnome.org/ 中下载安装注册该网站，浏览器会提示安装相应扩展。
+- 发行版的一些社区源中可能含有某些扩展。*如archlinux可以在aur搜寻到[gnome-shell-extension](https://aur.archlinux.org/packages/?O=0&K=gnome-shell-extension)。
+- 使用gnome-software（gnome软件中心），在其”附加组件“分类中搜寻和安装。
+
+---
+
+扩展推荐：
+
+- dash to dock    可对dock进行多项功能和外观的设置
+
+- user-theme    启用后可自定义shell主题
+
+- drop down terminal    下拉式终端
+
+- topicons plus    顶部栏显示程序托盘图标
+
+- desktop icons  放置桌面图标
+
+- hide top bar  定义顶部栏隐藏策略
+
+- pixel saver    窗口最大化时隐藏窗口标题栏
+
+- simple netspeed或netspeed    显示网速
+
+- clipboard indicator    剪切板工具
+
+- gsconnect  与手机kdeconnect连接协作
+
+- coverflow alt tab    alt+tab进行切换时可显示大幅预览
+
+- workspace indicator   显示工作区序号以及方便地切换工作区
+
+- removable drive menu    显示可移除设备（如U盘）拔插提示
+
+- places-status-indicator    显示文件管理器导航菜单
+
+- web-search-dialog    快捷搜索（可添加搜索引擎）
+
+- weather    天气显示
+
+- easyscreencast     截屏录屏
+
+- screenshot    截屏
+
+- audio-output-switcher    切换音频输出
+
+- hibernate-status    增加休眠按钮
+
+- cpupower    或 cpufreq 处理器调频控制
+
+- clac    计算器
+
+- randwall     壁纸切换
+
+- caffeine     阻止桌面锁屏和系统暂停
+
+- media player  媒体播放信息显示及快捷控制（部分播放器可能不支持）
+
+   附 media player indicator设置中l展示播放信息的pango设置示例：
+
+   ```html
+   <span foreground="#eb3f2f">{trackTitle}</span> --> <span foreground="#81c2d6">{trackAlbum}</span> @ <span foreground="#c3bed4">{trackArtist}</span>
+   ```
+
+# 主题外观
+
+[gnome-look](gnome-look.org)或源中可下载一些主题图标，也可使用[ocsstore](https://www.linux-apps.com/p/1175480/)下载，一些主题如：
+
+- gtk界面主题：arc materia canta paper vertex
+- icon图标主题：numix-circle papirus paoranchelo flat-remix paper luv moka
+- cursor鼠标主题：osx-elcap capitaine numix
+
+查找以上资源时，以提供的关键字加类型名称进行搜寻，例如鼠标主题numix则搜索`numix cursor`，界面主题arc则搜索`gtk arc`。
+
+# 工具配置
+
+## nautilus鹦鹉螺文件管理器
+
+### 右键菜单添加新建文件
+
+在Templates（模板）文件夹中建立文件模板。示例：
+
+```shell
+touch ~/Templates/text
+touch ~/Templates/sh.sh && echo '#!/bin/sh' > ~/Templates/sh.sh && chmod +x ~/Templates/sh.sh
+```
+
+在右键菜单中便添加了创建文件菜单，创建文件的子菜单中可创建示例中的text和sh.sh文件，创建的文件内容和属性与模板一样。
+
+### 已汉化文件夹恢复英文名
+
+图片、视频、文档等文件夹恢复为英文名。可以使用以下方法：
+
+- 修改`$HOME/.config/user-dirs`文件内容。示例：
+
+  ```shell
+  XDG_DESKTOP_DIR="$HOME/Desktop"
+  XDG_DOWNLOAD_DIR="$HOME/Downloads"
+  XDG_TEMPLATES_DIR="$HOME/Templates"
+  XDG_PUBLICSHARE_DIR="$HOME/Public"
+  XDG_DOCUMENTS_DIR="$HOME/Documents"
+  XDG_MUSIC_DIR="$HOME/Music"
+  XDG_PICTURES_DIR="$HOME/Pictures"
+  XDG_VIDEOS_DIR="$HOME/Videos"
+  ```
+
+- 自动生成
+
+  1. 设置中更改语言为英文。
+  2. 注销桌面后登录桌面，按提示将目录更名为英文。
+  3. 设置中更改语言为中文，注销桌面再次登录，提示对目录更名为中文时不要进行更改即可。
+
+### 网络存储
+
+- webDav
+  nautilus可添加webDav服务。[坚果云nutstore](http://www.jianguoyun.com)支持webDav。
+- google云盘，安装有gvfs-google，且在设置--在线帐号中登录谷歌即可。
+- nextcloud，在设置--在线帐号中登录即可。
+- 网盘插件
+  - natilus-nutstore  坚果云的nautilus插件
+  - nautilus-megasync  [Megasync](https://mega.nz/)的nautilus插件
+  - nautilus-dropbox  [dropbox](https://www.dropbox.com/)的nautilus插件
+
+## gnome terminal透明
+
+- 使用gnome-terminal-transparency替代gnome-terminal
+
+- 在/.bashrc（zsh用户在/.zshrc）中写入：
+
+  ```shell
+  if [ -n "$WINDOWID" ]; then
+    TRANSPARENCY_HEX=$(printf 0x%x $((0xffffffff * 77/100)))
+    xprop -id "$WINDOWID" -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY "$TRANSPARENCY_HEX"
+  fi
+  ```
+
+  65/100是透明系数（65%），根据需求调整。注意：wayland中无效。
+
+## 修改gnome屏幕录制时间上限
+
+`ctrl`-`alt`-`shift`-`r`仅能可录制不超过30秒的短视频。
+
+使用dconf-editor修改`/org/gnome/settings-daemon/plugins/media-keys/max-screencast-length`的数值（秒数）。
+
+## 修改夜光(nigh-light)色温值
+
+gnome3.24开始，在设置中带有该功能开关，夜光（night-light）默认色温值是4000k。
+
+使用dconf-editor修改`/org/gnome/settings-daemon/plugins/color/night-light-temperature`的数值。
+
+## 修改networkmanager网络热点（AP)密码
+
+1. 在网络设置中开启热点，会随机生成一串密码。
+2. 修改`etc/NetworkManager/system-connections/ap`文件中`psk=`后面的内容为想要修改的新密码。
+3. 重启networkmanager，再开启热点，修改的密码就会生效。
+
+## 其他gnome相关软件
+
+一些gnome系相关软件
+
+- gnome-software   软件商店 (gnome-software-packagekit-plugin)
+- gedit文件编辑器的插件：gedit-code-assistance和gedit-plugins。
+- file-roller  压缩解压打包工具的图形前端
+- geary   风格简洁的邮箱客户端
+- gvfs-google  登录google账户后 可在nautilus 挂载GoogleDrive
+- gitg    图形界面的git工具
+- polari    IRC客户端
+- vinagre   远程连接客户端（支持ssh、vnc、rdp和spice）
+- epipthany gnome浏览器（webkit内核，支持登录firefox帐号并同步相关内容）
+- totem   视频播放器
+- gnome-music   音乐播放器
+- shotwell   数码相片管理工具
+- gnome-schedule   计划任务（cron图形端）
+- gnome-search-tool  搜索工具（可所搜文件中的文字）
+- gnome-todo  待办事项清单（可连接到todoist）
+- alacarte  gnome的菜单编辑器
+
+# 快捷键
+
+一些默认的快捷键：
+
+|快捷键|作用|
+|--|--|
+|Super+h         | 隐藏当前窗口|
+|Super+Left/RIght| 窗口平铺于左/右侧|
+|Super+v	     | 显示通知清单|
+|Super+⬆         | 最大化窗口|
+|Super+⬇         | 还原最大化窗口为之前状态|
+|Super+⬅         | 平铺窗口到左侧|
+|Super+➡         | 平铺窗口到右侧|
+|PrtScn          | 截取屏幕为图片（建议设为super+print避免误按） |
+|Shift+PrtScn    | 截取当前屏幕为图片 |
+|Alt+PrtScn      | 截取当前窗口为图片 |
+|hift+Ctrl+Alt+r | 录制屏幕/停止录制 |
+三种截图快捷键在加上`Ctrl`后，则是截取图片到剪切板。
+
+- 根据个人喜好设置的一些快捷键：
+
+  在快捷键设置界面按下退格(backspace)可消除设定的快捷键。
+|快捷键|作用|
+|--|--|
+|Super+f1/f2/f3/f4 | 切换到不同工作区|
+|Ctrl+f1/f2/f3/f4   | 移动窗口到不同工作区|
+|Shift+Super+h     | 隐藏所有正常窗|
+|Super+e           | nautilus文件管理 |
+|Super+Return      | gnome-terminal终端|
+|Super+g           | gedit文件编辑器 |
+
+# 电源管理
+
+可参看[laptop笔记本相关](../laptop笔记本相关.md)
+
+- 按下alt后，电池图标中的关机/重启按钮会变成暂停按钮。
+
+- hibernate-status   扩展可以增加休眠等按钮。
+
+- systemctl hybrid-sleep/hibernate/supend 命令分别是：混合睡眠（通电状态，保存到硬盘和内存）、休眠（关机状态，保存到硬盘）和睡眠（通电状态，保存到内存）。
+
+  为了方便使用可将他们设置别名，在~/.bashrc中写入：
+
+  ```shell
+  alias hs='systemctl hybrid-sleep'  #混合睡眠
+  alias hn='systemctl hibernate'    #休眠
+  alias sp='systemctl suspend'  #暂停（挂起)
+  ```
+
+
+- 笔记本用户推荐安装[tlp](https://wiki.archlinux.org/index.php/TLP)或者[laptop-mode-tools]()
+- intel可安装[powertop](https://wiki.archlinux.org/index.php/Powertop)
+
+# 其他技巧
+
+- 恢复gnome初始设置`dconf reset -f /`。
+- 关闭部分软件启动时提示输入密码：删除`~/.local/share/keyrings/login.keyring`
+- `Alt+F2`    快速使用命令(`r`命令重启shell，`rt`命令重载shell主题）。
+- 开启application menu扩展可以在右上角添加分类程序菜单（默认`alt+f1`)。
+- `Alt+Space`    可以弹出标题栏右键菜单。
+- 按住`Alt`键时关机按钮会变成暂停（suspend）按钮。
+- 鼠标滚轮（鼠标中键）或`Ctrl`点击dock上的图标会打开一个程序的新窗口。
+- 拖动窗口到屏幕左/右边缘会平铺该窗口到屏幕左/右。

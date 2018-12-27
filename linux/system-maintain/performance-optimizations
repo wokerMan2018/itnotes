@@ -1,0 +1,11 @@
+linux性能优化笔记
+
+# 负载
+
+```shell
+uptime
+```
+
+>  20:44:05 up  8:09,  1 user,  load average: 1.16, 1.20, 1.04
+
+load average是系统平均负载，依次是过去 1 分钟、5 分钟、15 分钟的平均负载。
