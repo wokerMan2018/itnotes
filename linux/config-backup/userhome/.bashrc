@@ -142,7 +142,7 @@ alias atd='systemctl start atd'
 # ===common tools short commands===
 #backup important files
 alias backup="echo 'Starting'\
-&& \cp -f ~/.bashrc ~/.gitconfig ~/.vimrc ~/.config/fontconfig/conf.d/* ~/.makepkg.conf ~/.bash-powerline.sh\
+&& \cp -f ~/.bashrc ~/.gitconfig ~/.vimrc ~/.makepkg.conf ~/.bash-powerline.sh\
  -t\
  ~/Documents/it/itnotes/linux/config-backup/userhome/\
 && echo "Done!"
@@ -170,7 +170,7 @@ alias privoxyrestop='sudo systemctl stop privoxy'
 
 #---nmap
 #scan alive hosts
-alias 'nmap-hosts'="sudo nmap `echo $gateway|cut -d '.' -f 1-3`.0/24"
+alias nmap-hosts="sudo nmap echo $(echo $gateway|cut -d '.' -f 1-3).0/24"
 
 #install/update geoip database
 alias geoipdata="cd /tmp && wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz && wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && wget http://download.maxmind.com/download/geoip/database/asnum/GeoIPASNum.dat.gz && gunzip GeoIP.dat.gz && gunzip GeoIPASNum.dat.gz && gunzip GeoLiteCity.dat.gz && sudo cp GeoIP.dat GeoIPASNum.dat GeoLiteCity.dat /usr/share/GeoIP/ && cd -"
@@ -178,9 +178,13 @@ alias geoipdata="cd /tmp && wget http://geolite.maxmind.com/download/geoip/datab
 #---convert tools----
 
 #iconv -- file content encoding
-alias iconvgbk='iconv -f GBK -t UTF-8'
+#iconvgbk newfile originfile
+#iconvgbk newfile oldfile
+alias iconvgbk='iconv -c -f GBK -t UTF-8 -o '
 #convmv -- filename encoding
 alias convmvgbk='convmv -f GBK -T UTF-8 --notest --nosmart'
+#zip gbk
+alias unzipgbk='unzip -O gbk '
 
 #asciinema record terminal
 alias rec='asciinema rec -i 5 terminal-`date +%Y%m%d-%H%M%S`'  #record

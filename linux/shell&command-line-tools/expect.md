@@ -71,6 +71,8 @@ expect是由[tcl语言](https://link.jianshu.com?t=http://www.tldp.org/HOWTO/Tcl
 
 - `expect eof` 结束对spawn程序输出信息的捕获
 
+  **如果程序不以interact结尾，应该在最后写上`expect eof`结束本次expect。**
+
 - 命令行参数
 
   - `$argv0`  脚本本身
@@ -109,11 +111,20 @@ bash shell中使用expect的几种方式：
   password=root
   
   expect -c "
+      spawn ssh $user@$host -p $port
+      expect {
+        "yes/no" { send "yes"\r }
+        "*password*" { send $password\r }
+      }
+      interact
+    "
+  #上传ssh密钥
+  expect -c "
       spawn ssh-copy-id $user@$host -p $port
       expect {
         "*password*" { send $password\r }
       }
-      interact
+      expect eof
     "
   ```
 

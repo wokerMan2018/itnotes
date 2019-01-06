@@ -1,8 +1,8 @@
 #!/bin/sh
-log=/var/log/proxy.log
+log=~/proxy.log
 if [[ ! -e $log ]]
 then
-    touch /var/log/$log
+    touch $log
 fi
 if [[ $(stat -c %s $log) -gt 10000 ]]
 then
@@ -39,7 +39,7 @@ options='-o TCPKeepAlive=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=10
 #======转发前检查
 
 #查找进程中是否已经存在指定进程
-tunnelstate=$(ps aux|grep $proxyPort:$localHost:$localPort|grep -v grep )
+tunnelstate=$(ps aux|grep $proxyPort:$localHost:$localPort|grep -v grep)
 if [[ -n $tunnelstate ]]
 then
     echo "$(date) sshproxy is running" >> $log
@@ -71,11 +71,10 @@ then
 fi
 
 #====ssh转发
-if [[ -z `ps axu|grep $localPort|grep ssh|grep -v grep` ]]
-then
-    echo "$(date) starting ssh proxy" >> $log
-    ssh -gfCNTR $proxyPort:$localHost:$localPort $remoteUser@$remoteHost -i $key $options -p $remotePort
-fi
+
+echo "$(date) starting ssh proxy" >> $log
+ssh -gfCNTR $proxyPort:$localHost:$localPort $remoteUser@$remoteHost -i $key $options -p $remotePort
+
 ##ssh参数说明
 #-g 允许远程主机连接转发端口
 #-f 后台执行
