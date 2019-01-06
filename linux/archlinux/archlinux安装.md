@@ -2,61 +2,70 @@
 
 # 准备工作
 
-- 划分一定量的磁盘空间用于linux安装（推荐至少30G）
+- 划分磁盘空间用于linux安装（推荐至少30G）
 
-- **在bios设置中关闭启设置中的安全启动**（如有没有该设置则略过，对archlinux使用安全启动可参考[archwiki-Secure Boot](https://wiki.archlinux.org/index.php/Secure_Boot_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)))
+- **确定系统引导方式**以确认[启动盘制作](#启动盘制作)方法（[UEFI](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface_%28%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%29)还是Legacy BIOS，可在设备的BIOS中查看和设置。）
+
+- **在bios设置中关闭启设置中的安全启动**
+
+  *如有没有该设置则略过，对Arch Linux使用安全启动可参考[archwiki-Secure Boot](https://wiki.archlinux.org/index.php/Secure_Boot_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))。*
 
 - **互联网**（安装需要联网）
 
-- U盘（本文是使用u盘作为启动介质）
+- U盘（本文讲述使用U盘作为启动介质安装操作系统）
 
-- [Arch Linux 系统镜像](https://www.archlinux.org/download/)（根据国家和地区选择网站下载会更快）
+- [Arch Linux 系统镜像](https://www.archlinux.org/download/)
 
-- nano或vim基本操作技能（安装过程中编辑配置文件）
+- nano或vi/vim基本操作技能
 
-- 启动盘制作
+  *编辑配置文件时需要用到的最基本的编辑操作。*
 
-  - 如果设备支持[UEFI](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))，直接将下载的系统镜像文件解压或挂载，复制其中的内容到U盘根目录即可。
+## U盘启动盘制作
 
-  - 使用工具制作启动盘
+根据情况选择：
 
-    - windows下可使用[usbwriter](https://sourceforge.net/projects/usbwriter/)、[poweriso](http://www.poweriso.com)、[winsetupfromusb](http://www.winsetupfromusb.com/)等工具。
+- 如果设备支持[UEFI](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))启动，**可以**直接将下载的系统镜像文件解压或挂载，复制其中的内容到U盘根目录即可。
 
-    - Linux/OSX下可使用dd命令。示例：
+- 使用工具制作启动盘
 
-      ```shell
-      dd if=/path/arch.iso of=/dev/sdb bs=10M
-      ```
+  - windows下可使用[usbwriter](https://sourceforge.net/projects/usbwriter/)、[poweriso](http://www.poweriso.com)、[winsetupfromusb](http://www.winsetupfromusb.com/)等工具。
 
-      `/path/arch.iso`是archlinux的ISO文件的路径，`sdx`是U盘的设备编号如sda、sdb、sdc等（可插上优盘后在终端用`df -h`命令查看），`10M`是读写块的大小（默认512B）。
+  - Linux/OSX下可使用dd命令。示例：
 
----
+    ```shell
+    #/path/arch.iso是下载的Arch Linux镜像文件路径  /dev/sdx U盘的设备编号（根据情况修改如sdb sdc）
+    dd if=/path/arch.iso of=/dev/sdx bs=4096
+    ```
 
-插上U盘启动盘 > 使用USB启动（不同设备方法设置不同）> 载入U盘上的系统 > 回车选择**第一项**（默认）进入 > 等待一切载入完毕……
+
+## 启动引导
+
+1. 在计算机上插入U盘，然后开启（重启）计算机。
+2. 适时选择启动方式——使用USB启动（不同设备方法设置不同）。
+3. 载入U盘上的系统 > 回车选择**第一项**（默认）> 等待一切载入完毕……
 
 # 基础安装
 
-以下安装过程中遇到需要选择的地方，如不清楚如何选择，可直接回车。
+以下安装过程中遇到需要选择（y/n）的地方，如不清楚如何选择，可直接回车或按下<kbd>y</kbd>即可。
 
 ## 系统分区
 
-### 准备工作
+在进行分区操作前或许要了解以下信息
 
-在进行分区操作前或许要进行以下准备工作。
+- 硬盘情况
 
-- 了解硬盘情况
-
-  如果对设备硬盘分区情况不了解，可先了解分区情况，例如使用如下命令：
+  分区类型、快设备、扇区大小等等信息。如果对设备硬盘分区情况不了解，可使用如下命令查看：
 
   ```shell
   lsblk  #列出所有可用块设备的信息
-  fdisk -l /dev/sda  #使用fdisk工具查看sda的情况
-  cfdisk  #使用cfdisk工具查看第一块硬盘的情况
+  fdisk -l  #查看硬盘信息
+  fdisk -l |grep gpt  #查看硬盘是否使用GPT
+  parted -l   #查看硬盘信息
   ```
 
-- `cfdisk`分区工具使用简介
+- 分区工具使用，例如parted、fdisk、cfdisk
 
-  推荐cfdisk，相比parted等工具更为直观，上手容易。
+  这里简要介绍fdisk工具，上手容易。
 
   - 查看整个磁盘的情况 `cfdisk /dev/sda` （第二块硬盘则是`cfdisk /dev/sdb` ）
   - 利用箭头进行上下左右移动，选中项会高亮显示，回车键确定操作。
@@ -66,9 +75,9 @@
   - `Write`用于保存操作。
   - `quit`退出（直接输入`q`亦可）。
 
-- 分区表选择
+- [分区表](https://zh.wikipedia.org/wiki/%E5%88%86%E5%8C%BA%E8%A1%A8)
 
-  如果硬盘未进行划分，执行`cfdisk`会提示选择分区方式，如果设备支持[GPT](https://wiki.archlinux.org/index.php/Partitioning_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#.E9.80.89.E6.8B.A9GPT_.E8.BF.98.E6.98.AF_MBR)则建议使用GPT 。
+  如果硬盘未进行划分，执行`cfdisk`会提示选择分区方式，**如果设备支持[GPT](https://wiki.archlinux.org/index.php/Partitioning_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#.E9.80.89.E6.8B.A9GPT_.E8.BF.98.E6.98.AF_MBR)则建议使用GPT** 。
 
   如果已经是mbr分区表，而希望采用gpt分区表，可使用parted重建：
 
@@ -78,168 +87,156 @@
   gpt  #输入gpt回车即可
   ```
 
-  附注：老一代的系统用的MBR+BIOS的方式，MBR 分区表加主板上的 BIOS 引导；如今大多数设备都采用GPT+EFI的方式。更多内容参看[分区表](https://zh.wikipedia.org/wiki/%E5%88%86%E5%8C%BA%E8%A1%A8)。
+- 分区参考
 
-- 各linux分区规划
+  - UEFI
 
-  本文中规划以下几个分区和建议大小：
+    - ESP（即[EFI system partition](https://wiki.archlinux.org/index.php/EFI_system_partition_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))）  存放UEFI启动引导文件
 
-  - boot  引导  200M+  
+    - /  系统根目录
 
-    已经足够装下好几个系统引导文件
+      根据情况划分，需要安装的应用越大/越多，规划空间就越多，一般用户建议至少25G+。
 
-  - root  系统根目录  20G+
+    - home  用户目录（建议单独划分）
 
-    视具体使用情况而定，如过作为日常使用，要安装不少工具，建议20G+
+      **如果作为日常使用需要存放文件，当然越大越好。**
 
-  - swap  交换空间  4G+
+  - MBR（分区大小建议同上）
 
-    物理内存很大也可以不划分。需要进行大量使用内存的操作而可能造成内存耗尽建议划分，要使用休眠功能必须划分。
+    - /  系统根目录
 
-  - home  用户家目录
+    - home（建议单独划分）
 
-    **如果作为日常使用需要存放文件，当然越大越好。**
 
-    即使不怎么在该目录存放文件也建议至少划分4G+，因为用户的各种配置和应用缓存（如浏览器）将会存在该目录中。
+  关于SWAP：
 
-### 建立分区
+  建议使用[swap文件](https://wiki.archlinux.org/index.php/Swap_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#%E4%BA%A4%E6%8D%A2%E6%96%87%E4%BB%B6)（brtfs分区除外，因为其不支持swap文件，注意该提示可能会过时）而不是使用单独的swap分区，使用swap文件比使用swap分区更为灵活。二者没有性能差别。
 
-注意：**下文中sdx是本文中的示例，请根据实际情况更换。**
+  物理内存很大也可以不划分swap，**需要进行大量使用内存的操作而可能造成内存耗尽建议划分，要使用休眠功能必须划分。**休眠所需swap大小和休眠前系统开启的程序占用的内存大小有关，根据情况酌情调整。
 
-- boot分区
+### UEFI模式
 
-  使用efi系统分区或者不使用efi系统分区采取不同操作：
+- ESP(EFI系统分区)
 
-  - 使用[EFI系统分区](https://wiki.archlinux.org/index.php/EFI_System_Partition_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))（**EFI system partition，简称esp**）
+  - 已经存在ESP
 
-    GPT使用esp引导系统，将esp挂载到`/boot` 目录，引导文件将置于该目录下。根据具体情况操作：
-
-    - 使用已经存在的esp
-
-      如果设备上已经安**装有其他系统**（例如已经有一个Windows）且打算保留，则**不要对该esp进行格式化**（否则会造成其他系统无法启动），无需任何操作，直接跳到下一步“**root、home和swap分区**”。
-
-      如果不保留其他系统的引导文件，可在[挂载分区](#挂载分区)后，删除/mnt/boot文件夹中的内容。
-
-      ---
-
-      提示：
-
-      安装windows时，其默认的eps大小为100M，容量略小（但也足够放下一个windows+一个ArchLinux的引导文件）。
-
-      如果容量不足，可使用windows硬盘管理工具（或使用其他工具）将esp扩大（可酌情将esp相邻的windows esr分区缩小）。
-
-      如果实在空间不足又难以扩容，可考虑重新建立一个esp分区，将esp中原有文件备份，在安装完毕后，将其中内容复制到新建立的esp分区中（或使用windows引导修复工具进行修复）。
-
-      ---
-
-    - 新建立esp
-
-      则使用cfdisk创建一个**类型为`EFI system`的分区**（以下假设esp使用`/dev/sda1`） ，并对其格式化：
-
-      ```shell
-      mkfs.vfat /dev/sda1    # 格式化esp
-      ```
-      提示：如果使用lvm分区方法，并且打算使用grub作为引导程序，可以将esp放到lvm中；但是**如果还要在esp中放置windows引导文件，则不能将该esp放在lvm中**。
-
-  - 不使用EFI系统分区
-
-    使用cfdisk新建一个boot分区，并对其格式化：
+    支持UEFI的设备上，先前已经存在一个操作系统（例如windows10）且**打算保留原操作系统，不要对EFI系统分区进行任何操作。**
 
     ```shell
-    mkfs.vfat /dev/sda1    # 格式化esp
+    fdisk -l |grep -i efi  #查看是否存在efi
     ```
 
-    提示：在linux中，boot分区可以是主分区，也可以是扩展分区中的逻辑分区（其他分区亦同）。
-
-
-
-- root、home和swap分区
-
-  选择标准分区方式或者lvm弹性分区方式：
-
-  - 标准分区方式
-
-    使用`cfdisk`新建各个分区，然后格式化各个分区：
+    如果不保留原来的EFI系统分区中的引导文件，直接对其格式化即可：
 
     ```shell
-      mkfs.ext4 /dev/sda2    #格式化root
-      mkfs.ext4 /dev/sda3    #格式化home
-      mkswap /dev/sda4       #格式化swap
+    mkfs.vfat /dev/sda1  #这里假设EFI系统分区位于/dev/sda1（下同）
     ```
 
-  - [LVM](https://wiki.archlinux.org/index.php/LVM_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))分区方式
+  - 新建ESP
 
-    先用`cfdisk`建立一个分区（假设为`/dev/sda2` ），再**建立物理卷->建立卷组->建立逻辑卷**：
+    使用cfdisk或其他工具创建一个100M（可以稍微大一些），Type选择类型为`EFI system`即可。
+
+    *这里假设EFI系统分区位于/dev/sda1*，下同。
+
+- 其他分区
+
+  - 使用[LVM](https://wiki.archlinux.org/index.php/LVM_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))创建其他分区
+
+    使用cfdisk或其他磁盘工具将剩余空间创建一个分区。*假设其为/dev/sda2。*
 
     ```shell
     #1.建立物理卷：在 /dev/sda2建立物理卷
-    pvcreate /dev/sda2
+    pvcreate /dev/sda3
+    
     #2.建立卷组：新建名为linux的卷组 并 将sda2加入到卷组中
     vgcreate linux /dev/sda2
-    #3.建立逻辑卷：在linux卷组中建立root、swap和home逻辑卷
+    
+    #3.建立逻辑卷：在linux卷组中建立root和home逻辑卷
     lvcreate -L 30G linux -n root
-    lvcreate -L 4G linux -n swap
-    lvcreate -L 100G linux -n home
-    # lvcreate -l +100%FREE linux -n home  #3.2.1  用linux卷组中所有剩余空间建立home逻辑卷
-    #4.格式化各个逻辑卷
-    mkfs.ext4 /dev/mapper/linux-root    #格式化root
-    mkfs.ext4 /dev/mapper/linux-home    #格式化home
-    mkswap /dev/mapper/linux-swap       #格式化swap
+    lvcreate -l +100%FREE linux -n home   #3.2.1  用linux卷组中所有剩余空间建立home逻辑卷
+    #lvcreate -L 100G linux -n home  #创建home逻辑卷并指定100GB空间
+    
+    #4.各个逻辑卷创建文件系统
+    mkfs.ext4 /dev/mapper/linux-root    #根分区
+    mkfs.ext4 /dev/mapper/linux-home    #home分区
+    
+    #5.挂载
+    mount /dev/mapper/linux-root /mnt    #挂载根分区
+    
+    mkdir /mnt/home    #建立home挂载点
+    mkdir -p /mnt/boot/efi  #建立efi系统分区的挂载点
+    
+    mount /dev/sda1 /mnt/boot/efi    #挂载esp到/boot/efi
+    mount /dev/mapper/linux-home /mnt/home    #挂载home逻辑卷到/home
     ```
 
-### 挂载分区
+    swap文件（可选）
 
-根据不同的分区方式进行挂载操作：
+    ```shell
+    swap_size=8G  #swap文件大小(根据具体情况设置大小)
+    swap_file=/mnt/home/swap  #swap文件存放位置
+    fallocate -l $swap_size $swap_file
+    chmod 600 $swap_file
+    mkswap $swap_file
+    swapon $swap_file
+    ```
 
-- 标准分区方式
+  - 使用标准方式创建其他分区
 
-  ```shell
-  mount /dev/sda2 /mnt         #挂载root分区
-  mkdir /mnt/boot /mnt/home    #建立boot和home挂载点
-  mount /dev/sda1 /mnt/boot    #挂载esp到/boot
-  mount /dev/sda3 /mnt/home    #挂载home分区到/home
-  swapon /dev/sda4        #激活swap
-  ```
+    使用cfdisk或其他工具创建/根分区（*假设为/dev/sda2*）和home（*假设为/dev/sda3*）用户家目录分区，创建文件系统：
 
+    ```shell
+    #1. 创建文件系统
+    mkfs.ext4 /dev/sda2
+    mkfs.ext4 /dev/sda3
+    
+    #2. 挂载
+    mount /dev/sda2 /mnt    #挂载根分区
+    
+    mkdir /mnt/home    #建立home挂载点
+    mkdir -p /mnt/boot/efi  #建立efi系统分区的挂载点
+    
+    mount /dev/sda1 /mnt/boot/efi    #挂载esp到/boot/efi
+    mount /dev/sda3 /mnt/home    #挂载home逻辑卷到/home
+    ```
 
-- lvm分区方式
+    swap文件同上。
 
-  ```shell
-  mount /dev/mapper/linux-root /mnt    #挂载root分区
-  mkdir /mnt/boot /mnt/home    #建立boot和home挂载点
-  mount /dev/sda1 /mnt/boot    #挂载esp到/boot
-  mount /dev/mapper/linux-home /mnt/home    #挂载home逻辑卷到/home
-  swapon /dev/mapper/linux-swap    #激活swap
-  ```
+### Legacy模式
+
+参看UEFI模式，仅略过esp相关部分即可。
+
+Linux系统分区可以在逻辑分区中。
 
 ## 连接网络
 
 ```shell
 dhcpcd    #连接到有线网络
-wifi-menu    #连接到无线网络 执行后会扫描网络 选择网络并连接即可
-ping -c 5 z.cn  #可测试连接情况
+wifi-menu    #连接到无线网络 执行后会扫描网络 选择网络并连接 按提示输入密码
+ping -c 5 z.cn  #测试连接情况
+ip a  #查看分配的ip
 ```
 
 ## 配置镜像源
 
 在安装前最好选择较快的镜像，以加快下载速度。
-编辑` /etc/pacman.d/mirrorlist`，选择首选源（按所处国家地区关键字索搜选择，如搜索china），将其添加到文件开头，保存并退出。一些中国地区镜像源如：
+编辑` /etc/pacman.d/mirrorlist`，选择首选源（按所处国家地区关键字索搜选择，如搜索china），将其添加到文件顶部，保存并退出。一些中国地区镜像源如：
 
 ```shell
-Server = https://mirrors.ustc.edu.cn/archlinux/repo/os/arch
-Server = https://mirrors.163.com/archlinux/repo/os/arch
+Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
+Server = https://mirrors.163.com/archlinux/$repo/os/$arch
 ```
 
 ## 安装基础系统
 
 ```shell
-pacstrap /mnt base base-devel
+pacstrap -i /mnt base base-devel
 ```
 ## 建立fstab文件
 
 ```shell
 genfstab -U /mnt > /mnt/etc/fstab
-cat /mnt/etc/fstab    # 检查生成的 /mnt/etc/fstab 文件是否正确
+cat /mnt/etc/fstab    # 查看生成的 /mnt/etc/fstab
 ```
 ## 进入系统
 
@@ -283,11 +280,11 @@ mkinitcpio -p linux
   ```
 
 
-## 时间
+## 时钟
 
 保留windows用户可能还需要**参考后文[windows和linux统一使用UTC](#windows和linux统一使用UTC)** 。
 
-linux时钟分为系统时钟（system clock）和硬件时钟（Real Time Clock, RTC——即实时时钟，电脑主板记上的时钟）。
+linux时钟分为系统时钟（system clock）和硬件时钟（Real Time Clock, RTC——即实时时钟，电脑主板记录的时钟）。
 
 设置时区，将系统时间和硬件时间统一：
 
@@ -301,26 +298,47 @@ hwclock -w -u    #将当前系统时间写入到硬件时钟  并使用utc时间
 ## 主机名
 
 ```shell
-#MyPC是要设置的主机名
-echo MyPC > /etc/hostname
-#或者
-hostname MyPC
+echo MyPC > /etc/hostname  #MyPC是要设置的主机名
 ```
 
 **注意:** 在 Arch Linux chroot 安装环境中，*hostnamectl*不起作用，因此不能使用`hostnamectl set-hostname 主机名`设置主机名。
 
 ## 网络配置
 
-```shell
-systemctl enable dhcpcd    #开机自启动有线网络  当然也可以手动执行 dhcpcd 连接
-pacman -S iw wpa_supplicant dialog    #无线网络需要安装这些工具使用wifi-menu联网
-```
+linux自带的`linux-frimware`已经支持大多数驱动，如果某些设置不能使用，参看[archwiki:网络驱动](https://wiki.archlinux.org/index.php/Wireless_network_configuration_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#.E5.AE.89.E8.A3.85_driver.2Ffirmware)。
 
-参看archlinux-wiki的[netctl](#https://wiki.archlinux.org/index.php/Network_configuration_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))和[网络配置](https://wiki.archlinux.org/index.php/Network_configuration_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))了解更多。
+如果要安装Gnome、KDE等桌面环境，可以略过该步骤，桌面环境将集成图形界面网络管理工具。
 
-注意：linux自带的`linux-frimware`已经支持大多数驱动，如果某些设置不能使用，参看[archwiki:网络驱动](https://wiki.archlinux.org/index.php/Wireless_network_configuration_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#.E5.AE.89.E8.A3.85_driver.2Ffirmware)
+- 有线网络
+
+  ```shell
+  systemctl enable dhcpcd  #开机自启动有线网络 当然也可以手动执行 dhcpcd 连接
+  ```
+
+- 无线网络
+
+  ```shell
+  pacman -S iw wpa_supplicant dialog wpa_actiond    #无线网络需要安装这些工具使用wifi-menu联网
+  ip a  #查看到当前连接无线的网卡名字
+  systemctl enable netctl-auto@网卡名字  #开机自动使用该网卡连接曾经接入的无线网络
+  ```
+
+  参看archlinux-wiki的[netctl](#https://wiki.archlinux.org/index.php/Network_configuration_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))和[网络配置](https://wiki.archlinux.org/index.php/Network_configuration_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))了解更多。
 
 ## 系统引导
+
+- 安装[微码](https://wiki.archlinux.org/index.php/Microcode_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))（建议安装）
+
+  ```shell
+  pacman -S intel-ucode   #仅intel CPU安装
+  pacman -S amd-ucode  #仅amd CPU安装
+  ```
+
+- 如过要引导多系统安装（可选）
+
+  ```shell
+  pacman -S os-prober
+  ```
 
 - 引导工具
 
@@ -328,30 +346,19 @@ pacman -S iw wpa_supplicant dialog    #无线网络需要安装这些工具使�
   pacman -S grub
   ```
 
-  - 使用EFI系统分区
+  - 使用UEFI
 
     ```shell
     pacman -S efibootmgr  #使用esp还需安装
     grub-install --efi-directory=/boot --bootloader-id=grub
     ```
 
-   - 不使用EFI系统分区（BIOS+MBR）
+   - 使用Legacy
 
      ```shell
      grub-install --target=i386-pc /dev/sda
      ```
 
-- 如果使用**intel CPU**最好也安装[微码](https://wiki.archlinux.org/index.php/Microcode_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))工具
-
-  ```shell
-  pacman -S intel-ucode
-  ```
-
-- 如过要引导多系统安装
-
-  ```shell
-  pacman -S os-prober
-  ```
 
 - 生成引导
 
@@ -359,12 +366,13 @@ pacman -S iw wpa_supplicant dialog    #无线网络需要安装这些工具使�
    grub-mkconfig -o /boot/grub/grub.cfg
    ```
 
+   如果在生成引导命令执行后卡住，很久不能成功，参看下方[生成grub配置时挂起](#生成grub配置时挂起)解决。
 
 **注意**：os-prober可能需要在系统安装完毕后，**重启**进入系统**再次执行**引导**生成配置**命令就能检测到其他系统。
 
----
+至此**基础系统**安装完成，可以**连续按两次`ctrl`+`d` ，输入`reboot`重启并拔出u盘**。
 
-至此**基础系统**安装完成，可以**连续按两次`ctrl`+`d` ，输入`reboot`重启并拔出u盘**。当然也可以继续进行下面的安装流程。
+**基础系统仅有字符界面**，当然也可以继续进行下面的[常用配置](#常用配置)安装流程。
 
 如果windows+archlinux双系统用户在重启后直接进入了Windows系统，可参看[选择grub为第一启动项](#选择grub为第一启动项) 解决。
 
@@ -380,7 +388,7 @@ pacman -S iw wpa_supplicant dialog    #无线网络需要安装这些工具使�
 pacman -S xf86-video-vesa     #通用显卡
 pacman -S xf86-video-intel     #intel核心显卡  可不安装 内核中已经集成开源实现
 pacman -S nvidia                       #nvidia显卡驱动（包含vulkan）
-pacman -S mesa                       #amd显卡使用开源mesa驱动即可
+pacman -S mesa                       #amd显卡使用开源mesa驱动即可(一般已经在基础系统中集成)
 #vulkan 支持
 #pacman -S vulkan-intel    #intel显卡
 #pacman -S vulkan-radeon    #amd/ati显卡
@@ -412,7 +420,7 @@ pacman -S mesa                       #amd显卡使用开源mesa驱动即可
   pacman -S openbox  #openbox
   ```
 
-窗口管理还需要自行配置[显示管理器](https://wiki.archlinux.org/index.php/Display_manager_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))和[xinitrc](https://wiki.archlinux.org/index.php/Xinitrc_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)) 。
+  窗口管理还需要自行配置[显示管理器](https://wiki.archlinux.org/index.php/Display_manager_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))或[xinitrc](https://wiki.archlinux.org/index.php/Xinitrc_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))，用以启动窗口管理器 。
 
 ### 字体
 
@@ -430,7 +438,7 @@ pacman -S mesa                       #amd显卡使用开源mesa驱动即可
 
 编辑`/etc/locale.gen`，根据本地化需求移除对应行前面的注释符号。
 
-以中文用户常用locale为例，选择英文（美国）UTF-8、简体中文GBK、简体中文UTF-8和繁体中文UTF-8，去掉这些行之前前面#号：
+以中文用户常用locale为例，去掉这些行之前前面#号：
 
 ```shell
 en_US.UTF-8 UTF-8
@@ -451,7 +459,7 @@ locale-gen
 
 ```shell
 pacman -S wqy-micorhei    #文泉驿微米黑
-pacman -S adobe-source-han-sans-cn-fonts    # 思源黑体
+pacman -S adobe-source-han-sans-cn-fonts    # 思源黑体简体中文包
 pacman -S ttf-arphic-uming    #文鼎明体
 ```
 
@@ -489,7 +497,7 @@ pacman -S ttf-arphic-uming    #文鼎明体
   ```shell
   pacman -S ibus  ibus-qt        #ibus本体 ibus-qt保证在qt环境中使用正常
   pacman -S ibus-pinyin         #拼音
-  pacman -S ibus-libpinyin    #智能拼音（支持搜狗词库）
+  pacman -S ibus-libpinyin    #智能拼音（支持导入搜狗词库）
   pacman -S ibus-rim               #rime
   ```
 
@@ -568,21 +576,21 @@ AUR(Arch User Repository）是为用户而建、由用户主导的Arch软件仓�
 
 ### 触摸板
 
-**桌面用户无需安装**，窗口管理器用户安装：
+**多数桌面环境已经集成**。
 
 ```shell
 pacman -S xf86-input-synaptics
 ```
 ### 蓝牙
 
-**桌面用户忽略该小节**。窗口管理器用户：
+**多数桌面环境已经集成**。
 
 ```shell
 pacman -S bluez
 systemctl enable bluetooth
 usermod -aG lp user1    #user1是当前用户名
 ```
-蓝牙控制：命令行控制安装`bluez-utils`，使用参考[通过命令行工具配置蓝牙](https://wiki.archlinux.org/index.php/Bluetooth_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#.E9.80.9A.E8.BF.87.E5.91.BD.E4.BB.A4.E8.A1.8C.E5.B7.A5.E5.85.B7.E9.85.8D.E7.BD.AE.E8.93.9D.E7.89.99)；或者安装[蓝牙图形界面工具]((https://wiki.archlinux.org/index.php/Bluetooth_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#.E5.9B.BE.E5.BD.A2.E5.8C.96.E5.89.8D.E7.AB.AF))如`blueberry`。
+蓝牙控制：命令行控制安装`bluez-utils`，使用参考[通过命令行工具配置蓝牙](https://wiki.archlinux.org/index.php/Bluetooth_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#.E9.80.9A.E8.BF.87.E5.91.BD.E4.BB.A4.E8.A1.8C.E5.B7.A5.E5.85.B7.E9.85.8D.E7.BD.AE.E8.93.9D.E7.89.99)；[蓝牙图形界面工具]((https://wiki.archlinux.org/index.php/Bluetooth_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#.E5.9B.BE.E5.BD.A2.E5.8C.96.E5.89.8D.E7.AB.AF))如`blueberry`。
 
 ### NTFS分区
 
@@ -596,7 +604,7 @@ ntfs-3g /dev/sda5 /mnt/ntfs       #挂载分区到/mnt/ntfs目录
 ```
 ### U盘和MTP设备
 
-**桌面环境一般能自动挂载**。窗口管理器用户：
+**桌面环境一般能自动挂载**。
 
 - 使用[udisk](https://wiki.archlinux.org/index.php/Udisks_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))和libmtp
 
@@ -623,6 +631,31 @@ ntfs-3g /dev/sda5 /mnt/ntfs       #挂载分区到/mnt/ntfs目录
 - [Arch相关](#https://wiki.archlinux.org/index.php/Category:About_Arch_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
 - [系统维护](https://wiki.archlinux.org/index.php/System_maintenance_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
 - [pacman提示和技巧](#https://wiki.archlinux.org/index.php/System_maintenance_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
+
+## 生成grub配置时挂起
+
+archroot中执行`grub-mkconfig`命令挂起，系统无任何反馈信息。参看[Arch GRUB asking for /run/lvm/lvmetad.socket on a non lvm disk](https://unix.stackexchange.com/questions/105389/arch-grub-asking-for-run-lvm-lvmetad-socket-on-a-non-lvm-disk)。
+
+1. 终止`grub-mkconfig`命令，执行`exit`退出archroot；
+
+2. 假设前面archroot的为`/mnt`，执行：
+
+   ```shell
+   mkdir /mnt/hostrun
+   mount --bind /run /mnt/hostrun
+   ```
+
+3. `archroot /mnt`进入/mnt，再执行：
+
+   ```shell
+   arch-chroot /mnt /bin/bash
+   mkdir /run/lvm
+   mount --bind /hostrun/lvm /run/lvm
+   ```
+
+4. 重新执行`grub-mkconfig`生成grub配置。
+
+   退出archroot前先`umount /run/lvm`。
 
 ## 笔记本电源管理
 
@@ -675,7 +708,7 @@ echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf   #直接屏蔽
 
 安装`alsa-utils`，然后执行`alsamixer`进入 其ncurses 界面：
 
-使用 ← 和 → 方向键移动，选中 Master 和 PCM 声道，按下 m 键解除静音（静音状态下其显示有`mm`字样）使用 ↑ 方向键增加音量。
+使用<kbd>←</kbd>和<kbd>→</kbd>方向键移动，选中 **Master** 和 **PCM** 声道，按下<kbd>m</kbd> 键解除静音（静音状态下其显示有`mm`字样）使用<kbd>↑</kbd>方向键增加音量。
 
 或者直接使用以下命令解除静音：
 
