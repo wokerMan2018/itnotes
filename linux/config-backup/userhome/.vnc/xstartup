@@ -3,9 +3,7 @@
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 
-
-geometry=''  #-geometry 1280x800 
-dpi=''  #'-dpi 96'
+export XKL_XMODMAP_DISABLE=1
 
 #session=startlxde
 #session=startlxde
@@ -13,4 +11,7 @@ session=gnome-session
 #session=startkde
 #session=i3
 
-exec dbus-launch $dpi $geometry $session
+#need install autocutsel(synchronizes the two copy/paste buffers mainly used by X applications)
+autocutsel -fork
+
+exec dbus-launch $session
