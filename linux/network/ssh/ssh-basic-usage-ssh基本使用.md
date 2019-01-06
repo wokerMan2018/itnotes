@@ -161,7 +161,7 @@ ControlPersist yes  #连接保持
 ControlPersist 1h  #连接保持时间
 ```
 
-## 远程操作
+## 远程命令
 
 直接在登录命令后添加命令，可使该命令在远程主机上执行，示例：
 
@@ -175,6 +175,8 @@ ssh root@192.168.1.1 'cat > .vimrc' < .vimrc
 #多条命令使用引号包裹起来
 ssh root@192.168.1.1 'echo `whoami` > name && mv -f name myname'
 ```
+
+如果执行某个命令遇到`command not found`，而实际上远程主机上可以正常执行该命令，参看[问题解决](#问题解决)中“远程命令cmmand not found"。
 
 如果是交互式操作，例如使用vim操作远程主机的文件，配合scp使用，示例：
 
@@ -425,8 +427,6 @@ sshfs ueser1@host1:/share /share -C -p 2333 -o allow_other
 user@host:/remote/folder /mount/point  fuse.sshfs noauto,x-systemd.automount,_netdev,users,idmap=user,IdentityFile=/home/user/.ssh/id_rsa,allow_other,reconnect 0 0
 ```
 
-
-
 卸载示例：
 
 ```shell
@@ -434,15 +434,19 @@ user@host:/remote/folder /mount/point  fuse.sshfs noauto,x-systemd.automount,_ne
 fusermount -u /share
 ```
 
-# 服务器安全策略
+# 服务器配置
 
-## 工具
+
+
+## 安全策略
+
+### 防御工具
 
 - [fail2ban](https://github.com/fail2ban/fail2ban)
 - [sshguard](https://www.sshguard.net/)
 - [denyhosts](https://github.com/denyhosts/denyhosts)
 
-## 白名单和黑名单
+### 白名单和黑名单
 
 - 黑名单
 
@@ -455,6 +459,15 @@ fusermount -u /share
 
 - 更改默认的22端口
   修改服务器的`/etc/ssh/sshd_config`文件中的`Port` 值为其他可用端口。
+
+  如果要监听多端口，则注释掉`Port`行，添加`ListenAddress`：
+
+  ```shell
+  #Port 1234
+  ListenAddress 0.0.0.0:22
+  ListenAddress 0.0.0.0:222
+  ListenAddress 0.0.0.0:2222 
+  ```
 
 - 登录记录查看
 
@@ -494,7 +507,7 @@ fusermount -u /share
 
       > auth  required  pam_listfile.so  item=user  sense=allow  file=/etc/ssh/deny onerr=succeed
 
-      在`/etc/ssh/deny`中加上要禁止的用户名
+      在`/etc/ssh/dedenyhostsny`中加上要禁止的用户名
 
   - 只允许某些用户登录
 
@@ -522,6 +535,23 @@ fusermount -u /share
 - `-v`：显示详细信息（可用于排错）
 
 # 问题解决
+
+- 执行远程命令提示”command not found"
+
+  使用远程主机上的**非root用户**ssh执行位于远程主机上`/sbin`（或`/usr/sbin/`）目录下的命令工具时，会提示"command not found"，解决方法：
+
+  - 使用远程主机上的root用户执行
+
+  - 如果该用户具有sudo权限
+
+    - 在命令前添加sudo
+
+  - 使用决定路径执行命令
+
+    ```shell
+    /usr/sbin/ip a
+    /usr/sbin/lspci
+    ```
 
 - > Permission denied (publickey,gssapi-keyex,gssapi-with-mic)
 
