@@ -1,14 +1,115 @@
 # 时间相关知识
 
-utc
+## 时区
 
-cst
+Time Zone  时区
 
-rtc
+- UTC  协调世界时（协调通用时间） **C**oordinated **U**niversal **T**im
 
-//todo
+  为世界标准，来自原子钟。
 
-# 时钟同步服务
+- G.M.T.  格林威治标准时间  **G**reenwich **M**ean **T**ime
+
+  为十七世纪格林威治皇家天文台确立，以本初子午线时间为标准，日常普通使用中可理解为与UTC一致。
+
+- CST  根据设置的时区不同，其有不同的意义。
+  - 中华地区
+    - 中国标准时间  **C**hina **S**tandard **T**ime
+    - 中原标准时间  **C**hungyuan **S**tandard **T**ime
+  - 北美中部时间  **C**entral **S**tandard **T**ime (North America)
+  - 澳洲中部时间  **C**entral **S**tandard **T**ime (Australia)
+  - 古巴标准时间  **C**uba **S**tandard **T**ime
+- PST  太平洋时间
+- DST  日光节约时制Daylight saving time，即夏令时（夏时制）  Summer time。
+
+## 硬件时钟与系统时钟
+
+- 硬件时钟，即硬件实时时钟**RTC** (**R**eal-**T**ime **C**lock)或CMOS 时钟，主板上BIOS中的时间，由主板电池供电来维持运行。硬件时间保存的时间信息有：年、月、日、时、分、秒。
+
+- 系统时钟（或称软件时间），即本地时间**L**ocal **T**ime。系统启动之后，系统时钟与硬件时钟独立运行，Linux 通过时钟中断计数维护系统时钟。保存的时间信息有：时间、时区和夏令时设置。
+
+  大部分操作系统以如下方式管理时间信息： 
+
+  - 启动时根据硬件时钟设置；
+  - 运行时如果配置有时间同步服务，则同步时间服务器的时间；
+  - 关机时根据系统时间设置硬件时间。
+
+# 时间相关常用命令
+
+## time、times和timeout
+
+- time  统计指定命令执行所耗费的时间
+
+  ```shell
+  time ls
+  ```
+
+  输出的信息包含：
+
+  - real时间：命令开始执行到结束执行所耗费的时间，包括其他进程所占用的时间片，和进程被阻塞时所花费的时间。
+  - user时间：耗费在用户模式中的CPU时间，唯一真正用于执行进程所花费的时间，不包含其他进程和花费阻塞状态中的时间。
+  - sys时间：耗费在内核模式中的CPU时间，代表在内核中执系统调用所花费的时间，为**真正由进程使用的CPU时间**。
+
+- times  显示进程时间
+
+   打印 shell 及其所有子进程的累计用户空间和系统空间执行时间，退出码总是0。
+
+  ```shell
+  times <command>
+  ```
+
+- timeout  若指定运行的命令在指定的时间后仍在运行则将其中止。
+
+  ```shell
+   timeout 5 ping z.cn
+   timeout -s HUP 10  du -sh *  #注意时间要写在timeout的选项之后，在执行命令之前
+  ```
+
+## hwclock
+
+硬件时钟(hardware clock)
+
+```shell
+  #读取硬件时钟的时间
+  hwclock -r  #或 hwclock --show
+  #当前系统时间写入硬件时钟
+  hwclock -w #或 hwclock--systohc
+  #将系统时间写入硬件实时时钟，且使用了UTC时间作为标准
+  hwclock -w -u #-u也可写为--utc
+  
+  #校准时间漂移
+  hwclock -a  #或 hwclock --adjust）
+```
+
+## date
+
+系统时间
+
+```shell
+date
+#时间相关设置情况 包括本地时间、通用时间、硬件时钟、时区、NTP启用情况等
+date -s "2046-10-24 10:10"
+```
+
+## tzselect
+
+```shell
+#设置时区
+tzselect  #按提示进行时区选择
+#也使用以下命令  (以Asia/Shanghai为例)
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+```
+
+## timedatectl
+
+```shell
+timedatectl  #查看时间设置相关信息
+timedatectl set-ntp true  #开启时间同步
+timedatectl set-time <time string>  #设置时间
+timedatectl set-timezone <time zone>  #设置时区
+```
+
+# 网络时间同步服务
 
 常见实现ntp（网络时间协议）的工具有chrony和ntp。
 
@@ -218,51 +319,4 @@ ntpdate <time-server>
 
   - 主动-被动模式
 
-    主机互为服务端和客户端。（多用于集群中）
-
-# 时间相关常用命令
-
-## time、times和timeout
-
-
-
-
-
-## date
-
-```shell
-date
-#时间相关设置情况 包括本地时间、通用时间、硬件时钟、时区、NTP启用情况等
-date -s "2046-10-24 10:10"
-```
-
-## tzselect
-
-```shell
-#设置时区
-tzselect  #按提示进行时区选择
-#或使用以下命令  (以Asia/Shanghai为例)
-ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-```
-
-## timedatectl
-
-```shell
-timedatectl
-timedatectl set-ntp true  #开启时间同步
-```
-
-## hwclock
-
-  ```shell
-
-  #读取硬件时钟的时间
-  hwclock -r  #或 hwclock --show
-  #当前系统时间写入硬件时钟
-  hwclock -w #或 hwclock--systohc
-  #将系统时间写入硬件实时时钟，且使用了UTC时间作为标准
-  hwclock -w -u #-u也可写为--utc
-  
-  #校准时间漂移
-  hwclock -a  #或 hwclock --adjust）
-  ```
+    主机互为服务端和客户端。（多用于集群中）\
