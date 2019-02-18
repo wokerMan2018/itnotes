@@ -4,30 +4,41 @@ IPMI是智能型平台管理接口（Intelligent Platform Management Interface�
 
 
 
-# 配置
+安装`ipmitool`工具，重启后会自动加载ipmi相关模块，或者手动加载相关模块：
 
-1. 在BIOS中启用IPMI over LAN功能。
+```shell
+modprobe ipmi_watchdog
+modprobe ipmi_poweroff
+modprobe ipmi_devintf
+modprobe ipmi_si   
+```
 
-2. 安装`ipmitool`工具。
+加载后即可使用ipmitool命令，例如获取硬件信息
 
-3. 启用`ipmi`服务
+```shell
+ipmi sdr
+```
 
-4. 设置impi网络参数
+# IMPI远程管理配置
 
-  假如该设备目前IP为192.168.1.10，网关为192.168.1.1，则为其配置一个该网段中未被分配使用的IP，示例：
+1. 确在BIOS中已经启用IPMI over LAN功能。
 
-  ```shell
-  ipmitool lan print  #查看配置信息
-  ipmitool lan print [数字]  #从0开始一个一个试 找到该设备上默认的ipmi的channel值
-  ipmitool lan set 1 ipaddr 192.168.0.100  #IP  #这里假设channel时1 下同
-  ipmitool lan set 1 netmask 255.255.255.0  #子网掩码
-  ipmitool lan set 1 defgw ipaddr 192.168.0.1  #网关
-  ipmitool lan set 1 access on  #启用 （off为关闭）
-  ```
+2. 设置impi网络参数
 
-更多`ipmi`命令可在输入`ipmitool`回车后查看，在`ipmitool lan`回车后可查看配置LAN控制相关命令。
+3. 假如该设备目前IP为192.168.1.10，网关为192.168.1.1，则为其配置一个该网段中未被分配使用的IP，示例：
 
-- 设置管理用户
+   ```shell
+    ipmitool lan print  #查看配置信息
+    ipmitool lan print [数字]  #从0开始一个一个试 找到该设备上默认的ipmi的channel值
+    ipmitool lan set 1 ipaddr 192.168.0.100  #IP  #这里假设channel时1 下同
+    ipmitool lan set 1 netmask 255.255.255.0  #子网掩码
+    ipmitool lan set 1 defgw ipaddr 192.168.0.1  #网关
+    ipmitool lan set 1 access on  #启用 （off为关闭）
+   ```
+
+   更多`ipmi`命令可在输入`ipmitool`回车后查看，在`ipmitool lan`回车后可查看配置LAN控制相关命令。
+
+- 设置管配置理用户
 
   ```shell
   ipmitool user list 1  #查看当前用户列表
@@ -38,14 +49,14 @@ IPMI是智能型平台管理接口（Intelligent Platform Management Interface�
 
   更多命令帮助，在`ipmitool user`回车后可查看。
 
-- 检查
+- 检查状态
 
   ```shell
   ping 192.168.0.100
   ipmitool -H 192.168.0.100 -U admin power status  #会返回power is on
   ```
 
-# WEB管理
+## WEB管理
 
 浏览器开启https://你IPMI的IP地址（例如本文中为https://192.168.1.100），输入用户名和密码（本文示例中用户名和密码均为admin），即可登录web管理界面。
 

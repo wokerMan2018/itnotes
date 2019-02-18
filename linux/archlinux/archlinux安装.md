@@ -116,6 +116,12 @@
 
 ### UEFI模式
 
+检查当前是否使用UEFI启动：
+
+```shell
+ls /sys/firmware/efi/  #如果该文件存在则表示使用UEFI启动
+```
+
 - ESP(EFI系统分区)
 
   - 已经存在ESP
@@ -389,9 +395,14 @@ pacman -S xf86-video-vesa     #通用显卡
 pacman -S xf86-video-intel     #intel核心显卡  可不安装 内核中已经集成开源实现
 pacman -S nvidia                       #nvidia显卡驱动（包含vulkan）
 pacman -S mesa                       #amd显卡使用开源mesa驱动即可(一般已经在基础系统中集成)
+
 #vulkan 支持
-#pacman -S vulkan-intel    #intel显卡
-#pacman -S vulkan-radeon    #amd/ati显卡
+pacman -S vulkan-intel    #intel显卡
+pacman -S vulkan-radeon    #amd/ati显卡
+
+#opencl支持
+pacman -S opencl-mesa  #mesa(amd)
+pacman -S opencl-nvidia  #nvidia
 ```
 注意：
 
@@ -535,9 +546,11 @@ alsamixer    #安装上一个包后可使用该命令控制声音设备
   ```shell
   pacman -Syu   #升级整个系统
   pacman -S <package-name>   #安装软件 ,package-name>即软件名
-  pacman -Ss <word>  #查询有某关键字的软件 <word>即是要查询的关键字
+  pacman -Sw <package-name>   #只下载不安装（安装包存放在/var/cache/pacman/pkg/
   pacman -R <package-name>   #移除某软件但不移除其依赖
+  pacmna -Rcn   <package-name>   #移除某软件及相关依赖
   pacman -Qi name  #查看已经安装的某软件的信息
+  pacman -Ss <word>  #从软件源查询有某关键字的软件 <word>即是要查询的关键字
   pacman -Qs word  #在已安装软件中根据关键字搜寻
   pacman -Qdt  #查看和卸载不被依赖的包
   pacman -Fs <command>  #查看某个命令属于哪个软件包

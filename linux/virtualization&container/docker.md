@@ -204,59 +204,70 @@ docker push [选项] 镜像名[:标签] 用户名/镜像名
 
 以下示例代码中的`<container>`表示某个容器，可以使用容器的ID或容器的名字。
 
-## 查看状态
+## 查看
 
 ```shell
-#查询容器 不使用-a则只查看正在运行的容器
+#查看正在运行的容器
+docker ps
+docker container ls
+#查看所有容器
 docker ps -a
+docker container ls -a
 #容器详情
 docker inspect <container>
 #容器日志
 docker logs <container>
 ```
 
-## 创建、修改和删除
+## 创建
 
 ```shell
 #创建容器
-docker create -it base/archlinux
+docker create -t base/archlinux
+docker run -itd base/archlinux
 
-# docker run -it --rm --name 容器名 --hostname 主机名 -v 宿主机目录:容器目录:读写权限 -p 容器端口:宿主机器端口 --network 网络 base/archlinux 要执行的命令
+#使用其他创建容器时的常用参数
+docker run -it --rm --name 容器名 --hostname 主机名 -v 宿主机目录:容器目录:读写权限 -p 容器端口:宿主机器端口 --network 网络 base/archlinux 要执行的命令
 
 # 以centos 镜像为基础创建一个名为webserver的容器
 # 主机名webserver 以只读权限挂载宿主机的/home/data到容器的/srv/web 使用主机网络 创建成功后立即进入bash shell
 docker run -it --name webserver --hostname webserver -v /home/data:/srv/web:ro --network host centos /bin/bash
-
-#重命名
-docker rename 原名 新名
-
-#删除一个容器
-docker rm 容器名或容器ID
-#删除所有容器
-docker rm `docker ps -a -q`
-#删除所有处于退出状态的容器
-docker rm -v $(docker ps -aq -f status=exited)
 ```
 
-### 创建
 
-`docker create`或`docker run`：create是创建一个容器，run是创建一个容器（并启动）执行指定命令。二者大部分参数一致，常用参数：
 
-- `-i`交互式操作
-- `-t`打开终端
+`docker create`或`docker run`：create是创建一个容器，run是创建一个容器（并启动）执行指定命令，二者大部分参数一致。
+
+注意：无论是create还是run创建容器，容器都必须要指定至少一个程序运行，否则启动容器后就会退出（因为没有主程序运行就会退出），常用的是使用`-t`运行一个终端。
+
+常用参数：
+
+- `-i` 交互式操作
+- `-t` 分配一个伪终端（pseudo-TTY）
+- `-d` 以守护进程运行 （run的参数）
 
 
 - `--name 容器名` 参数给容器命名
 
-- `-d`以守护进程运行 （run的参数）
-
-- `-p 宿主机端口:容器端口`  映射容器某个端口到宿主机某个端口
-
-- `-h 主机名`或`--hostname 主机名 `设置主机名
+  
 
 - `--ip 地址` 指定IP地址
 
-- `--network 网络类型`  指定[网络](#网络)类型
+- `-p 宿主机端口:容器端口`  将容器某个端口映射到宿主机某个端口
+
+
+  - `-P 容器端口` 将容器端口随机映射到宿主机某个端口
+
+    容器端口可忽略，如果忽略该值，即不指定要映射的容器端口，则将容器暴露的所有端口都随机映射到宿主机上。
+
+- `-h 主机名`或`--hostname 主机名 ` 设置主机名
+
+- `--network 网络类型`  指定[网络](#网络)类型（默认值为`default`）
+
+
+
+
+- `-w 工作目录`  工作目录
 
 - `-v 宿主机目录:容器目录`  挂载宿主机的卷到容器中（使用绝对路径）
 
@@ -266,48 +277,48 @@ docker rm -v $(docker ps -aq -f status=exited)
   - `w`写
   - `o`配合读写一起使用——如`ro`只读
 
-- 内存限额
 
-  - `-m 内存大小`（或`--memory`）内存限额
 
-  - `--memory-swap=内存大小`  内存+交换分区限额
 
-    提示：指定了 `-m` 而不指定 `--memory-swap`，那么 `--memory-swap` 默认为 `-m` 的两倍。
+- `--privileged`  赋予容器外部权限
+- `-u` 用户名或UID
 
-  - `--vm 线程数`  启用指定个数的内存工作线程
 
-  - `--vm-bytes 给定内存大小`  每个线程分配的内存大小
 
-- cpu限额：`-c 权重值`（或`--cpu-share`）容器使用cpu的**权重**（**CPU 的优先级**） 默认1024
 
-- IO限额
+- `--rm` 使用后删除容器
 
-  默认情况下，所有容器能平等地读写硬盘
+其他参数参见后文相关叙述。
 
-  - 设置权重：` --blkio-weight 权重值`  容器读写的权重值 默认500
+## 修改和删除
 
-  - 设置bps或iops
+```shell
+#重命名容器
+docker rename 原名 新名
 
-    bps： byte per second，每秒读写的数据量。
-    iops ：io per second，每秒 IO 的次数。
+#删除一个容器
+docker rm 容器名或容器ID
 
-    - `--device-read-bps`和`--device-write-bps`
-    - `--device-read-iops`和`--device-write-iops`
+#强制删除正在运行的容器 
+docker rm -f 容器名或容器ID
 
-    使用示例：
+#删除所有容器
+docker rm `docker ps -a -q`
 
-    ```shell
-    docker run -it --device-write-bps /dev/sda:30MB centos  #限制sda写入速度30MB每秒
-    ```
+#删除所有处于退出状态的容器
+docker container prune
+```
 
-- `/bin/bash`指定使用bash
+## 导入导出
 
-- `--rm`使用后删除容器
+```shell
+#导入容器快照
+coker import 路径或url地址
 
-### 修改和删除
-
-- 修改容器名 `dockerename <name> <new-name>`
-- 删除容器 `docker rm <container>`
+#导出容器快照
+docker export 容器ID或名字  -o 快照名
+docker export 容器ID或名字  > 快照名
+```
 
 ## 运行容器中的命令
 
@@ -369,45 +380,32 @@ docker run <container> <command>
 
 # 网络
 
-docker的网络有默认和自定义两种，可在创建/启动容器时指定以下的网络。
+docker安装后默认创建有bridge、host和none网络。
 
-## 默认网络
+可使用`docker network ls`查看存在的网络。建容器时可以使用`--network`参数指定网络类型。
 
-docker默认创建三种网络类型：bridge、host和none。创建容器时可以使用`--network`参数指定网络类型。
+用户也可以自定义创建bridge、macvlan或overlay驱动类型的网络。
 
-可使用`docker network ls`查看：
+```shell
+#创建网络
+docker network create --driver bridge br0 --subnet 172.16.0.0/16 --gateway 172.16.0.251
+```
 
-### bridge
+`-d`或`--driver`指定网络类型，`--subnet`指定子网，`gateway`指定网关。
 
-桥接网络，默认网络类型，默认使用docker安装时创建的桥接网络（可使用可以创建查看其配置）。每次docker容器重启时，会按照顺序从网桥配置的子网段中获取IP地址（默认网桥的网段为`172.17.0.0/16`）。
+- bridge
 
-### none
+  桥接网络，**默认网络类型**，默认使用docker安装时创建的桥接网络（可使用可以创建查看其配置）。每次docker容器重启时，会按照顺序从网桥配置的子网段中获取IP地址（默认网桥的网段为`172.17.0.0/16`）。
 
-无指定网络，不会分配局域网的IP。
+- host
 
-### host
+  主机网络，容器与宿主机共用一个网络环境，容器与外接网络直连。 这种情况下不需要使用ip参数，指定port映射等。
 
-主机网络，容器的网络附属在主机上，配置相同，两者可以互通。 这种情况下不需要使用ip参数，指定port映射等。
+- overlay
 
-例如，在容器中运行一个Web服务，监听80端口，则主机的80端口就会自动映射到容器中。
+- macvlan
 
-需要注意容器与宿主机可能发生的端口冲突。
-
-## 用户自定义网络
-
-用户自定义网络user-defined，有三种驱动类型：bridge、overlay和macvlan。
-
-- 创建  `docker network create --driver <类型> <网络名>`
-
-  ```shell
-  docker network create --driver bridge br0 --subnet 172.16.0.0/16 --gateway 172.16.0.251
-  ```
-
-  -  `--subnet 网段`  指定网段
-
-  -  `--gateway 网关地址`  指定网关
-
-- 查看  `docker network inspect <网络名>`
+- none  无网络
 
 # 存储
 
@@ -416,3 +414,48 @@ docker默认创建三种网络类型：bridge、host和none。创建容器时可
 ```shell
 docker cp <宿主机文件路径> <容器名>:<容器内目标路径>
 ```
+
+# 资源限制
+
+- 内存限额
+
+  - `-m 内存大小`（或`--memory`）内存限额
+
+  - `--memory-swap=内存大小`  内存+交换分区限额
+
+    提示：指定了 `-m` 而不指定 `--memory-swap`，那么 `--memory-swap` 默认为 `-m` 的两倍。
+
+  - `--vm 线程数`  启用指定个数的内存工作线程
+
+  - `--vm-bytes 给定内存大小`  每个线程分配的内存大小
+
+- cpu限额：`-c 权重值`（或`--cpu-share`）容器使用cpu的**权重**（**CPU 的优先级**） 默认1024
+
+- IO限额
+
+  默认情况下，所有容器能平等地读写硬盘
+
+  - 设置权重：` --blkio-weight 权重值`  容器读写的权重值 默认500
+
+  - 设置bps或iops
+
+    bps： byte per second，每秒读写的数据量。
+    iops ：io per second，每秒 IO 的次数。
+
+    - `--device-read-bps`和`--device-write-bps`
+    - `--device-read-iops`和`--device-write-iops`
+
+    使用示例：
+
+    ```shell
+    docker run -it --device-write-bps /dev/sda:30MB centos  #限制sda写入速度30MB每秒
+    ```
+
+容器自启动机制(restart policy)
+
+在创建容器时通过`--restart`指定相应的值：
+
+- `no`  默认值，不自动重启容器。
+- `on-failure`  容器发生error而退出(容器退出状态不为0)重启容器。
+- `unless-stopped`  容器已经stop或Docker stoped/restarted的时候才重启容器。
+- `always`  容器已经stop掉或Docker stoped/restarted的时候才重启容器，手动stop除外。

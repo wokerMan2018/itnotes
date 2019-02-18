@@ -14,13 +14,13 @@
 - ncurses-devel
 - tcl-devel
 
-修改集群说明信息(lsid)，编辑`lsf/lsftools/lsid.c`中相关说明文字。
+修改集群说明信息(lsid)，编辑`lsf/lsftools/lsid.c`中相关说明文字。(todo)
 
 ```shell
 clusterName='xxxhpc'
-userName='xxx研究所'
-sed -i s/'My cluster name is %s'/$clusterName/ lsf/lsftools/lsid.c
-sed -i s/'My master name is %s'/$clusterName/ lsf/lsftools/lsid.c
+userName='manage\ node\ is'
+sed -i s/'My cluster name is %s'/$clusterName\\n/ lsf/lsftools/lsid.c
+sed -i s/'My master name is'/$clusterName/ lsf/lsftools/lsid.c
 ```
 
 以编译安装安装到`/opt/openlava`为例，下同。
@@ -28,8 +28,8 @@ sed -i s/'My master name is %s'/$clusterName/ lsf/lsftools/lsid.c
 ```shell
 dest=/share/openlava
 ./configure --prefix=$dest
-make -j4 #j指定编译时使用的线程数
-make install  #自动安装
+make
+make install
 
 #生成配置文件
 ./config.status
@@ -43,14 +43,16 @@ cd $dest/etc
 - 执行用户和环境变量
 
   ```shell
-  dest=/otp/openlava
+  dest=/share/openlava
   user=hpcadmin
   #创建运行openlava的用户 r创建为系统用户 M不创建家目录 s指定shell
-  useradd -M -s /sbin/nologin $user
+  useradd -rM /sbin/nologin $user
   chown -R $user $dest
+  sed -i s/openlava/$user/ $dest/etc/lsf.cluster.openlava
   
   #环境变量
-  chmod +x openlava* .*sh
+  cd $dest/etc/
+  chmod +x $dest/etc/openlava*
   source ./openlava.sh
   ./openlava.setup
   ln -sf $dest/etc/openlava $dest/bin/

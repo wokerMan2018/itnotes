@@ -24,6 +24,11 @@ echo -e "\e[36mHello, \e[1m`whoami`\e[0m
 
 \e[37m+++++=====\e[0m\e[37;5mLet's Begin\e[0m\e[37m====+++++\e[0m"
 
+### bash settings ###
+HISTTIMEFORMAT='%F %T '
+HISTSIZE="5000"
+bind Space:magic-space
+
 #******** PATH ********
 #proxy | use privoxy transfer socks5 to http
 #export ALL_PROXY="socks5://127.0.0.1:1080"
@@ -54,7 +59,7 @@ alias sp='sudo systemctl suspend'
 alias pf='sudo systemctl poweroff'
 
 #no network save power
-alias nonetwork='sudo pkill syncthing syncthing-gtk megasync smb nmb telegram-desktop workrave' #ss-qt5
+alias nonetwork='sudo killall syncthing syncthing-gtk megasync smb nmb telegram-desktop workrave' #ss-qt5
 
 # powertop
 alias powertopauto='sudo powertop --auto-tune'
@@ -99,7 +104,7 @@ alias pacman='sudo pacman'
 alias orphan='pacman -Rscn $(pacman -Qtdq)'
 
 #makepkg aur packing
-alias aurinfo='&& makepkg --printsrcinfo > .SRCINFO && git status'
+alias aurinfo='makepkg --printsrcinfo > .SRCINFO ; git status'
 
 #---temporary locale---
 alias x='export LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8 LC_MESSAGES=en_US.UTF-8 && startx'
@@ -119,15 +124,9 @@ alias ls='ls --color=auto'
 alias ll='ls -lh'
 alias la='ls -lah'
 
-if [[ `which bat` ]]
-then
-  alias cat=bat
-fi
+[[ `which bat` ]] && alias cat=bat
 
-if [[ -d ~/.local/share/Trash/files ]]
-then
-  alias rm='mv -f --target-directory=$HOME/.local/share/Trash/files/'
-fi
+[[ -d ~/.local/share/Trash/files ]] && alias rm='mv -f --target-directory=$HOME/.local/share/Trash/files/'
 
 alias cp='cp -i'
 
@@ -142,12 +141,7 @@ alias cleanoldlinks='sudo rm $(find -xtype l -print)'
 
 # ===common tools short commands===
 #backup important files
-alias backup="echo 'Starting'\
-&& \cp -f ~/.bashrc ~/.gitconfig ~/.vimrc ~/.makepkg.conf ~/.bash-powerline.sh\
- -t\
- ~/Documents/it/itnotes/linux/config-backup/userhome/\
-&& echo "Done!"
-"
+alias backup="echo 'Starting' && \cp -f ~/.bashrc ~/.gitconfig ~/.vimrc ~/.makepkg.conf ~/.bash-powerline.sh ~/Documents/it/itnotes/linux/config-backup/userhome/ && echo Done"
 
 #---network---
 # proxychains
@@ -171,7 +165,7 @@ alias privoxyrestop='sudo systemctl stop privoxy'
 
 #---nmap
 #scan alive hosts
-alias 'nmap-hosts'="sudo nmap `echo $gateway|cut -d '.' -f 1-3`.0/24"
+alias 'nmap-hosts'="sudo nmap -sS `echo $gateway|cut -d '.' -f 1-3`.0/24"
 
 #install/update geoip database
 alias geoipdata="cd /tmp && wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz && wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && wget http://download.maxmind.com/download/geoip/database/asnum/GeoIPASNum.dat.gz && gunzip GeoIP.dat.gz && gunzip GeoIPASNum.dat.gz && gunzip GeoLiteCity.dat.gz && sudo cp GeoIP.dat GeoIPASNum.dat GeoLiteCity.dat /usr/share/GeoIP/ && cd -"
@@ -215,4 +209,5 @@ alias starwar='telnet towel.blinkenlights.nl'
 #=======
 
 #bash-powerline : https://github.com/riobard/bash-powerline
-source ~/.bash-powerline.sh
+[[ -f ~/.bash-powerline.sh ]] &&  source ~/.bash-powerline.sh
+[[ -f /etc/profile.d/autojump.sh ]] &&  source /etc/profile.d/autojump.sh

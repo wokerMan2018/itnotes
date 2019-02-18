@@ -6,7 +6,7 @@
 
 - 编程相关工具
 - （主流发行版）系统安装后普遍自带的工具
-- 窗口管理器（如i3wm）或桌面环境（如gnome）套件及相关自定义/美化/优化工具
+- 常见窗口管理器（如i3wm）或桌面环境（如gnome）套件及相关自定义/美化/优化工具
 
 # 软件资源
 - [pkgs.org](https://pkgs.org/)    搜索各个发行版的软件包
@@ -157,9 +157,6 @@
 
 # 文件管理
 
-- extundelete  恢复删除的ext分区中的文件
-- ncdu  硬盘使用分析
-
 ## 打包、压缩和解压
 
 - 后端 p7zip  unrar  unzip
@@ -245,6 +242,8 @@
 
 ## 音频
 
+- pulseeffects  音效（Pulseaudio）
+
 ### 音乐播放
 
 - rhythmbox    支持podcast和一些在线音乐服务
@@ -322,7 +321,7 @@
 
 ## 笔记
 
--  nixnote2  第三方的evernote（印象笔记）
+-  nixnote  第三方的evernote（印象笔记）
 -  wiznote    为知笔记（同步需要收费）多层级笔记
 -  workflowy   单页列表式层级笔记
 -  dynalist    模仿workflowy(增加部分功能)
@@ -357,18 +356,14 @@
 - goldendict    功能丰富的支持多种格式词典库词典
 - sdcv    星际译王（StartDict)的命令行版
 - moedict    [萌典](https://racklin.github.io/moedict-desktop/download.html)   汉语词典（还包括客家话、闽南语，以及简单的中翻英法德语）
-- 有道词典系列
-  - ydcv    命令行的有道在线词典
-  - youdao-dict    有道词典
-  - iSearch    命令行的有道词典（pip安装，使用了柯林斯词典，可存储到本地）[Github-iSearch](https://github.com/louisun/iSearch)
+- ydcv    命令行的有道在线词典
+- youdao-dict    有道词典
 - 本地化翻译：
   - gtranslator    gnome的本地化翻译工具
   - lokalize    kde的本地化翻译工具
   - poedit  基于gettext/po-based的简单翻译工具
 
-# 游戏趣味
-
-## 游戏
+# 游戏
 
 使用wine/crossover或虚拟机或模拟器进行游戏参考前文的[模拟器/虚拟机/wine](#模拟器/虚拟机/wine)。
 
@@ -380,12 +375,13 @@
   - qgo  围棋客户端和sgf棋谱工具 可调用gnugo人机对弈
   - gnugo  围棋引擎
   - [leela](https://www.sjeng.org/leela.html?utm_source=org.mozilla.firefox&utm_medium=social)
-- 0.a.d   类似帝国时代的即时策略游戏  [帝国崛起0.a.d](https://play0ad.com/)
-- nethack   单人角色扮演冒险探索游戏  [nethack](http://www.nethack.org/)
-- wesnoth    奇幻背景的回合制策略战棋游戏  [韦诺之战The Battle for Wesnoth](http://wesnoth.org/)
-- cataclysm-dda    末日幻想背景的探索生存游戏  [大灾变：黑暗之日Cataclysm: Dark Days Ahead](http://cn.cataclysmdda.com/)
-- stuntrally  3D赛车游戏[Stunt Rally](http://stuntrally.tuxfamily.org/)
-- supertuxkart    卡丁车游戏[supertuxkart](https://supertuxkart.net/Main_Page)
+- 一些著名的开源游戏
+  - 0.a.d   类似帝国时代的即时策略游戏  [帝国崛起0.a.d](https://play0ad.com/)
+  - nethack   单人角色扮演冒险探索游戏  [nethack](http://www.nethack.org/)
+  - wesnoth    奇幻背景的回合制策略战棋游戏  [韦诺之战The Battle for Wesnoth](http://wesnoth.org/)
+  - cataclysm-dda    末日幻想背景的探索生存游戏  [大灾变：黑暗之日Cataclysm: Dark Days Ahead](http://cn.cataclysmdda.com/)
+  - stuntrally  3D赛车游戏[Stunt Rally](http://stuntrally.tuxfamily.org/)
+  - supertuxkart    卡丁车游戏[supertuxkart](https://supertuxkart.net/Main_Page)
 
 ## 可能没什么用的趣味命令行
 
@@ -428,22 +424,20 @@
   - backintime
   - timeshift
   - etckeeper  使用版本控制工具备份etc目录
-- [微码](https://wiki.archlinux.org/index.php/Microcode_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))更新
+- [微码](https://wiki.archlinux.org/index.php/Microcode_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
   - intel-ucode
   - amd-ucode
 ##  安全
 
-- 防火墙
-  - firewall    防火墙
-    - firewall-config  图形界面管理firewall工具
-  - firebuild    防火墙管理工具 
 - 反病毒
   - clamav  病毒扫描
     - clamtk    图形界面的clamav
-- 数据加密
-  - truecrypt    跨平台的硬盘加密工具
-  - veracrypt    加密硬盘 基于TrueCrypt
-  - cryptsetup    加密硬盘（命令行）
+- 数据安全
+  - extundelete  恢复删除的ext分区中的文件
+  - 加密
+    - truecrypt    跨平台的硬盘加密工具
+    - veracrypt    加密硬盘 基于TrueCrypt
+    - cryptsetup    加密硬盘（命令行）
 
 ## 个性化设置
 
@@ -484,5 +478,5 @@
   - wego   终端天气
   - cal    自如界面月历
   - ccal   字符界面中国日历
-  - chinese-calendar  农历（带日程便签功能）
+  - chinese-calendar  农历
   - gnome-todo  代办事项 可连接todoist

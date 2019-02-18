@@ -11,7 +11,7 @@ then
   pacman -S archlinuxcn-keyring --noconfirm
 fi
 
-pacman -S yay
+pacman -S yay autojump
 
 # fonts && input
 pacman -S ttf-dejavu adobe-source-han-sans-cn-fonts adobe-source-han-sans-kr-fonts adobe-source-han-sans-jp-fonts ttf-symbola  fcitx-im fcitx-cloudpinyin fcitx-configtool --noconfirm

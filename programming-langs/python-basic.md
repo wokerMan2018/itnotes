@@ -274,6 +274,8 @@ for x in range(1,3):    #但是可以用于遍历
 
 ### 元组tuple
 
+使用小括号，且不能修改元素的“列表”。
+
 元组与列表类似，主要区别：
 
 - **元组的元素不能修改**（如果某个元素是一个列表，可以修改该列表的内容）
@@ -361,6 +363,41 @@ type(a)    #<class 'int'>
 type(a)==int    #True
 isinstance(a,int)    #True
 ```
+## 推导式
+
+推导式(comprehensions)，又称解析式）是Python的一种独有特性，用以从一个数据序列构建另一个新的数据序列的结构体。 共有三种推导：
+
+- 列表(`list`)推导式
+
+  > 列表推导式（又称列表解析式）提供了一种简明扼要的方法来创建列表。
+  > 它的结构是在一个中括号里包含一个表达式，然后是一个`for`语句，然后是0个或多个`for`或者`if`语句。
+  >
+  > [item for item in list if condition]
+
+  ```python
+  nums1 = [i for i in range(10) if i%2==0]
+  #或 nums = [i for i in range(10) if i%2 is 0]
+  nums2 = [i**2 for i in range(10) if i%2==0]
+  print(nums1)  #[0, 2, 4, 6, 8]
+  print(nums2)  #[0, 4, 16, 36, 64]
+  ```
+
+- 字典(`dict`)推导式
+
+  类似列表推导式，基本格式：
+
+  > { key_expr: value_expr for key,value in collection if condition }
+
+  ```python
+  strings={'h':1,'i':2}
+  strings = {value: key for key, value in strings.items()}
+  print(strings)  #{1: 'h', 2: 'i'}
+  ```
+
+- 集合(`set`)推导式
+
+
+
 # 变量和运算符
 
 ## 变量

@@ -92,12 +92,18 @@ rwx是最基本的权限。
 
 ## chmod/chown/chgrp
 
+- 常用参数：
+  - `-c`或`--changes`  显示更改部分信息
+  - `-R`或`--recursive`  作用于该目录下所有的文件和子目录
+  - `-h`  修复符号链接
+  - `--reference`  以指定的目录或文件的权限作为参照进行权限设置
+
 - chmod修改权限
 
   ```shell
   chmod [参数] <权限范围>[+-=]<权限> <文件/目录>
-  chmod -R g+r /srv
-  chmod -R u+w,g+r /srv  #多条权限规则使用逗号分隔
+  chmod -cR g+r /srv
+  chmod -cR u+w,g+r /srv  #多条权限规则使用逗号分隔
   ```
 
   [权限范围](#权限范围)：u g o a
@@ -117,7 +123,7 @@ rwx是最基本的权限。
 
   ```shell
   chown [参数] <组名> <文件/目录>  #冒号:也可以使用点号.
-  chown -R nginx /srv/
+  chown -cR nginx /srv/
   ```
 
 ## ACL权限管理
@@ -198,22 +204,6 @@ setfacl使用：
 
 # 附
 
-## linux文件类型
-
-在`ls -l`中第1位字符表示文件类型，各种类型如下： 
-
-- `-`  普通文件(common file)
-  - 文本文件（如`/etc/hosts`）
-  - 二进制文件（如`/usr/bin/ls`）
-  - 数据格式文件（如`/var/logwtmp`）
-- `d`  目录(directory)
-- `l`  连接(link)
-- 设备与装置
-  - `b`  块（block）设备（如`/dev/sda`）
-  - `c`  字符（character）设备 （如鼠标键盘等串行端口设备）
-- `s`  数据接口(sockets)文件
-- `p`  数据传输(pipe)文件（ FIFO——first-in-first-out，解决多个程序同时存取一个文件所造成的错误问题）
-
 ## 修改文件属性chattr
 
 遇到对不能对某个文件/目录进行某种操作（如删除），但却是对该文件有权限时，应该查看该文件/目录是否设置了某种属性。
@@ -236,13 +226,4 @@ setfacl使用：
   - `+<属性>`：开启文件或目录的该项属性；
   - `-<属性>`：关闭文件或目录的该项属性；
   - `=<属性>`：指定文件或目录的该项属性。
-
->[root@cent7 ~]# ls -l test
->-rw-r--r--. 1 root root 0 Sep  9 08:13 test
->[root@cent7 ~]# rm test -f
->rm: cannot remove ‘test’: Operation not permitted
->[root@cent7 ~]# lsattr test
->----i----------- test
->[root@cent7 ~]# chattr -i test
->[root@cent7 ~]# rm test -f
 

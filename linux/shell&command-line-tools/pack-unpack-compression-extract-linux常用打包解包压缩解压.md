@@ -5,7 +5,7 @@
 
 以下示例命令中test指某个文件或者文件夹
 
-## 常见打包和压缩格式
+# 常见打包和压缩格式
 
 ## tar
 
@@ -44,17 +44,29 @@ tar -xvf test.tar test
 
 - -C <目录>：这个选项用在解压缩时指定解压到特定目录；
 
-### tar打包并压缩和解压缩并解包
+### tar+xz或gz或bz2合用
 
-tar可加压缩参数在打包后压缩成xz、bz2和gz等格式。
+tar添加以下参数，在打包tar后压缩成xz、bz2、gz等格式，或在解压缩xz、bz2、gz后再解tar包。
 
-- -J ：支持xz压缩
-- -j：支持bz2压缩
-- -z：支持gz压缩
+- -J ：支持xz
+- -j：支持bz2
+- -z：支持gz
 
 ```shell
-tar xJvf test.tar.xz
-tar cJvf tets.tar 
+tar xJvf test.tar.xz  #解压xz后解包tar
+tar cJvf tets.tar.xz  #打包tar后压缩为xz格式
+```
+
+### 加密打包/解密解包
+
+与某些加密工具组合使用，例如gpg（gnupg）：
+
+```shell
+tar cJvf test.tar.xz test
+#加密 -c使用对称加密  生成以.gpg结尾的文件 不能对目录加密
+gpg -c test.tar.xz  #会提示输入密码
+#解密 -o指定生成的解密文件，-d指定被解密的文件（该选项为默认选项可不写）。
+gpg -o test.tar.xz -d test.tar.xz.gpg
 ```
 
 ## .gz
@@ -93,13 +105,18 @@ xz -d test.xz  #解压
 
 解压工具：unzip
 
-​	unzip-iconv，为unzip增加了转码补丁，可在解压缩时使用-O参数可指定编码格式。
+- `-P`  指定压缩或解压密码
+- `-l`  列出压缩包中文件（不解压）
+
+unzip-iconv，为unzip增加了转码补丁，可在解压缩时使用`-O`参数可指定编码格式。
 
 ```shell
 zip test.zip test  #打包
 unzip test.zip  #解包
 #指定编码格式(如gbk)避免乱码 需要安装unzip-iconv
 unzip -O gbk test.zip
+zip -P 123 files.zip files
+unzip -P 123 files.zip
 ```
 
 ## .7z
@@ -120,6 +137,17 @@ unzip -O gbk test.zip
 ```shell
 rar a test.rar test  #压缩
 unrar test.rar  #解压
+```
+
+- `-x`  用绝对路径解压文件
+- `-e`  解压到当前路径
+- `-p`  指定解压密码
+
+分卷解压
+
+```shell
+#例如某文件压缩为 file.part1.rar   fiel.part2.rar
+unrar -x file.part1.rar  #解压第一个分卷即可，其会自动合并解压所有分卷
 ```
 
 # 特殊文件打包/解包和压缩/解压

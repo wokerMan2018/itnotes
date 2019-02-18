@@ -148,6 +148,8 @@ obj.setAttribute('width','100%');  //某些元素适用（即“直接设置元�
 ```
 ##  style对象的属性和方法
 
+### 直接设置某个属性的值
+
 - 根据属性设置单一样式
 
 ````javascript
@@ -162,13 +164,13 @@ obj.cssFloat='left';
 - **带上单位**（如果需要）
 - 带有连字符`-`的CSS属性在JavaScript中，应该转换成驼峰形式或将属性名（带引号）写在中括号[]中
 
-### cssText设置样式字符串
+### cssText属性设置样式字符串
 
 可设置多个样式
 ```javascript
 obj.style.cssText="color:gray;font-size:1.25rem;"
 ```
-### setProperty()/removeProperty
+### setProperty()/removeProperty方法
 
 ```javascript
 obj.style.setProperty('height', '300px', 'important');

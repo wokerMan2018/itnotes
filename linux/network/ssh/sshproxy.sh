@@ -1,5 +1,5 @@
 #!/bin/sh
-log=~/proxy.log
+log=./proxy.log
 if [[ ! -e $log ]]
 then
     touch $log
