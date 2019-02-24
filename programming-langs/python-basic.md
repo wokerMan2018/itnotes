@@ -414,41 +414,43 @@ isinstance(a,int)    #True
 
   `pi` `e`
 
+- 私有变量：在变量名前面加上两个下划线`__`，其就变成了一个私有变量（private），只有内部可以访问，外部不能访问。
+
+  示例参看[类的封装——访问限制](#访问限制)。
+
 ## 运算符
 
-### 算数运算符
+- 算数运算符
 
-同大多数编程语言一致，特别的有：
+  同大多数编程语言一致，特别的有：
 
-- 混合计算时，整型会转换成为浮点数。
+  - 混合计算时，整型会转换成为浮点数。
 
-- 数值的除法总是返回一个浮点数，要获取整数使用`//`操作符。
+  - 数值的除法总是返回一个浮点数，要获取整数使用`//`操作符。
 
-- `**`平方  （也可以使用`math`模块中的`power`函数）
+  - `**`平方  （也可以使用`math`模块中的`power`函数）
 
-  ```python
-  3//2   #1
-  2**2    #4
-  ```
+    ```shell
+    3//2   #1
+    2**2    #4
+    ```
 
-### 逻辑运算符
+- 逻辑运算符
+  - `and` 和
+  - `or` 或
+  - `not` 非
 
-- `and` 和
-- `or` 或
-- `not` 非
+- 成员运算符
 
-### 成员运算符
+  测试实例中包含了一系列的成员，包括字符串，列表或元组。
 
-测试实例中包含了一系列的成员，包括字符串，列表或元组。
+  - `in`  在指定的序列中找到值返回 True，否则返回 False。
+  - `not in`  在指定的序列中没有找到值返回 True，否则返回 False。
 
-- `in`  在指定的序列中找到值返回 True，否则返回 False。
-- `not in`  在指定的序列中没有找到值返回 True，否则返回 False。
+- 身份运算符
+  - `is`  判断两个标识符是不是引用自一个对象
 
-### 身份运算符
-
-- `is`  判断两个标识符是不是引用自一个对象
-
-- `is not`  is not 是判断两个标识符是不是引用自不同对象
+  - `is not`  is not 是判断两个标识符是不是引用自不同对象
 
   ```python
   a=1
@@ -457,29 +459,9 @@ isinstance(a,int)    #True
   a is not b    #True  （注意is和not之间有空格）
   ```
 
-`is`和`==`以及`is not`和`!=` ：
+  `is`和`==`以及`is not`和`!=` ：
 
-`is`（或`is not`)用于判断两个变量引用对象是否为同一个对象（或不同对象）， `==`（或`!=`） 用于判断引用变量的值是否相等（或不相等）。
-
-# 输入和输出
-
-- 输入：
-
-  - 键盘输入：`input()`
-
-  - 文件读写：`open(filename,mode)`
-
-    filename是文件名，mode是读写模式：
-
-    - r读
-    - w写
-    - b二进制
-    - +
-
-- 输出：
-  - 表达式语句
-  - print() 函数
-  - 文件对象的 write() 方法（标准输出文件可以用 sys.stdout 引用）
+  `is`（或`is not`)用于判断两个变量引用对象是否为同一个对象（或不同对象）， `==`（或`!=`） 用于判断引用变量的值是否相等（或不相等）。
 
 # 流程控制
 
@@ -536,71 +518,427 @@ for item in range(1,3):
 
 ```python
 def test(x):
-    print(x*x)
-#函数调用
-test(2)  #4
+    print('you input: %s' %x)
+
+a=input()  #调用内建函数input()
+test(a)  ##test函数调用
 ```
 
-默认参数：在定义函数时对参数赋予默认值。调用函数时，如果未传入该参数的值，将使用其默认值。
+## 部分内建函数
+
+介绍部分内建函数，具体参看相关文档。
+
+- 键盘输入：`input()`
+
+- 打印内容：`print() `
+
+- `filter()` 根据提供的函数过滤序列，返回由符合条件元素组成的新列表对象。
+
+  ```python
+  a = [1, 2, 3]
+  print(list(filter(lambda x: x % 2 == 0, a)))  #[2]
+  ```
+
+- `map()` 根据提供的函数对指定序列做映射，返回映射的新的迭代器对象。
+
+  ```python
+  a = [1, 2, 3]
+  b = [-1, -2, -3]
+  print(list(map(lambda x, y: x+y, a, b)))  #[0, 0, 0]
+  ```
+
+- `reduce()` 根据提供的函数对参数序列中元素进行累积运算。
+
+  ```python
+  from functools import reduce
+  print(reduce(lambda x, y: x + y, [2, 3, 4], 0))  #9 #将[2,3,4]按照lambda进行运算，0+2+3+4
+  ```
+
+- `zip()` 将可迭代的对象作为参数，将对象中对应的元素打包成一个个元组，然后返回由这些元组组成的列表。
+
+  ```python
+  list(zip((1, 2, 3), (4, 5, 6)))  #[(1, 4), (2, 5), (3, 6)]
+  
+  dict1={'a':'aa','b':'bb'}
+  dict2 = zip(dict1.values(), dict1.keys())
+  print(dict(dict2))  #{'aa': 'a', 'bb': 'b'}
+  ```
+
+## 参数
+
+- 默认参数值：在定义函数时对参数使用`=`赋予默认值，如果调用该函数时为传入参数的值则使用定义的默认值。
+- 可变参数：如果不确定该函数要传入的参数个数时，定义函数时在参数前面写上`*`；调用该函数时，**所有参数自动组成一个元组tuple**。
+- 关键字参数：也是可变参数，定义函数时在参数前面写上`**`；调用该函数时，**所有参数自动组成一个元组字典dict**。
 
 ```python
-def func(x=12)
-#其余设略...
-func()  #未传入x的值，x将默认取值12
+def func(x,y=12,*arg,**kw)
+    #略...
+    
+func(1)
+
+#编写一个程序时，执行语句部分思路还没有完成，这时你可以用pass语句来占位
+def Name():
+    pass
 ```
+
+## 迭代器
+
+- `item()`  `next()` 迭代(iterator)
+
+  ```python
+  list1=[1,2,3]
+  it = iter(list1)
+  print(next(it))  #1
+  print(next(it))  #2
+  print(next(it))  #3
+  ```
+
+- yield (` [jiːld]`)生成器(generator)
+
+  带有 yield 的函数是一个生成器，调用该函数时并不是执行函数，而是返回一个 可迭代(iterable) 对象。
+
+  
+
+  通常的for循环迭代时，**所有数据都在内存中**（如果有海量数据的话将会非常耗内存）；
+
+  而生成器每次迭代执行到yield语句时，函数就返回一个迭代值，下次迭代时，代码从 yield 语句的下一条语句继续执行。
+
+  ```python
+  def frange(start, stop, step):
+      x = start
+      while x < stop:
+          yield x
+          x += step
+  
+  
+  for i in frange(1, 3, 0.5):
+      print(i)
+  ```
+
+
+## lambda表达式
+
+lambda只是一个表达式，而def则是一个语句。
+
+lambda会创建一个函数对象，但不会把这个函数对象赋给一个标识符，而def则会把函数对象赋值给一个变量。
+
+lambda一般只用来定义简单的函数（一般是匿名函数）
+
+
+
+`lambda 参数:`
+
+```python
+def add(x,y): return x+y
+#改写
+lambda x,y:x+y
+
+list = [1,-1,0]
+print(sorted(list, key=lambda x: abs(x)))
+```
+
+
+## 闭包
+
+> 闭包（Closure）是词法闭包（Lexical Closure）的简称，是引用了自由变量的函数。
+
+```python
+# a*x+b=y
+def a_line(a, b):
+    # def arg_y(x):
+    #     return a*x+b
+    # return arg_y
+    return lambda x: a*x+b
+
+line1 = a_line(1, 2)  #a_line返回一个函数 这个函数中保存了a,b（1,2）
+print(line1(3))  #5
+print(line1(5))  #7
+```
+
+## 装饰器
+
+装饰器（Decorator）将被装饰的函数当作参数传递给与装饰器对应的函数（名称相同的函数），并返回包装后的被装饰的函数对象。
+装饰器是一种语法糖，其使用闭包原理实现。
+
+应用优点：
+
+- 扩展原有函数的功能时，不需要修改原来的代码。
+- 复用代码更为简洁。
+
+```python
+def decorator(func):  #与装饰器对应的函数
+    def add_sth(*args, **kwargs):
+        print('add a log for func')
+        func()  #传入的被装饰的函数
+    rturn add_sth
+
+@decorator  # 装饰器
+def fn():  # 被装饰的函数  fn
+    print('I am fn')
+```
+
+*将被装饰的函数fn前面加上`@decorator`后，fn就被函数decorator给装饰了，fn将被当作参数传给deorator函数，deorator函数将返回被装饰后的新函数，该新函数实际上取代了原来的fn。*
 
 # 类class
 
+## 封装
+
+类是抽象的模板，实例是根据类创建出来的具体的“对象”。
+
 ```python
-class Name():
-  #...
+class Player():
+    def __init__(self, name, hp):  #绑定实例化类对象的属性
+        self.name = name
+        self.hp = hp
+
+    def print_role(self):  #类的方法
+        print('%s:%s' % (self.name, self.hp))
+
+user1 = Player('neo', 100)  #实例化对象
+user1.print_role()  #调用类的方法
 ```
+
+`__init__`方法作用是在实例化对象时绑定对象的属性；`__init__`方法的第一个参数永远是`self`，表示创建的实例本身。
+
+class里面也能使用`pass`占位。
+
+### 访问限制
+
+在类中使用[私有变量](#变量)，确保了外部代码不能随意修改对象内部的状态，通过访问限制的保护，令代码更加健壮。
+
+欲访问内部私有变量，可以为其定义一个方法实现。
+
+```python
+class user():
+    def __init__(self, name, age):
+        self.__name = name
+        self.__age = age
+
+    def print_info(self):
+        print('%s:%s' % (self.__name, self.__age))
+
+    def set_age(self, age):
+        self.__age = age
+
+
+neo = user('Neo', '30')
+neo.print_info()  #Neo:30
+
+neo.age = 100
+neo.print_info()  #Neo:30
+
+neo.set_age(100)
+neo.print_info()  #Neo:100
+```
+
+## 继承
+
+```python
+class Human():
+    def __init__(self,hp=100):
+        self.hp=hp
+    def run(self):
+        print('hello,python')
+
+class AI(Human):  #继承Human类
+    def __init__(self, hp=200):
+        super().__init__(hp)
+        
+a=AI(500)
+print(a.hp)  #500
+a.run()  #hello,python
+```
+
+子类继承父类的属性和方法。
+
+`super()` 函数是用于调用父类(超类)的一个方法。
+
+- 定义子类时，将父类作为参数传给子类。
+
+- 子类可以新增和覆盖父类的方法。
+
+- 多重继承
+
+  如果继承多个父类，则依次将这些父类作为参数传入。
+
+  子类的多个父类中如果存在有同名方法，子类的实例调用该方法时，执行先被继承的父类的方法。
+
+  继承顺序采用了深度优先原则确定，参看[深度优先搜索算法](https://zh.wikipedia.org/wiki/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2)。
+
+  **应该慎重使用多重继承**，以避免过于复杂的继承关系。
+
+## 多态
+
+主要是为了解决**类型耦合**，从而实现代码的可扩展性。要实现多态，需要存在：
+
+- 继承
+- 重写
+- 父类引用指向子类对象
+
+> 实现多态的技术称为：动态绑定（dynamic binding），是指在执行期间判断所引用对象的实际类型，根据其实际的类型调用其相应的方法。
+
+但同时python是弱类型语言，实际上并不需要规避类型的耦合风险，所以大概可以认为python本身就是多态的。
+
+
+
+python动态绑定，无需专门定义重载。
+
+> 仅当两个函数除了**参数类型和参数个数不同**以外，**其功能是完全相同**的，此时才使用函数重载，如果两个函数的功能其实不同，那么不应当使用重载，而应当使用一个名字不同的函数。
+
+函数重载主要解决的问题：
+
+- 可变参数类型
+
+  python弱类型，无需重新定义函数以规定新类型的参数。
+
+- 可变参数个数
+
+  python有可变[参数](#参数)。
+
+# 异常处理
+
+如果不使用进行异常处理，发生异常后会打印错误信息并且中止程序。
+
+`try...except...finally`：
+
+1. `try`后面是可能会出错的代码；
+
+2. 如果`try`后面的代码出错就，则错误被捕获，跳至`except`处进行处理；
+
+   `except`语句后可以包含错误类型和参数两个值：`except [ExceptionType][, Argument]:`
+
+   多种错误要处理时添加多个`except`，被捕获的错误会跳到对应的错误类型的`except`语句处理。
+
+   也不带任何异常类型直接使用`except:`，它会捕获所有类型的异常。
+
+3. 如果有`finally`语句块，则执行`finally`语句块。
+
+```python
+try:
+    print(10 / 0)  #除数为0  对应ZeroDivisionError
+    print(10/a)  #a不存在 对应NameError
+except ZeroDivisionError as e:
+    print('zero:',e)
+except NameError as e:
+    print('not found:',e)
+finally:  #无论有无错误，finally都会执行
+    print('do it next time')
+```
+
+`raise`主动抛出错误：`raise [Exception [, args [, traceback]]]`
+
+```python
+n = 1.1
+if n % 1 != 0:
+    raise Exception('error')
+print(n+1)  #不被执行
+```
+
+也可以自定一个错误类型的class，代替`Exception`。
+
+## with
+
+with语句是一种异常处理语句`try...except...finally`的简写方法。
+
+```python
+def write_sth():
+    f = open("output.txt", "w")
+    try:
+        f.write("python之禅")
+    except IOError:
+        print("oops error")
+    finally:
+        f.close()
+```
+
+改为with语句：
+
+```python
+def write_sth():
+    with open("output.txt", "w") as f:
+        f.write("Python之禅")
+```
+
+离开 with 代码块时系统会自动调用 `f.close()` 方法关闭文件。
+
+> 任何实现了 *__enter__()* 和 *__exit__()* 方法的对象都可称之为上下文管理器，上下文管理器对象可以使用 with 关键字。
+
+自定一个类供class调用示例：
+
+```python
+class Test():
+    def __enter__(self,*args):
+        #code
+     def __exit__(self,*args):
+        #code
+  
+with Test():
+    #code
+```
+
+## 调试
+
+可用方法
+
+- `print()`把可能有问题的变量打印出来
+
+- 断言`assert`：`assert 表达式[,'调试信息']`
+
+  如果`assert`后面的表达式的值是False，就执行断言展示调试信息。
+
+  ```python
+  def foo(n):
+      n = int(n)
+      assert n != 0, 'n is zero!'  #由于n!=0为False，断言AssertionError: n is zero!
+      return 10 / n
+  foo(0)
+  ```
+
+  启动Python解释器时可以用`-O`参数来关闭`assert`。
+
+- 错误输出到文件：`logging`
+
+  ```python
+  import logging  #导入模块
+  logging.basicConfig(level=logging.INFO)  #指定记录信息的级别
+  ```
+
+  log级别：`debug`，`info`，`warning`，`error`。
+
+- pdb调试（以参数`-m pdb`启动）：`python -m pdb err.py`
 
 # 模块
 
-## 引用模块
+模块无需导出，直接导入python文件即可。
 
-`from 模块名 import 方法名`
+## 导入模块
 
-```python
-from random import randint  #随机整数
-	num=randint(1,10)
-	print(num)
-```
+模块名无需`.py`扩展名。
 
-`__future__`模块：引入那些在未来可能会成为标准的模块
+- 导入某个模块：`import 模块名`
+- 导入某个模块中的某个函数：`from 模块名 import 方法名`
+- 导入模块并为其定义别名：`import 模块名 as 别名`
+- 导入未来可能会成为标准的模块：`import __模块名__`
 
-```python
-import sys
-from math import sqrt
-from __future__ import division
-```
+## 常用标准库模块
 
+参看python文档的标准库部分。
 
+- os模块  主要用于操作系统相关命令，如UNIX/Linux进程管理，文件目录操作等
 
-# 正则
+  - 多进程：UNIX/Linux使用`os.fork()`，另有跨平台的multiprocessing模块。
+  - 多线程：threading模块
+  - 文件属性：`os.path`  `os.chown()`  `os.chmod()`等等 （参照Unix/Linux的各种命令行工具）
+  - 操作文件：`os.open()`  `os.read()`  `os.write()`  `os.close()`等
+- 执行shell命令：
+  - os模块：`os.system()`  `os.popen()` 
+  - command模块：`command.getstatusoutput()`
+  - subprocess模块：`subprocess.call()`
+- 正则表达式模块  re
+- json模块
+- 时间相关模块：time datetime
+- 数学库：math random statistics
 
-引用`re`模块后使用正则表达式。
+## 安装第三方模块
 
-常用方法：
-
-- 查找
-
-  - findall  返回所有匹配的字符串
-  - finditer 返回所有匹配的字符串
-  - search 只返回匹配的第一个的字符串
-  - match 从字符串起始位置开始匹配
-    - 匹配成功返回匹配的第一个的字符串
-    - 匹配失败返回None
-
-  以findall为例
-
-  ```python
-  re.findall(pattern,string,flags=0)
-  ```
-
-  pattern表示正则表达式，string表示原始字符串，flags表示特殊功能。
-
-- 替换
-
-  - sub
+可使用`pip`或`easy_install`等工具安装
