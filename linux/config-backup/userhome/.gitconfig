@@ -4,7 +4,7 @@
 [credential]
 	helper = store
 [core]
-	editor = nano -w
+	editor = nano
 	quotepath = false
 [color]
 	ui = true
@@ -17,5 +17,4 @@
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
-[cola]
-	spellcheck = false
+[alias]

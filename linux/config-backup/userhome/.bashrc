@@ -9,7 +9,6 @@
 innerip=`ip addr | grep -o -P '1[^2]?[0-9]?(\.[0-9]{1,3}){3}(?=\/)'`
 gateway=`ip route | grep 'via' |cut -d ' ' -f 3 |uniq`
 
-
 echo -e "\e[36mHello, \e[1m`whoami`\e[0m
 \e[1m`uname -srm`\e[0m
 \e[1;36m`date`\e[0m
@@ -35,10 +34,10 @@ bind Space:magic-space
 #export no_proxy=
 #export ftp_proxy=
 #export socket_proxy=
-#export http_proxy="http://127.0.0.1:8010"
-#export https_proxy="http://127.0.0.1:8010"
+#export http_proxy="http://127.0.0.1:8080"
+#export https_proxy="http://127.0.0.1:8080"
 
-alias proxyon="export http_proxy='http://127.0.0.1:8010';export https_proxy='http://127.0.0.1:8010'"
+alias proxyon="export http_proxy='http://127.0.0.1:8080';export https_proxy='http://127.0.0.1:8080'"
 alias proxyoff="unset https_proxy;unset https_proxy"
 
 # ******** alias ********
@@ -207,6 +206,8 @@ alias matrix='cmatrix'
 alias starwar='telnet towel.blinkenlights.nl'
 
 #=======
+# my scripts PATH
+[[ -d ~/Documents/scripts ]] && export PATH=~/Documents/scripts:$PATH
 
 #bash-powerline : https://github.com/riobard/bash-powerline
 [[ -f ~/.bash-powerline.sh ]] &&  source ~/.bash-powerline.sh

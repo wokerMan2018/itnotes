@@ -31,40 +31,70 @@
 
 ## 配置文件
 
-配置文件位于初始化时指定的目录下。注意修改相关配置后需要重启服务。
+配置文件位于初始化时指定的目录下的data文件夹中，常用的配置文件为：
 
-提示：initdb方式初始化时为指定`-A`参数，则会自动为本地连接启动 "trust" 认证。
+- `postgresql.conf`  主配置文件
 
-- 开启数据库服务器远程访问。
+  - 更改服务监听地址
 
-  修改`pg_hba.conf`配置文件`listen_addresses = 'localhost' `行的localhost为相应的监听地址，例如`*`为任意服务器。
+    安装完成后，postgres服务默认只允许本地访问。
 
-  > ```shell
-  > listen_addresses = '*'
-  > ```
+    示例，监听所有地址，修改：
 
-- 修改客户端登录验证
+    ```shell
+    listen_addresses = '*'
+    ```
 
-  postgreSQL默认只允许本机连接，认证方式为ident，编辑`/var/lib/pgsql/data/pg_hba.conf`相关行：
+- `pg_hba.conf`  数据库访问配置文件
 
-  > ```shell
-  > #TYPE  DATABASE        USER            ADDRESS                 METHOD
-  > host           all                      all             127.0.0.1/24              md5
-  > ```
+  修改客户端登录验证，postgreSQL默认只允许本机连接，认证方式为ident，修改：
+
+  ```shell
+  #TYPE  DATABASE        USER            ADDRESS                 METHOD
+  host           all                      all             127.0.0.1/24              md5
+  ```
+
+  *提示：initdb方式初始化时为指定`-A`参数，则会自动为本地连接启动 "trust" 认证。*
+
+  注意：**pg_hba.conf 文件的更改对当前连接不影响，仅影响更改配置之后的新的连接。**
+
+  修改后可使用`pg_ctl reload -D /var/lib/pgsql/` 重载数据库。
+
+  `DATABASE`/`USER`值为`all`时表示所有数据库/用户。
 
   METHOD取值：
 
-  - `trust`  信任 免密码直接登录
+  - `reject`  拒绝
 
-  - `md5`  密码认证
+  - `trust`  信任
 
-  - `ident`
+  - `md5`  双重MD5加密口令
 
-    > 客户端从一个ident服务器上获取一个用户名，作为连接服务器端数据库的用户的认证方式，也可能用到map映射。只支持TCP/IP。
+  - `ident`  服务器鉴别认证
 
-  - `peer`
+    通过联系客户端的 ident 服务器获取客户端的操作系统名，并且检查它是否匹配被请求的数据库用户名，只能在 TCIP/IP 连接上使用。
 
-    > 安装了PostgreSQL服务端的系统，通过getpeereid()函数获取连接客户端的用户名，然后通过map映射来进行客户认证的一种认证方式，要求只能用在客户端和服务端都安装在同一台电脑上时，客户端连接服务端的认证。
+    **当为本地连接指定该认证方式时，将用 `peer` 认证来替代。**
+
+  - `peer`  对等认证
+
+    从操作系统获得客户端的操作系统用户，并且检查它是否匹配被请求的数据库用户名，只对本地连接可用。
+
+  - `password`  未加密的口令
+
+    口令是以明文形式在网络上发送的，不要在不可信的网络上使用该方式。
+
+  - `gss`认证  只对TCP/IP 连接可用
+
+  - `sspi`认证  只在Windows 上可用。
+
+  - `ldap`服务器认证
+
+  - `radius`服务器认证
+
+  - `cert`即 SSL 客户端证书认证
+  - `pam`即操作系统提供的可插入认证模块服务（PAM）认证
+  - `bsd`操作系统提供的BSD 认证服务进行认证
 
 ## 创建管理角色和数据库实例
 
@@ -76,7 +106,9 @@ passwd postgres  #可以为postgres用户创建一个密码
 su -l postgres
 ```
 
-postgresql中的用户称为角色，默认会创建一个名为`postgres`的角色。
+postgresql中的用户称为角色，默认会创建一个名为`postgres`的角色，该角色无密码。
+
+为避免和系统＂用户＂混淆，以下均称数据库中的用户为角色。
 
 创建新角色：
 
@@ -90,6 +122,8 @@ createuser dbuser  #创建一个名为dbuser角色
 createdb -e -O dbuser dbname  #创建一个名为dbname的数据库实例，并将其归属于dbuser
 ```
 
+*当然也可以在psql中使用SQL语句创建用户。*
+
 # psql命令
 
 psql是postgreSQL的数据库管理命令，可以直接在系统shell下执行psql命令，也可以先执行`psql`进入其交互式命令行环境执行相关命令。
@@ -98,13 +132,13 @@ psql是postgreSQL的数据库管理命令，可以直接在系统shell下执行p
 
 ## 角色和数据库常用命令
 
-- 重置postgres用户密码：
+- 重置当前登录角色的密码：
 
   ```shell
   \password
   ```
 
-- 为新角色修改密码，先使用`psql`命令连接到PostgreSQL数据库。
+- 修改指定角色的密码
 
   ```shell
   \password dbuser

@@ -1,3 +1,12 @@
+"tab缩进
+set tabstop=2
+"格式化时制表符占用空格数
+set shiftwidth=2
+"将制表符扩展为空格
+set expandtab
+"智能tab
+set smarttab
+
 "自动缩进
 set autoindent
 "智能缩进
@@ -6,20 +15,6 @@ set smartindent
 set cindent
 "根据类型格式缩进
 filetype indent on
-
-"按下一次tab键输入的tab数量
-set softtabstop=2
-"一个tab所占的列数 ts
-set tabstop=2
-"换行时的自动缩进列数 sw
-set shiftwidth=2
-"将tab制表符扩展为空格
-set expandtab
-"智能tab
-set smarttab
-
-"单词拼写检查
-"set spell
 
 "语法高亮 syntax highlight
 syntax on
@@ -60,7 +55,7 @@ set autoread
 "禁止生成临时文件
 set nobackup
 "允许鼠标操作
-set mouse=a
+"set mouse=a
 
 "魔术 (设置元字符要加反斜杠进行转义)
 "magic(\m模式)除了 $ . * ^ 之外其他元字符都要加反斜杠
@@ -84,7 +79,7 @@ set scrolloff=3
 set incsearch
 "高亮查找的匹配结果
 set hlsearch
-"搜索时忽略大小写 但在有一个或以上大写字母时仍保持对大小写敏感 或set ic!
+"搜索时忽略大小写 但在有一个或以上大写字母时仍保持对大小写敏感
 set ignorecase smartcase
 set gdefault
 

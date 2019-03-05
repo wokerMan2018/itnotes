@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 log=./proxy.log
 if [[ ! -e $log ]]
 then
