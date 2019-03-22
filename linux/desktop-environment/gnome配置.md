@@ -161,7 +161,7 @@ gnome3.24开始，在设置中带有该功能开关，夜光（night-light）默
 ## 修改networkmanager网络热点（AP)密码
 
 1. 在网络设置中开启热点，会随机生成一串密码。
-2. 修改`etc/NetworkManager/system-connections/ap`文件中`psk=`后面的内容为想要修改的新密码。
+2. 修改`etc/NetworkManager/system-connections/Hotspot.nmconnection`文件中`psk=`后面的内容为想要修改的新密码。
 3. 重启networkmanager，再开启热点，修改的密码就会生效。
 
 ## 其他gnome相关软件

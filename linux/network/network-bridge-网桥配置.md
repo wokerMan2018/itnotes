@@ -58,7 +58,7 @@
   1. 创建网桥
 
      ```shell
-     ip link add name br0 type bridge
+     ip link add name br0 type bridge  #br0是网桥名
      ```
 
   2. 启动网桥

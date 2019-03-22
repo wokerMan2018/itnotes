@@ -61,7 +61,7 @@ cd $dest/etc
   systemctl enable openlava
   ```
 
-- 主配置文件
+- 集群主配置文件
 
   修改文件`lsf.cluster.openlava`（openlava字样可改为集群名字），部分内容如下：
 
@@ -73,11 +73,15 @@ cd $dest/etc
   Begin   Host  #主机列表
   HOSTNAME    model    type  server  r1m  RESOURCES
   #yourhost IntelI5    linux   1      3.5    (cs)
-  #node1       !       linux   1      3.5    (cs)
-  master       !      linux    1      3.5    (cs) 
+  master       !      !    1      !    !
   c01          !      linux    1      3.5    (cs)
   End     Host
   ```
+
+  `!`表示使用默认，默认值可以在`lsf.shared`文件中设置，安装后`lsf.shared`中定义的集群名字为openlava，其默认值也仅针对配置文件名为`lsf.cluster.openlava`生效，具体查看lsf.shared文件。
+
+  - lsf.shared  设置集群配置文件默认值。
+  - lsf.conf  主配置文件，设置openlava环境变量、监听端口等。
 
   主机列表中，第一行被认为是管理节点，其后一一添加其他节点。
 

@@ -242,6 +242,8 @@ pacstrap -i /mnt base base-devel
 
 ```shell
 genfstab -U /mnt > /mnt/etc/fstab
+#swap file
+echo '/home/swap none swap defaults 0 0'  >> /mnt/etc/fstab
 cat /mnt/etc/fstab    # 查看生成的 /mnt/etc/fstab
 ```
 ## 进入系统
@@ -829,4 +831,4 @@ wayland不会读取.xprofile和xinitrc等xorg的环境变量配置文件，故�
 
 # 常用软件
 
-参考看：[archwiki:软件列表](https://wiki.archlinux.org/index.php/List_of_applications_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))、[awesome linux softwares](https://github.com/LewisVo/Awesome-Linux-Software)、[我的软件列表](../我的软件列表.md)、[gnome配置](../gnome配置.md)……
+###### 参考看：[archwiki:软件列表](https://wiki.archlinux.org/index.php/List_of_applications_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))、[awesome linux softwares](https://github.com/LewisVo/Awesome-Linux-Software)、[我的软件列表](../我的软件列表.md)、[gnome配置](../gnome配置.md)……

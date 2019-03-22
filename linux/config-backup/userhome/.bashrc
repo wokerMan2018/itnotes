@@ -26,6 +26,7 @@ echo -e "\e[36mHello, \e[1m`whoami`\e[0m
 ### bash settings ###
 HISTTIMEFORMAT='%F %T '
 HISTSIZE="5000"
+# input !^ then press space-button
 bind Space:magic-space
 
 #******** PATH ********
@@ -205,10 +206,12 @@ alias matrix='cmatrix'
 #starwar
 alias starwar='telnet towel.blinkenlights.nl'
 
+#ssl key log
+SSLKEYLOGFILE=$PWD/ssl.log
 #=======
 # my scripts PATH
 [[ -d ~/Documents/scripts ]] && export PATH=~/Documents/scripts:$PATH
 
 #bash-powerline : https://github.com/riobard/bash-powerline
 [[ -f ~/.bash-powerline.sh ]] &&  source ~/.bash-powerline.sh
-[[ -f /etc/profile.d/autojump.sh ]] &&  source /etc/profile.d/autojump.sh
+[[ -f /etc/profile.d/autojump.bash ]] &&  source /etc/profile.d/autojump.bash

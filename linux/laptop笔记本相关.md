@@ -216,27 +216,25 @@ max_freq="2.5GHz"    #最大频率
 
 如果桌面环境无休眠相关选项，可参考以下方法手动配置。
 
-1.  合适大小的swap分区
+1. 合适大小的swap
 
-   休眠（hibernate）需要将内存中的内容写入磁盘的swap分区，如果swap分区大小比当前休眠所需空间小，则无法保证能够正确地休眠。具体的swap的大小根据个人使用情况（要休眠时的内存占用）而定。
+   休眠（hibernate）需要将内存中的内容写入磁盘的swap，如果swap大小比当前休眠所需空间小，则无法保证能够正确地休眠。具体的swap的大小根据个人使用情况（要休眠时的内存占用）而定。
 
-   注意：brtfs无法设置swap分区；这里的swap是swap分区，而不是swap file。
+2. 在bootloader 中增加resume内核参数
 
-2.  在bootloader 中增加resume内核参数
+   假如使用swap文件为/home/swap，需要编辑[/etc/default/grub](config/etc/default/grub) 文件，在`GRUB_CMDLINE_LINUX_DEFAULT`中添加`resume=/home/swap`，让系统在启动时读取swap分区中的内容。（如果使用swap分区，则resume对应的为swap的盘符，例如/dev/sdc）
 
-   需要添加`resume=/dev/sdxY` (sdxY 是 swap分区的名字) ，让系统在启动时读取swap分区中的内容。
-
-   例如，使用了grub2作为bootloader，swap的分区是/dev/sda3，编辑[/etc/default/grub](config/etc/default/grub) 文件，在`GRUB_CMDLINE_LINUX_DEFAULT`中添加`resume=/dev/sda3` ，假如该行的原有内容是：
+   例如该行的原有内容是：
 
    > GRUB_CMDLINE_LINUX_DEFAULT=”quiet intel_pstate=enable”
 
    添加resume参数后就是：
 
-   > GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_pstate=enable resume=/dev/sda3"
+   > GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_pstate=enable resume=/home/swap"
 
    然后更新 grub 配置 `grub-mkconfig -o /boot/grub/grub.cfg`
 
-3.  配置 initramfs的resume钩子
+3. 配置 initramfs的resume钩子
 
    编辑[/etc/mkinitcpio.conf](config/etc/mkinitcpio.conf)，在`HOOKS`行中添加`resume`钩子，例如该行原有内容是：
 
@@ -266,6 +264,29 @@ nvidia建议使用官方驱动，amd建议使用开源mesa（无需额外配置�
 
     默认情况下使用bbswitch关闭独显，需要使用独显时，使用`optirun %command`来运行程序。
 
+    ```shell
+    sudo pacman -S bumblebee bbswitch --noconfirm
+    sudo usermod -aG bumblebee ${whoami}
+    echo '
+    [Unit]
+    Description=Enable NVIDIA card
+    DefaultDependencies=no
+    
+    [Service]
+    Type=oneshot
+    ExecStart=/bin/sh -c 'echo ON > /proc/acpi/bbswitch'
+    
+    [Install]
+    WantedBy=shutdown.target
+    ' > /etc/systemd/system/nvidia-enable.service
+    
+    sudo systemctl enable bumblebeed nvidia-enable
+    
+    echo "reboot your system , use command lspci|grep Nvidia for checking"
+    ```
+
+    
+
   - ###### [nvidia-xrun](https://github.com/Witko/nvidia-xrun)
 
 ### 禁用独显
@@ -283,7 +304,7 @@ nvidia建议使用官方驱动，amd建议使用开源mesa（无需额外配置�
   echo 'bbswitch load_state=0 unload_state=1' > /etc/modprobe.d/bbswitch.conf
   #开机自动加载bbswitch模块
   echo 'bbswitch ' > /etc/modules-load.d/bbswitch.conf
-
+  
   modprobe -r nvidia nvidia_modeset nouveau #卸载相关模块
   sudo mkinitcpio -p linux  #重新生成initramfs--系统引导时的初始文件系统
   ```
@@ -294,21 +315,3 @@ nvidia建议使用官方驱动，amd建议使用开源mesa（无需额外配置�
   sudo tee /proc/acpi/bbswitch <<<OFF  #关闭独立显卡
   sudo tee /proc/acpi/bbswitch <<<ON  #开启独立显卡
   ```
-
-- 屏蔽相关模块
-
-  将独立显卡相关模块进行屏蔽，示例屏蔽NVIDIA驱动相关模块。
-
-  ```shell
-  echo nouveau > /tmp/nvidia    #开源的nouveau
-  lsmod | grep nvidia | grep -E '^nvidia'|cut -d ' ' -f 1 >> /tmp/nvidia    #闭源的nvidia
-  sed -i 's/^\w*$/blacklist &/g' /tmp/nvidia  #添加到blacklist
-  sudo cp /tmp/nvidia /etc/modprobe.d/nvidia-blacklist.conf
-
-  modprobe -r nvidia nvidia_modeset nouveau #卸载相关模块
-  sudo mkinitcpio -p linux  #重新生成initramfs--系统引导时的初始文件系统
-  ```
-
-  重启后检查NVIDIA开启情况：`lspci |grep NVIDIA`，如果输出内容后面的括号中出现了` (rev ff)` 字样则表示该显卡已关闭。
-
-  注意：如果某些依赖nvidia的模块启用时，也会载入nvidia模块，即使nvidia模块已经加入黑名单。

@@ -132,25 +132,6 @@
 
 ### 特殊符号和特殊参数
 
-设置magic-space 让历史记录表达式和参数符号立即显出原形
-
-在bash配置文件中（如~/.bashrc）添加：
-
-```shell
-bind Space:magic-space
-```
-
-在键入下文的特殊符号或特殊参数后按下空格<kbd>Space</kbd>，即可显示该符号或参数所代表的实际内容。例如
-
-```shell
-ls .bashrc
-stat !:^  #在^后按下空格 该行就变成了 stat .bashrc
-```
-
-在第二条命令输入完特殊参数`!:^`后按下空格，该特殊参数就被替换显示成了实际对应的内容——`.bashrc`。
-
----
-
 - `!!`  执行上一次命令
 
 - `!<n>`  执行历史中第n条命令
@@ -173,7 +154,7 @@ stat !:^  #在^后按下空格 该行就变成了 stat .bashrc
   !ss  #相当于执行第511条ssh root@localhost命令
   ```
 
-### 特殊参数
+
 
 上一条命令中的参数（以空格隔开的字段）
 
@@ -197,3 +178,32 @@ stat !:^  #在^后按下空格 该行就变成了 stat .bashrc
   ls .bashrc .vimrc
   stat !$  #等于执行 stat .vimrc
   ```
+
+---
+
+设置magic-space 让历史记录表达式和参数符号立即显出原形
+
+在bash配置文件中（如~/.bashrc）添加：
+
+```shell
+bind Space:magic-space
+```
+
+在键入下文的特殊符号或特殊参数后按下空格<kbd>Space</kbd>，即可显示该符号或参数所代表的实际内容。例如
+
+```shell
+ls .bashrc
+stat !:^  #在^后按下空格 该行就变成了 stat .bashrc
+```
+
+在第二条命令输入完特殊参数`!:^`后按下空格，该特殊参数就被替换显示成了实际对应的内容——`.bashrc`。
+
+---
+
+`^`纠正上一条命令中的拼写错误并再次执行上一条命令
+
+```shell
+systemtl status NetworkManager
+^tl^ctl  #将上一条命令中的tl改成ctl再执行一次
+```
+

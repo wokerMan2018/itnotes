@@ -126,12 +126,26 @@ print("%s,I use python %d,version is %f" %(str,ver1,ver2))
 
 #### 操作字符串
 
-- 拼接：加号`+`拼接两个字符串
+- 拼接
+
+  - 加号`+`
+
+    字符符串和数字拼接时需要使用`str()`方法转换数字为字符串。
+
+  - 占位
+
+    - format方法，使用`{}`占位：`字符串{}.format(变量)`
+    - `%`开头的占位符号，常用：``%s` 格式化字符串，`%d`  格式化整数，`%f`  格式化浮点数。
+
+  - f-string（**python3.6及以上版本支持**）：`f'字符串{变量/表达式/函数}'`
 
   ```python
   a='hello-'
   b='-python'
-  c=a+b  #c值为'hello--python'
+  print(a+b)  #hello--python
+  print("hello%s" %(b))  #hello--python
+  print('{}{}!!!'.format(a,b))  #'hello--python!!!
+  print(f'{a}{b}!!!')  #hello--pyton!!!
   ```
 
 - 重复：星号`*`重复字符串  ——`str*N`
@@ -183,15 +197,6 @@ print("%s,I use python %d,version is %f" %(str,ver1,ver2))
 - `in`和`not in` ：见前文[成员运算符](#成员运算符)
 
 - `r`或`R` ：原始字符串（即不转义） `print(r'\nabc\nabc')`结果是`\nabc\nabc`
-
-- `%`： 格式字符串
-
-  常用的有
-
-  - `%s`格式化字符串
-  - `%d`格式化整数
-  - `%f`格式化浮点数
-
 
 #### 转义字符
 
@@ -372,14 +377,17 @@ isinstance(a,int)    #True
   > 列表推导式（又称列表解析式）提供了一种简明扼要的方法来创建列表。
   > 它的结构是在一个中括号里包含一个表达式，然后是一个`for`语句，然后是0个或多个`for`或者`if`语句。
   >
-  > [item for item in list if condition]
+  > [item_exp_result for item in list if condition]
+
+  前面的item_exp_result是列表生成元素表达式，可以是有返回值的函数。
 
   ```python
-  nums1 = [i for i in range(10) if i%2==0]
-  #或 nums = [i for i in range(10) if i%2 is 0]
-  nums2 = [i**2 for i in range(10) if i%2==0]
+  nums1 = [i for i in range(10) if i%2==0] #nums = [i for i in range(10) if i%2 is 0]
   print(nums1)  #[0, 2, 4, 6, 8]
+  nums2 = [i**2 for i in range(10) if i%2==0]
   print(nums2)  #[0, 4, 16, 36, 64]
+  strs=["say"+str(i) for i in range(2)]
+  print(strs)  #['say0','say1','say2']
   ```
 
 - 字典(`dict`)推导式
@@ -554,6 +562,14 @@ test(a)  ##test函数调用
   print(reduce(lambda x, y: x + y, [2, 3, 4], 0))  #9 #将[2,3,4]按照lambda进行运算，0+2+3+4
   ```
 
+- `enumerate()`  将一个可遍历的数据对象(如列表、元组或字符串)组合为一个索引序列，同时列出数据和数据下标，一般用在 for 循环当中。`enumerate(sequence, [start=0])`  start是下标起始位置。
+
+  ```python
+  list1=['aaa','bbb','ccc']
+  for i,v in enumerate(list1):
+      print(i,v)
+  ```
+
 - `zip()` 将可迭代的对象作为参数，将对象中对应的元素打包成一个个元组，然后返回由这些元组组成的列表。
 
   ```python
@@ -623,8 +639,6 @@ lambda只是一个表达式，而def则是一个语句。
 lambda会创建一个函数对象，但不会把这个函数对象赋给一个标识符，而def则会把函数对象赋值给一个变量。
 
 lambda一般只用来定义简单的函数（一般是匿名函数）
-
-
 
 `lambda 参数:`
 
@@ -921,6 +935,8 @@ with Test():
 - 导入某个模块中的某个函数：`from 模块名 import 方法名`
 - 导入模块并为其定义别名：`import 模块名 as 别名`
 - 导入未来可能会成为标准的模块：`import __模块名__`
+
+可以使用逗号分隔多个导入的模块：`import 模块1,模块2`
 
 ## 常用标准库模块
 

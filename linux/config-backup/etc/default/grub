@@ -38,7 +38,7 @@ export GRUB_COLOR_NORMAL="light-blue/black"
 export GRUB_COLOR_HIGHLIGHT="light-cyan/cyan"
 
 # Uncomment one of them for the gfx desired, a image background or a gfxtheme
-GRUB_BACKGROUND="/home/levin/Pictures/bing/ChamonixClouds_ZH-CN7700889231_1920x1080.jpg"
+#GRUB_BACKGROUND=""
 GRUB_THEME="/boot/grub/themes/Vimix/theme.txt"
 
 # Uncomment to get a beep at GRUB start
