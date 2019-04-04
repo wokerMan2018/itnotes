@@ -13,79 +13,122 @@ NIS（ NetworkInformation Service）提供了一个网络黄页（Yellow Pages�
 
 # 服务端
 
-## 安装
+*以centos为例*。
+
+## 安装和启用服务
 
 安装 `ypserv` `rpcbind`
 
-启用`ypserv` `yppasswdd`并设置开机自启动。
+启用`ypserv` `yppasswdd`并设置自启动。
 
 NIS 服务器同时也当成客户端，参看后文[客户端](#客户端)。
 
-## 配置
+## 配置服务端
 
-可以直接运行` authconfig-tui`（需要`python`）或` authconfig-gtk`（需要安装gtk相关的图形界面工具）进行下列各项的配置。
+可以先使用`nisdomainname domain-name`（domain-name为要设置为dade域名）以设置临时nis域名，再运行`setup`或` authconfig-tui`（需要python）或` authconfig-gtk`（需要安装gtk相关的图形界面工具）完成下列各项设置。或者根据情况依次进行以下配置：
 
-### nis网域设定/etc/sysconfig/network
+- nis网域设定/etc/sysconfig/network
 
-编辑`/etc/sysconfig/network`，添加网域名称和端口，示例：
+  编辑`/etc/sysconfig/network`，添加网域名称和端口，示例：
 
-```shell
-NETWORKING=yes
-HOSTNAME=master
-NISDOMAIN=cluster
-#YPSERV_ARGS="-p 1011" #可选 指定运行端口
-```
+  ```shell
+  NETWORKING=yes
+  HOSTNAME=master
+  NISDOMAIN=cluster
+  #YPSERV_ARGS="-p 1011" #可选 指定运行端口
+  ```
 
-###  主配置文件/etc/ypserv.conf
+- 主配置文件/etc/ypserv.conf
 
-**可选**。如需配置允许/禁止访问NIS服务器的网域，编辑`etc/ypserv.conf`，添加类似：
+  **可选**。如需配置允许/禁止访问NIS服务器的网域，编辑`etc/ypserv.conf`，添加类似：
 
-```shell
-127.0.0.0/255.255.255.0     : * : * : none
-192.168.100.0/255.255.255.0 : * : * : none
-* : * : * : deny
-```
+  ```shell
+  127.0.0.0/255.255.255.0     : * : * : none
+  192.168.100.0/255.255.255.0 : * : * : none
+  #* : * : * : deny
+  ```
 
-### 主机名解析/etc/hosts
+- 主机名解析/etc/hosts
 
-**可选**，如需配置服务器ip对应的域名方便访问，添加类似：
+  **可选**，配置服务器ip对应的域名解析，添加类似：
 
-```shell
-192.168.100.101  master.cluster
-```
+  ```shell
+  192.168.100.101  master
+  192.168.100.102 client1
+  ```
 
-### nis客户端密码修改功能
+- nis客户端密码修改功能
 
-**可选**，该配置启用可启用NIS 用户端的密码修改功能。
+  **可选**，该配置启用可启用NIS 用户端的密码修改功能。
 
-centos的配置在`/etc/sysconfig/yppasswdd `，编辑该文件，修改配置，添加yppasswd的启用端口：
+  centos的配置在`/etc/sysconfig/yppasswdd `，编辑该文件，修改配置，添加yppasswd的启用端口：
 
-```shell
-YPPASSWDD_ARGS="--port 1012"
-```
+  ```shell
+  YPPASSWDD_ARGS="--port 1012"
+  ```
 
-## 建立用户帐号资料库
+## 建立帐号资料库
 
-示例
+- nis主服务器（master），执行` /usr/lib64/yp/ypinit -m`；如果有nis后备服务器（slave服务器），则其执行`/usr/lib64/yp/ypinit -s`。
 
-1. 创建用户：`useradd -u 1001 user1;passwd user1`
+  1. 出现`next host to add:`其自动填入当前nis服务器主机名，如需添加其他nis服务器，添加其主机名到下一个`next host to add:`后即可。按下`ctrl`-`d`即可进入下一步配置。
+  2. `is this correct?`询问时，检查信息，如果无误，按下`y`生成用户信息资料库。
 
-2. 生成运行用户信息：
+  账号相关档案会被转成数据库档案存放到`/var/yp/`目录下与nisdomain同名的目录中。
 
-   - 如果是新安装的nis服务，首次需要执行` /usr/lib64/yp/ypinit -m`生成用户账户资料库：
+- 更新用户资料库信息
 
-     1. 出现`next host to add:`其自动填入当前nis服务器主机名，如需添加其他nis服务器，添加其主机名到下一个`next host to add:`后即可。按下`ctrl`-`d`即可进入下一步配置。
-     2. `is this correct?`询问时，检查信息，如果无误，按下`y`生成住户资料库。
+  ```shell
+  make -C /var/yp
+  ```
 
-   - 更新用户资料库信息
+  **在新增账户后，需要执行以上命令更新信息。**
 
-     ```shell
-     make -C /var/yp
-     ```
+重启`ypserv`服务
 
-3. 重启`ypserv`服务
+## 后备服务器(slave)配置
 
-## 测试
+slave服务器作为主nis服务器(master)的后备，在主服务器无法提供服务时代替其工作。
+
+- 主服务器端
+
+  - 配置`/var/yp/Makefile`：
+
+    ```shell
+    NOPUSH=false
+    ```
+
+  - 配置`/var/yp/ypservers`：
+
+    ```shell
+    master-node  #主服务器的主机名或地址
+    slave-node     #备用服务器的主机名或地址
+    ```
+
+  - 启动`ypxfrd`服务并设为自启动
+
+    *备用服务器主动链接上主服务器的`ypxfrd`来更新帐号资料库。*
+
+    
+
+  此外如果主服务器要直接将某些特定数据库传给指定备用服务器：
+
+  ```shell
+  yppush -h <slave-node>  passwd.*
+  ```
+
+- 备用服务器端
+
+  按照前面所述步骤配置，在[建立帐号资料库](#建立帐号资料库)一步时，执行`/usr/lib64/yp/ypinit -s master-node`（master-node为主服务器主机名或地址。
+
+  可执行以下命令手动从主服务器取得账户资料库：
+
+  ```shell
+  /usr/lib64/yp/ypxfr -h master-node passwd.byname  #master-node为服务器
+  /usr/lib64/yp/ypxfr -h master-node passwd.byuid
+  ```
+
+## 测试服务器
 
 查看启用情况：
 
@@ -99,55 +142,65 @@ rpcinfo -u localhost ypserv  #2
 > program 100004 version 1 ready and waiting
 > program 100004 version 2 ready and waiting
 
+备用服务器（slave）可以执行以下命令检查从主服务器（master）同步的账户信息情况。
+
+```shell
+ ypcat -h localhost passwd.byname
+```
+
 # 客户端
 
-## 安装
+## 安装和启用服务
 
 安装`ypbind` `yp-tools`
 
 启用`rpcbind`和`ypbind`服务并设置开机自启动。
 
-## 配置
+## 配置客户端
 
-可以直接运行` authconfig-tui`（需要`python`）或` authconfig-gtk`（需要安装gtk相关的图形界面工具）进行下列各项的配置。
+可以直接运行`setup`或` authconfig-tui`（需要`python`）或` authconfig-gtk`（需要安装gtk相关的图形界面工具）完成下列各项的配置。或者根据情况依次进行以下配置：
 
-### nis网域设置
+- nis网域设置
 
-编辑`/etc/sysconfig/network`，添加：
+  编辑`/etc/sysconfig/network`，添加：
 
-```shell
-NISDOMAIN=cluster
-```
+  ```shell
+  NISDOMAIN=cluster  #cluster换成具体的域名
+  ```
 
-### 主配置文件/etc/yp.conf
+- 主配置文件/etc/yp.conf
 
-编辑`/etc/yp.conf`，添加类似：
+  编辑`/etc/yp.conf`，添加类似：
 
-```shell
-domain domainname server 192.168.10.1  #domainname换成实际的域名
-```
+  ```shell
+  domain domain-name server 192.168.10.1  #domainname换成实际的域名
+  ```
 
-### 服务搜索顺序/etc/nsswitch.conf 
+- 服务搜索顺序/etc/nsswitch.conf 
 
-`/etc/nsswitch.conf`用于管理系统中多个配置文件查找的顺序，系统将按照配置中的顺序去查找用户信息文件。
+  `/etc/nsswitch.conf`用于管理系统中多个配置文件查找的顺序。编辑该文件，在`passwd`、`shadow`和`group`添加`nis`（或`nisplus`），类似：
 
-编辑该文件，在`passwd`、`shadow`和`group`添加`nis`（或`nisplus`），类似：
+  ```shell
+  passwd:  files nis
+  shadow:  files nis
+  group:  files nis
+  ```
 
-```shell
-passwd:  files nis
-shadow:  files nis
-group:  files nis
-```
+- 系统认证/etc/sysconfig/authconfig
 
-### 系统认证/etc/sysconfig/authconfig
+  编辑` /etc/sysconfig/authconfig`， 修改`USENIS`的值为`yes` 。
 
-编辑` /etc/sysconfig/authconfig`， 修改`USENIS`的值为`yes` 。
+- 如有需要，在hosts中添加相关解析。
 
-### 测试
+## 测试客户端
 
 重启`rpcbind`和`ypbind`服务并设置开机自启动。
 
-- 使用检测工具，如`yptest` `ypwhich` `ypcat` 。
+- 使用检测工具
+
+  - `yptest`  测试 server 端和 client 端能否正常通讯
+  - `ypwhich`   查看资料库映射数据
+  - `ypcat`  读取数据库内容 
 
   测试示例：
 
@@ -155,6 +208,7 @@ group:  files nis
   yptest  #显示各项服务启用状况及同步自服务端的用户信息
   ypwhich  #显示服务器主机名
   ypwhich -x  #显示所有服务端与客户端连线共用的资料库
+  ypcat -k passwd  #显示所有所有同步的用户密码信息
   ypcat hosts.byname  #查看服务端与客户端共用的hosts资料库内容
   ```
 

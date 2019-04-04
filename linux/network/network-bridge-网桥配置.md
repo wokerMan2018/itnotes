@@ -13,28 +13,23 @@
 - 创建流程：
 
   1. 创建网桥
-
-     ```shell
-     brctl addbr br0
-     ```
-
   2. 添加一个设备到网桥
-
-     ```shell
-     brctl addif br0 eth0
-     ```
-
   3. 启动网桥
-
-     ```shell
-     ip link set up dev br0
-     ```
-
   4. 分配ip地址
 
-     ```shell
-     ip addr add dev br0 192.168.10.100/24
-     ```
+  ```shell
+  bridge=br0
+  interface=eno1
+  addr=192.168.10.100/24
+  #1. create bridge
+  brctl addbr $bridge
+  #2. add interface to bridge
+  brctl addif $bridge $interface
+  #3. start bridge
+  ip link set up dev $bridge
+  #assign address
+  ip addr add dev $bridge $addr
+  ```
 
 - 其他常用命令
 
@@ -53,45 +48,49 @@
 
 需要安装`iproute2`。
 
-- 创建流程：
+- 创建网桥
 
-  1. 创建网桥
+  1. 创建一个网桥并启用
+  2. 添加一个设备到网桥
+  3. 分配ip地址
 
-     ```shell
-     ip link add name br0 type bridge  #br0是网桥名
-     ```
+  ```shell
+  bridge=br0
+  interface=eno1
+  addr=10.10.10.251/24
+  
+  #1 create a bridge and start it
+  sudo ip link add name $bridge type bridge
+  sudo ip link set up dev $bridge
+  
+  #2 add interface device to bridge
+  sudo ip link set dev $interface promisc on
+  sudo ip link set dev $interface up
+  sudo ip link set dev $interface master $bridge
+  
+  #3 assign address
+  sudo ip addr add dev $bridge $addr
+  ip a
+  ```
 
-  2. 启动网桥
+- 显示当前已存在的网桥 `bridge link show`  （ bridge 工具包含在iproute2中）
 
-     ```shell
-     ip link set up dev br0
-     ```
+- 删除网桥
 
-  3. 添加一个设备到网桥
+  1. 关闭网口混杂模式
+  2. 恢复创建了网桥的网口设置
+  3. 删除网桥
 
-     ```shell
-     ip link set dev eth0 promisc on  #将该端口设置为混杂模式
-     ip link set dev eth0 up  #启动该端口
-     ip link set dev eth0 master br0  #将该端口添加到网桥中
-     ```
-
-  4. 分配ip地址
-
-     ```shell
-     ip addr add dev br0 192.168.10.100/24
-     ```
-
-- 其他命令
-
-  - 显示当前已存在的网桥 `bridge link show`  （ bridge 工具包含在iproute2中）
-
-  - 删除网桥
-
-    ```shell
-    ip link set eth0 promisc off  #关闭端口混杂模式
-    ip link set eth0 down  #关闭端口
-    ip link set dev eth0 nomaster  #恢复该端口设置（创建是设置了master）
-    ip link delete br0 type bridge  #删除网桥br0
-    ```
+  ```shell
+  #!/bin/sh
+  bridge=br0
+  interface=eno1
+  addr=10.10.10.251/24
+  
+  sudo ip link set $interface promisc off
+  sudo ip link set $interface down
+  sudo ip link set dev $interface nomaster
+  sudo ip link delete $bridge type bridge
+  ```
 
 注意：创建的网桥在重启系统后就不存在了，可以但创建网桥的命令写成脚本放到/etc/profile.d下令其在系统启动后自动创建。
