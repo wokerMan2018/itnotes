@@ -36,7 +36,7 @@ lsmod | grep kvm    #出现kvm kvm_intel(或kvm_amd)
 lsmod | grep virtio  #出现 virtio
 ```
 
-临时加载：
+如果没有加载以上模块可使用以下命令临时加载：
 
 ```shell
 modprobe virtio kvm kvm_intel
@@ -45,7 +45,7 @@ modprobe virtio kvm kvm_intel
 总是加载：
 
 ```shell
-echo "options kvm_intel nested=1" > /etc/modprobe.d/modprobe.d/kvm.conf
+echo "options kvm_intel nested=1" > /etc/modprobe.d/kvm.conf
 ```
 
 # QEMU+KVM方案

@@ -16,7 +16,7 @@ modprobe ipmi_si
 加载后即可使用ipmitool命令，例如获取硬件信息
 
 ```shell
-ipmi sdr
+ipmitool sdr
 ```
 
 # IMPI远程管理配置

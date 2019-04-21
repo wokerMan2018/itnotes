@@ -157,6 +157,8 @@
 
 # 文件管理
 
+- udftools   UDF 文件系统和DVD/CD-R(W)驱动
+
 ## 打包、压缩和解压
 
 - 后端 p7zip  unrar  unzip
@@ -398,8 +400,18 @@
 # 系统配置
 
 - 系统盘制作
+  
+  对于支持UEFI启动的设备，直接复制iso镜像中的所有文件到安装介质（如U盘）中即可启动。
+  
   - dd    `dd if=/path/system-image.iso of=/dev/sdb bs=10M`
+  
   - multibootusb    在一个U盘安装多个系统的工具
+  
+  - woeusb  制作windows启动盘
+  
+    ```shell
+    sudo woeusb --device /path/to/filename.iso /dev/sdx --target-filesystem NTFS
+    ```
 
 
 - man-pages-zh_cn和man-pages-zh_tw  [中文man手册](https://github.com/man-pages-zh/manpages-zh)

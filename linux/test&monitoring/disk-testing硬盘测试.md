@@ -1,39 +1,58 @@
-> [iozone](http://iozone.org)是是一个文件系统的benchmark工具，可以测试不同的操作系统中文件系统的读写性能。
+# dd
+
+```shell
+disk=/dev/sdy
+of=test
+bs=1M
+count=20480
+time dd if=$disk of=$of bs=$bs count=$count
+```
+
+
+
+# iozone
+
+> IOZONE主要用来测试操作系统文件系统性能的测试工具。使用iozone可以在多线程、多cpu，并指定cpu cache空间大小以及同步或异步I/O读写模式的情况下进行测试文件操作性能。
 
 iozone可测试项包括：Read, write, re-read,re-write, read backwards, read strided, fread, fwrite, random read, pread,mmap, aio_read, aio_write 。
 
-
-
 通常情况下，测试的文件大小要求至少是系统cache的两倍以上，测试的结果才是真是可信的。如果小于cache的两倍，文件的读写测试读写的将是cache的速度，测试的结果大打折扣。 
 
-# 常用参数
+常用参数
 
-- `-a`   全面测试  测试记录块大小从4k到16M，测试文件从64k到512M
+- `-a`   全自动测试  测试记录块大小从4k到16M，测试文件从64k到512M
   - `-A`  全面测试 没有记录块的范围限制
 
 
 
 - `-R`  产生Excel到标准输出 
-- `-b`  指定输出文件的名字
+- `-b`  指定输出文件的名字 和`-R`合用以输出xls文件
 
 
 
-- `-r <block size>`  每次读/写的块大小
-- `-s <file size>`  测试文件的大小
+- `-s <file size>`  指定固定的测试文件大小
+- `-r <block size>`  指定固定的测试的文件块大小
+
+- `-n <min size> -g <max size>`  指定测试文件的大小范围
+- `-y <min size> -q <max size>`  指定测试文件块的大小范围
+
 - `-f <file name>`  测试文件的名字（改文件必须位于测试硬盘中)
-  - `-F <file1> [file2...fileN] `  测试多线程指定的文件名
+- `-F <file1> [file2...fileN] `  测试多线程指定的文件名
+  - `-t <N>`  线程数量
 
 
 
 - `-c`  测试包括文件的关闭时间
--   `-C`  显示每个节点的吞吐量
+
+  测试网络文件系统如NFS，可使用`-c`参数，这通知iozone在测试过程中执行close()函数。使用close()将减少NFS客户端缓存的影响。
+
+  **如果测试文件比内存大，就没有必要使用参数-c**。
+
+- `-C`  显示每个节点的吞吐量
 
 
 
-- `-n <min size> -g <max size>`  指定测试文件的大小范围
-- `-y <min size> -q <max size>`  指定测试块的大小范围
-
-
+- `-D`  对mmap文件使用msync异步写
 
 - `-i <N>`  选择测试项N，N的取值及其意义：
 
@@ -117,6 +136,7 @@ iozone可测试项包括：Read, write, re-read,re-write, read backwards, read s
 
 - Freread: 与上面的fread 类似，除了在这个测试中被读文件是最近才刚被读过。这将导致更高的性能，因为操作系统缓存了文件数据。
 
----
+# gnuplot生成图画
 
-如果我们测试的NFS，将使用-c，这通知iozone在测试过程中执行close()函数。使用close()将减少NFS客户端缓存的影响。但是如果测试文件比内存大，就没有必要使用参数-c
+安装gnuplot后，可以
+

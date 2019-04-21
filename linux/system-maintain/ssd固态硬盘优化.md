@@ -22,21 +22,37 @@ TRIM支持的文件系统：Ext4、Btrfs、JFS、VFAT，XFS。*VFAT 只有挂载
 
 TRIM需`utils-linux`包。
 
-检验TRIM支持需要`hdparm`包。
+可用以下方法检查是否支持trim：
 
-```shell
-hdparm -I /dev/sda | grep TRIM
-#得到类似信息  *    Data Set Management TRIM supported (limit 1 block)
-```
+- `lsblk --discard`
 
-有几种TRIM支持的规格，因此，输出内容取决于驱动器支持什么。
+  DISC-GRAN (discard granularity) 和 DISC-MAX (discard max bytes) 列非 0 表示该 SSD 支持 TRIM 功能。
+
+- `cat /sys/block/sda/queue/discard_granularity`
+
+  值非0表示支持TRIM。
+
+- `hdparm -I /dev/sda | grep TRIM` （需要安装有hdparm包）
+
+  得到类似信息  *    Data Set Management TRIM supported (limit 1 block)。有几种TRIM支持的规格，因此，输出内容取决于驱动器支持什么。
+
+
+
+手动trim，示例：
 
 ```shell
 fstrim -v /home   #对home分区执行trim
 fstrim -v /
 ```
 
-使用systemd的系统启用`fstrimer.timer｀即可开启每周一次的自动trim任务：
+通过挂载参数`discard`自动trim，示例：
+
+```shell
+/dev/sda1  /       ext4   defaults,noatime,discard   0  1
+/dev/sda2  /home   ext4   defaults,noatime,discard   0  2
+```
+
+使用systemd的系统启用`fstrimer.timer`即可开启每周一次的自动trim任务：
 
 ```shell
 systemctl enable fstrim.timer
@@ -101,6 +117,6 @@ vm.vfs_cache_pressure=50
 
   建议复制`/usr/share/applications/chromium.desktop`到`~/.local/share/applications/chromium.desktop`，再对其修改。
 
-  ​
+  
 
 另：有 [anything-sync-daemon](https://aur.archlinux.org/packages/anything-sync-daemon/)允许用户将**任意** 目录使用相同的基本逻辑和安全防护措施同步入内存。

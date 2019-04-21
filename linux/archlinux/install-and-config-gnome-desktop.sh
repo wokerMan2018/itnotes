@@ -17,7 +17,7 @@ pacman -Syy --noconfirm
 
 pacman -S archlinuxcn-keyring --noconfirm
 
-pacman -S yay autojump bash-completion tmux --noconfirm
+pacman -S pacman-contrib yay autojump bash-completion tmux ntfs-3g exfat-utils man-pages-zh_cn --noconfirm
 
 # fonts && input
 pacman -S ttf-dejavu adobe-source-han-sans-cn-fonts adobe-source-han-sans-kr-fonts adobe-source-han-sans-jp-fonts ttf-symbola fcitx fcitx-gtk2 fcitx-gtk3 fcitx-qt4 fcitx-qt5 fcitx-cloudpinyin fcitx-configtool --noconfirm

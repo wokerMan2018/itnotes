@@ -28,3 +28,8 @@ input[type='file'] > input[type='button']::-moz-focus-inner {
 .unvisible {
   visibility: hidden;
 }
+
+/* 英文 数字等断行 */
+div,li{
+  word-break: break-all;
+}

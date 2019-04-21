@@ -1,6 +1,21 @@
-#!/bin/sh
-mysqldump -unextcloud -pnextcloud@pi nextcloud|gzip > /home/levin/db/nextcloud+%Y-%m-%d.sql.gz
-cd /home/levin/db
-rm -rf `find . -name '*.sql.gz' -mtime 7`
-cp * /mnt/disk/nextcloud/db/
-rm -rf `find /mnt/disk/nextcloud/db -name '*.sql.gz' -mtime 7`
+#!/usr/bin/sh
+user=
+password=
+database=
+table='*'
+path=~/backup
+prefix=
+timestamp=$(date +%F)
+num=7
+
+[[ -d $path ]] mkdir -p $path
+
+mysqldump -u$user -p$password $database --skip-lock-tables | xz > $path/$prefix-$timestamp.sql.xz
+
+cd $path
+
+find . -name '*.sql.xz' -mtime $num -exec rm {} \;
+
+#restore
+#xz -d xx.xz
+#mysql -uuser -ppassword < xxx.sql

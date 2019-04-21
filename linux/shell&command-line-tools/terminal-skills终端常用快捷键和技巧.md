@@ -1,5 +1,10 @@
--   **使用通配符**
--   使用**<kbd>Tab</kbd>补全**
+- **使用通配符**
+
+- 使用**<kbd>Tab</kbd>补全**
+
+- 命令前加上`\`将使用该命令原始行为，令同名alias失效。
+
+  例如设置了`alias rm=rm -i`，使用`\rm`则该alias无效。
 
 # 光标相关操作
 
@@ -181,9 +186,7 @@
 
 ---
 
-设置magic-space 让历史记录表达式和参数符号立即显出原形
-
-在bash配置文件中（如~/.bashrc）添加：
+设置magic-space 让历史记录表达式和参数符号立即“显出原形”，在bash配置文件中（如~/.bashrc）添加：
 
 ```shell
 bind Space:magic-space
@@ -200,10 +203,12 @@ stat !:^  #在^后按下空格 该行就变成了 stat .bashrc
 
 ---
 
-`^`纠正上一条命令中的拼写错误并再次执行上一条命令
+`^`修改上一条命令中的字符串为新的字符串，并执行修改后的命令：
 
 ```shell
 systemtl status NetworkManager
-^tl^ctl  #将上一条命令中的tl改成ctl再执行一次
+^tl^ctl  #将上一条命令中的tl改成ctl再执行一次 等同systemctl status NetworkManager
+systemctl start sshd
+^start^enable sshd  #等于执行systemctl enable sshd
 ```
 

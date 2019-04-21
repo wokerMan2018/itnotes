@@ -4,7 +4,8 @@
 
 - 选定一个节点作为openlava服务器（管理节点），配置该节点到其他节点的ssh密钥登录。
 - 确保所有节点使用同一用户运行openlava（可使用nis等服务）。
-- 在管理节点的hosts文件（`/etc/hosts`）中加入其他节点的hostname解析：
+- 在管理节点的hosts文件（`/etc/hosts`）中加入其他节点的hostname解析
+- 关闭各个节点防火墙或者开放相应的端口（在openlava的etc目录下lsf.conf中可查看各个服务的监听端口）
 
 # 编译安装
 
@@ -46,7 +47,7 @@ cd $dest/etc
   dest=/share/openlava
   user=hpcadmin
   #创建运行openlava的用户 r创建为系统用户 M不创建家目录 s指定shell
-  useradd -rM /sbin/nologin $user
+  useradd -M /sbin/nologin $user
   chown -R $user $dest
   sed -i s/openlava/$user/ $dest/etc/lsf.cluster.openlava
   
@@ -61,9 +62,23 @@ cd $dest/etc
   systemctl enable openlava
   ```
 
-- 集群主配置文件
+- 主配置文件`lsf.conf`
 
-  修改文件`lsf.cluster.openlava`（openlava字样可改为集群名字），部分内容如下：
+  设置openlava环境变量、监听端口、日志等。
+
+  - 主解点列表`LSF_MASTER_LIST`，值为集群主节点的主机名。
+
+  - 日志级别`LSF_LOG_MASK`取值：
+    - `LOG_WARNING`
+    - `LOG_DEBUG`（如果hpc的Administrator用户是root，则日志级别为DEBUG）
+
+- 共用默认配置信息`lsf.shared`
+
+  设置集群配置文件默认值，提供给`lsf.cluster.<name>`文件（name为集群的名字，可在`lsf.shared`中定义该集群的各项默认值）使用。
+
+- 某个集群的配置文件`lsf.cluster.openlava`（openlava为默认的集群名字，可更改）
+
+  部分内容如下：
 
   ```shell
   Begin   ClusterAdmins
@@ -78,12 +93,9 @@ cd $dest/etc
   End     Host
   ```
 
-  `!`表示使用默认，默认值可以在`lsf.shared`文件中设置，安装后`lsf.shared`中定义的集群名字为openlava，其默认值也仅针对配置文件名为`lsf.cluster.openlava`生效，具体查看lsf.shared文件。
-
-  - lsf.shared  设置集群配置文件默认值。
-  - lsf.conf  主配置文件，设置openlava环境变量、监听端口等。
-
   主机列表中，第一行被认为是管理节点，其后一一添加其他节点。
+
+  `!`表示使用默认，默认值可以在`lsf.shared`文件中设置。
 
 # 启动服务
 
@@ -117,3 +129,11 @@ lsadmin ckconfig
      badmin reconfig
      lsadmin reconfig
      ```
+
+
+
+# 排错
+
+- 节点的`openlava status`各项服务正常启动，但状态为`unreach`，查看该节点`sbatch`日志提示`Unable to reach slave batch server`
+
+  关闭防火墙或放行相关端口。

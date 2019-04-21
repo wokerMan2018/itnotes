@@ -123,6 +123,16 @@ exportfs -au #取消所有导出
 
   以上命令如指定“地址/主机名”，默认使用当前系统主机名。
 
+  如果使用`showmount -e`检测服务端服务器情况出现`clnt_create: RPC: Program not registered`错误，表示rpc程序未注册成功，关闭`rpcbind`和`nfs`，再依次重启即可。
+
+  ```shell
+  systemctl stop rpcbind
+  systemctl stop nfs
+  
+  systemctl start rpcbind
+  systemctl start nfs
+  ```
+
 ## 其他相关命令
 
 查看nfs状态（服务端）：`nfsstat`

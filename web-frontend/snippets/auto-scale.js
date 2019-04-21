@@ -12,9 +12,9 @@ function getFontSize(viewportWidth) {
   if (!viewportWidth) {
     viewportWidth =
       document.documentElement.scrollWidth ||
-      document.documentElement.scrollWidth ||
-      window.innerWidth ||
-      document.documentElement.getBoundingClientRect().width;
+      document.documentElement.getBoundingClientRect().width||
+      document.body.scrollWidth||
+      document.body.getBoundingClientRect().width;
   }
 
   let fontSize = viewportWidth * 100 / 1920 + 'px';

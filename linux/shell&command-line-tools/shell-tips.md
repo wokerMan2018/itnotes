@@ -1,3 +1,9 @@
+- 获取当前发行版信息
+
+  ```shell
+  echo $(. /etc/os-release;echo $NAME)
+  ```
+  
 - 获取任意用户家目录路径
 
   ```shell

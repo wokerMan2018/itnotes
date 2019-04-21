@@ -1,4 +1,4 @@
-location ~ \.php$ {
+location ~ .*\.php(\/.*)*$ {
     fastcgi_pass   unix:/run/php-fpm/php-fpm.sock;
     fastcgi_index  index.php;
     include        fastcgi.conf;

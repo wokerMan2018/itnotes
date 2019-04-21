@@ -82,7 +82,47 @@ shell扩展安装来源：
 
 查找以上资源时，以提供的关键字加类型名称进行搜寻，例如鼠标主题numix则搜索`numix cursor`，界面主题arc则搜索`gtk arc`。
 
-# 工具配置
+# 相关配置
+
+## 自动登录
+
+编辑`/etc/gdm/custom.conf`，添加：
+
+```shell
+[daemon]
+AutomaticLogin=username  #username为要自动登录的用户名
+AutomaticLoginEnable=True
+#如该要延时自动登录添加以下行
+#TimedLoginEnable=true
+#TimedLogin=username
+#TimedLoginDelay=1
+```
+
+如果要设置某个用户登录时选用的session，编辑`/var/lib/AccountsService/users/username`（username为该用户的用户名），修改该行：
+
+```shell
+XSession=gnome-xorg
+```
+
+## 将用户从登录列表中隐藏
+
+编辑`/var/lib/AccountsService/users/username`（username为要设置的用户）：
+
+```shell
+[User]
+SystemAccount=true
+```
+
+### 隐藏登录界面用户列表
+
+通过dconf-editor修改/ogr/gnome/login-screen/disable-user-list，将其开启即可（值为true）。
+
+或者使用：
+
+```shell
+sudo su gdm -s /bin/bash
+gsettings set org.gnome.login-screen disable-user-list true
+```
 
 ## nautilus鹦鹉螺文件管理器
 
@@ -146,19 +186,19 @@ touch ~/Templates/sh.sh && echo '#!/bin/sh' > ~/Templates/sh.sh && chmod +x ~/Te
 
   65/100是透明系数（65%），根据需求调整。注意：wayland中无效。
 
-## 修改gnome屏幕录制时间上限
+## gnome屏幕录制时间上限
 
 `ctrl`-`alt`-`shift`-`r`仅能可录制不超过30秒的短视频。
 
 使用dconf-editor修改`/org/gnome/settings-daemon/plugins/media-keys/max-screencast-length`的数值（秒数）。
 
-## 修改夜光(nigh-light)色温值
+## 夜光(nigh-light)色温值
 
 gnome3.24开始，在设置中带有该功能开关，夜光（night-light）默认色温值是4000k。
 
 使用dconf-editor修改`/org/gnome/settings-daemon/plugins/color/night-light-temperature`的数值。
 
-## 修改networkmanager网络热点（AP)密码
+## networkmanager网络热点（AP)密码
 
 1. 在网络设置中开启热点，会随机生成一串密码。
 2. 修改`etc/NetworkManager/system-connections/Hotspot.nmconnection`文件中`psk=`后面的内容为想要修改的新密码。
@@ -172,6 +212,7 @@ gnome3.24开始，在设置中带有该功能开关，夜光（night-light）默
 - gedit文件编辑器的插件：gedit-code-assistance和gedit-plugins。
 - file-roller  压缩解压打包工具的图形前端
 - geary   风格简洁的邮箱客户端
+- gpaste  剪切板
 - gvfs-google  登录google账户后 可在nautilus 挂载GoogleDrive
 - gitg    图形界面的git工具
 - polari    IRC客户端

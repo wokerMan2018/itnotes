@@ -4,7 +4,7 @@ Samba一种支持[SMB/CIFS](https://zh.wikipedia.org/wiki/%E4%BC%BA%E6%9C%8D%E5%
 
 安装`samba`，启用`smb`和`nmb`服务（或名`smbd`或`nmbd`）。
 
-因安全性问题，不推荐在internet上使用samba。
+*因安全性问题，不推荐在互联网上使用samba。*
 
 samba使用445 TCP/UDP端口：
 

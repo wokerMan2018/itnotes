@@ -15,19 +15,87 @@
 
    ```shell
    lang=en_US.UTF-8
-   data_dir='/var/lib/postgres/data'
-   sudo chown postgres:postgres /var/lib/postgres -R
-   sudo su - postgres -c "initdb --locale $lang -E UTF8 -D $data_dir"
+   sudo chown postgres:postgres /var/lib/postgres
+   sudo su - postgres -c "initdb --locale $lang  -D  '/var/lib/postgres/data'"
    ```
 
    初始化命令用法参看`initdb --help`。
 
-3. 启动postgres服务
+3. 启动`postgresql`服务
+
+   如果是linux中使用systemd管理服务，则：
 
    ```shell
    systemctl start postgresql
    systemctl enable postgresql
    ```
+
+   ---
+
+   不建议使用initdb初始化后提示的`pg_ctl -D`命令启动服务，如果要使用该命令启动服务，则执行
+
+   ```shell
+    sudo su - postgres -c  "pg_ctl -D /var/lib/postgres/data -l logfile start"
+   ```
+
+   如果`pg_ctl `启动报错，根据`/var/lib/postgres/logfile`信息解决。如果提示类似
+
+   > could not create lock file/run/postgresql/...
+
+   创建该目录，授权给postgres用户，再重新启动即可：
+
+   ```shell
+   mkdir -p /run/postgresql/
+   chown postgres:postgres /run/postgresql
+   ```
+
+   ---
+
+   ## 更改默认数据库目录
+
+   *nix中安装postgres后，其默认目录一般是`/var/lib/pgsql/data`（或`/var/lib/postgres/data`），可根据需求修改位置。
+
+   **不要使用软链接将新数据目录链接到默认的位置，其并会正常工作。**
+
+   示例迁移默认的`/var/lib/postgres/data`到`/home/pg/data`：
+
+   1. 创建目标目录
+
+      ```shell
+      mkdir -p /home/pg/data
+      chown -R postgres:postgrew /home/pg
+      ```
+
+   2. 停止postgresql服务
+
+      ```shell
+      systemctl stop postgresql
+      ```
+
+   3. 移动数据
+
+      ```shell
+      mv /var/lib/postgres/data/*   /home/pg/data
+      ```
+
+      如果原来的`/var/lib/postgres/data/`并没有重要数据，只是新建一个位置存放数据，可以不移动内容，直接初始化新的数据目录即可：
+
+      ```shell
+      lang=en_US.UTF-8
+      sudo su - postgres -c "initdb --locale $lang  -D  '/home/pg/data'"
+      ```
+
+   4. 编辑postgresql的systemd units 文件（一般位于`/usr/lib/systemd/system`）
+
+      修改`Environment`和`PIDFile`
+
+      ```shell
+      [Service]
+      Environment=PGROOT=/home/postgres
+      PIDFile=/home/postgres/data/postmaster.pid
+      #如果要将/home 目录用作默认目录或表空间，需要添加：
+      ProtectHome=false
+      ```
 
 ## 配置文件
 
@@ -123,6 +191,29 @@ createdb -e -O dbuser dbname  #创建一个名为dbname的数据库实例，并�
 ```
 
 *当然也可以在psql中使用SQL语句创建用户。*
+
+## 修改数据库目录
+
+*nix中安装postgres后，其默认目录一般是`/var/lib/pgsql/data`（或`/var/lib/postgres/data`），可根据需求修改位置。示例迁移位置为`/home/pgdata`：
+
+```shell
+pg_root=/home/postgres
+data_dir=$pg_root/data
+mkdir -p $data_dir
+chown -R postgres:postgres $pg_root
+```
+
+修改postgres的systemd units文件中`Environment`和`PIDFile`，一般位于`/usr/lib/systemd/system`下，或名`postgresql.service`
+
+```shell
+[Service]
+Environment=PGROOT=/home/postgres
+PIDFile=/home/postgres/data/postmaster.pid
+#如果要将/home 目录用作默认目录或表空间，需要添加：
+ProtectHome=false
+```
+
+
 
 # psql命令
 
