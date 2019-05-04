@@ -415,6 +415,7 @@
 
 
 - man-pages-zh_cn和man-pages-zh_tw  [中文man手册](https://github.com/man-pages-zh/manpages-zh)
+- tldr　简版man pages 查询工具
 - 电源节能
   - tlp   电源管理工具（默认配置已针对电池优化，安装后以systemctl enable tlp启用即可）
   - laptop-mode-tools    笔记本电源管理
@@ -466,8 +467,10 @@
 # 开发工具
 
 - zeal 类似dash（mac软件）的api查询工具
-- git
+- mycli   支持语法高亮和命令提示的mysql客户端
+- git  字符界面的git管理工具
   - [gisto](http://www.gistoapp.com/)    gist管理工具
+  - tig
   - 图形界面git工具
     - github-desktop
     - gitg   查看为主，有简单操作功能 (gnome系)
@@ -477,12 +480,14 @@
   - [powerline-shell](https://github.com/banga/powerline-shell)
   - [bash-powerline](https://github.com/riobard/bash-powerline)
   - [zsh-powerline](https://github.com/riobard/zsh-powerline)
+- script  终端操作记录
 - asciinema  记录终端操作（支持上传到asciinema.org并与他人共享）
 
 # 其他软件
 
 未归类
 
+- autojump  快速进入到某个目录
 - bc    的计算器
 - bat  语法高亮的文件查看工具（项目克隆自cat）
 - 天气/日历

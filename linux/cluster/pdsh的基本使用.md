@@ -59,3 +59,5 @@ pdsh -w c[1-10] -x c2 poweroff  #对c1--c10 排除c2 执行关机命令
 pdsh -w c1,c10,master reboot  #对c1,c10,master执行重启命令
 pdsh -w c[1-10] -l test  ls #使用test用户在c1--c10执行ls命令
 ```
+
+主机列表文件：`/etc/pdsh/machines`，每行一个。

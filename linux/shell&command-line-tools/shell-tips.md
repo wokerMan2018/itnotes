@@ -29,3 +29,13 @@
   xdg-open http://localhost #使用默认浏览器访问http://localhost
   xdg-open testfile  #使用默认编辑器打开testfile文件
   ```
+
+- 临时文件
+
+  ```shell
+  testfile=$(mktemp)
+  echo "test test" > $testfile
+  cat $testfile  #test test
+  ```
+
+  

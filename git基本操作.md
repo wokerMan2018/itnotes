@@ -322,7 +322,7 @@ git rev-parse --short HEAD #最近一次提交快照的前面部分（7位）has
     该指定分支上并取代该分支。而**当前分支的其余历史快照将会被丢弃**，这些历史快
     照将会**临时**保存为补丁 (patch，补丁在`.git/rebase`目录中 )。
 
-  ​
+  
 
 - 删除分支：`git branch -d <branch-name>` 强行删除**未被合并过**的分支：`git branch -D <branch-name>`
 
@@ -423,11 +423,29 @@ windows 下：在资源管理器里新建一个 .gitignore 文件，系统会提
 * 校验 .gitingore 文件：`git check-ignore`
 * 校验指定规则：`git check-ignore -v <rule>`
 * 强制添加被忽略的文件：`git add -f <file-name>`
-* .gitingore 编写：
+* .gitingore 编写规则：
   * `#`注释
   * 一行一条
   * 同名匹配
   * 可使用通配符
+
+```gitignore
+*.a       # 忽略所有 .a 结尾的文件
+!lib.a    # 但 lib.a 除外
+/TODO     # 仅忽略项目根目录下的 TODO 文件，不包括非根目录下的TODO，例如 subdir/TODO
+build/    # 忽略 build/ 目录下的所有文件
+doc/*.txt # 忽略 doc/notes.txt 但不包括 doc/server/arch.txt
+```
+
+如果一个项目中仅有很少部分不被忽略，可以先使用`*`忽略所有，再使用`!`取反添加不被忽略的匹配模式：
+
+```gitignore
+#先忽略所有
+*
+#添加白名单
+!config
+!install.sh
+```
 
 ## 配置
 

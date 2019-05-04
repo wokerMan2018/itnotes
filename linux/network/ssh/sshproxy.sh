@@ -10,16 +10,16 @@ then
 fi
 #========远程转发======
 #远程主机地址 (在该主机上面的sshd_config中将GatewayPorts 设为yes)
-remoteHost=
+remoteHost=1wei.cc
 
 #远程主机sshd端口
 remotePort=22
 
 #远程主机的转发端口(远程主机非root用户只能使用1024以上端口)
-proxyPort=
+proxyPort=1997
 
 #远程主机登录用户名
-remoteUser=
+remoteUser=proxy
 
 #本地主机地址
 localHost=localhost
@@ -39,12 +39,12 @@ options='-o TCPKeepAlive=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=10
 #======转发前检查
 
 #查找进程中是否已经存在指定进程
-tunnelstate=$(ps aux|grep $proxyPort:$localHost:$localPort|grep -v grep)
-if [[ -n $tunnelstate ]]
-then
-    echo "$(date) sshproxy is running" >> $log
-    exit 1
-fi
+#tunnelstate=$(ps aux|grep $proxyPort:$localHost:$localPort|grep -v grep)
+#if [[ -n $tunnelstate ]]
+#then
+#    echo "$(date) sshproxy is running" >> $log
+#    exit 1
+#fi
 
 
 #验证与远程主机通信状况
