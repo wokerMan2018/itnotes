@@ -129,9 +129,10 @@ alias printer='sudo systemctl start org.cups.cupsd.service'
 #pacman
 alias pacman='sudo pacman'
 alias orphan='pacman -Rscn $(pacman -Qtdq)'
+alias pacclean='sudo paccache -rk 2'
 
 #upgrade OS
-alias up='yay && orphan'
+alias up='yay && pacclean -rk 2 && orphan'
 
 #makepkg aur packing
 alias aurinfo='makepkg --printsrcinfo > .SRCINFO ; git status'
@@ -190,6 +191,10 @@ alias ssrestart='sudo systemctl restart shadowsocks@ss'
 alias privoxystart='sudo systemctl start privoxy'
 alias privoxyrestart='sudo systemctl restar privoxy'
 alias privoxyrestop='sudo systemctl stop privoxy'
+
+# web server
+alias lnmphp='sudo systemctl start nginx php-fpm'
+alias lnmpython='systemctl start nginxln'
 
 #---nmap
 #scan alive hosts

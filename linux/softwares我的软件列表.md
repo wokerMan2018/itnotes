@@ -415,28 +415,48 @@
 
 
 - man-pages-zh_cn和man-pages-zh_tw  [中文man手册](https://github.com/man-pages-zh/manpages-zh)
+
 - tldr　简版man pages 查询工具
+
 - 电源节能
   - tlp   电源管理工具（默认配置已针对电池优化，安装后以systemctl enable tlp启用即可）
   - laptop-mode-tools    笔记本电源管理
   - powertop    针对intel的节电工具
+  
 - fancontrol   风扇控制（图形界面fancontrol-gui）
+
+- setleds  键盘灯控制（num-lock caps-lock scroll-lock）
+
+  ```shell
+  #可以一次打开或关闭多个键盘灯
+  setleds +num +caps +scroll  #打开numlock capslock scrolllock
+  setleds -num -caps -scroll  #关闭numlock capslock scrolllock
+  ```
+
 - caffeine    在全屏播放时禁止系统挂起/锁屏/睡眠/休眠……
+
 - htop    进程管理器
+
 - displaycal   显示器色彩调整
+
 - bleachbit    磁盘清理（清除缓存、清理缩略图、粉碎文件……）
+
 - xev 按键检测
+
 - hotapd  无线热点
+
 - cron计划任务
   - 命令行：cronie、dcron等等
   - 图形界面
     - gnome-schedule
     - fcronq
     - gcrontab
+  
 - 数据备份
   - backintime
   - timeshift
   - etckeeper  使用版本控制工具备份etc目录
+  
 - [微码](https://wiki.archlinux.org/index.php/Microcode_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
   - intel-ucode
   - amd-ucode

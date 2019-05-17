@@ -4,29 +4,47 @@
 
 1. 安装iscsi软件包，启动`iscsi`服务。
 
-2. 查找
+2. 获取或设置`/etc/iscsi/initiatorname.iscsi`中的InitiatorName
+
+   initiatiorname提供给iscsi存储服务器端用以映射主机时使用。
+
+   根据需要修改该配置文件的设置项。
+
+3. iscsi发现和登录
 
    ```shell
-   iscsiadm -m discovery -t sendtargets -p <ip>  #sendtargets可缩写为st
-   #---
+   #获取iscsi目标 sendtargets可缩写为st  端口默认为3260时可省略
+   iscsiadm -m discovery -t st -p <iscsci-server>[:port]
+   #指定要登录的目标
+   iscsiadm -m node -T <target-name> -p <iscsi-server>[:port] --login
+   ```
+
+   在发现**一个**目标后，也可以使用`session`直接注册登录，而无需指定target等参数：
+
+   ```shell
+   iscsiadm -m discovery -t sendtargets -p <iscsci-server>[:port]
+   iscsiadm -m node -l
+   iscsiadm -m session
+   #再重复以上步骤添加下一个目标
+   ```
+
+   或者添加多个target后使用以下命令登录到所有目标：
+
+   ```shell
+   iscsiadm -m node -L all  #登入到有所有效的目标
+   ```
+
+   
+
+   其他相关命令
+
+   ```shell
    iscsiadm -m discovery -p <ip> -o delete  #删除旧的目标
    iscsiadm -m node --op delete  #删除所有目标
-   ```
-
-3. 登录
-
-   ```shell
-   iscsiadm -m node -L all  #登入到有效的目标
-   iscsiadm -m node --targetname=<targetname> --login  #登录到指定目标
-   #---
-   iscsiadm -m node -U all  #登出
-   iscsiadm -m node -T <targetname> -p <ip> #登出指定目标
-   ```
-
-   查看登录目标的信息
-
-   ```shell
-   iscsiadm -m node
+   #登出某个目标
+   iscsiadm -m node -T <target-name> -p <iscsi-server>[:port] --logout
+   iscsiadm -m node -U all  #登出所有
+   iscsiadm -m node  #查看登录目标的信息
    ```
 
 4. 挂载
@@ -34,14 +52,15 @@
    使用`lsblk`从块设备中发现存储设备，将其挂载即可。
 
    提示：在fstab中添加挂载网络存储设备，应当添加`_netdev`参数，避免因网络未就绪而造成挂载失败。
-   
+
    ```shell
-   /dev/mapper/mpatha     /data    xfs     _netdev,defaults,discard  0 0
+   #建议使用UUID挂载 可使用lsblk /dev/mapper/xxx -o uuid获取
+   UUID='xxx'    /data    xfs     _netdev,defaults,discard  0 0
    ```
-   
+
    如仍有挂载问题，可考虑在启动后延时挂载（检查测网络可到达后再挂载）。
-   
-   多路径挂载参看[多路径配置](#多路径配置)。
+
+   如需要多路径挂载，参看[多路径配置](#多路径配置)。
 
 # FC
 
@@ -87,46 +106,76 @@
 
 安装多路径软件包`device-mapper-multipath`，启动`multipath`服务。
 
-配置多路径文件，挂载多路径设备：
+
+
+配置多路径
+
+- 自动配置命令
+
+  ```shell
+  mpathconf --enable --with_multipathd y
+  ```
+
+- 手动配置
+
+  修改`/etc/mpath.conf`（可使用`multipath -F`生成文件模板文件作参考）。
+
+  示例1，指定多路设备并进行配置：
+
+  wwid可使用`multipath -ll`获取。
+
+  ```shell
+  devices {
+  	device {
+  		vendor "COMPELNT"
+  		product "Compellent Vol"
+  		features 0
+  		no_path_retry fail
+  		}
+  	}
+  multipaths {
+  	multipath {
+  		wwid "36000d310045794000000000000000003"
+  		alias "data"
+  		uid 0
+  		gid 0
+  		mode 0600
+  		}
+  	}
+  ```
+
+  示例2，使用黑名单方式排除非多路径设备：
+
+  ```shell
+  blacklist {
+      devnode "^sda"  #将非多路径的块设备排除
+  }
+  defaults {
+      user_friendly_names yes
+      path_grouping_policy multibus
+      failback immediate
+      no_path_retry fail
+  }
+  ```
+
+
+
+挂载多路径设备
 
 ```shell
-#自动配置 配置内容在/etc/multipath/目录下
-mpathconf --enable --with_multipathd y
-
-#查看多路径设备并挂载
-lsblk
+#查看
+lsblk -f |grep mpath #type为mpath_member
+#创建文件系统
 mkfs.xfs /dev/mapper/mpatha  #假如多路径为mpatha
+#挂载
 mkdir /data
 mount /dev/mapper/mpatha /data
-#写入开机自动挂载
-echo "/dev/mapper/mpatha /data xfs _netdev,defaults 0 0" >> /etc/fstab
-#或使用uuid
-#echo "UUID=`lsblk -o uuid /dev/mapper/mpatha |grep -iv uuid` /data xfs _netdev,defaults 0 0" >> /etc/fstab
+
+#写入开机自动挂载（建议使用UUID）
+echo "UUID=`lsblk -o uuid /dev/mapper/mpatha |grep -iv uuid` /data xfs _netdev,defaults 0 0" >> /etc/fstab
 ```
 
-块设备列表中**type**为**mpath**的块设备即为多路径设备，相同名字的块设备（如`mpatha`）即配置了多路径的同一存储设备，其位于`/dev/mapper/`下。
-
-
-
----
-
-如果不能使用自动配置，可使用`multipath -F`生成文件模板，参照模板配置。
-
-配置示例：
-
-```shell
-blacklist {
-    devnode "^sda"  #将非多路径的块设备排除
-}
-defaults {
-    user_friendly_names yes
-    path_grouping_policy multibus
-    failback immediate
-    no_path_retry fail
-}
-```
-
-重启`multipath`服务，查看多路径情况，按需要挂载。
+重启`multipath`服务，查看多路径设备情况。
 
 ```shell
 multipath -ll  #查看多路径服务情况

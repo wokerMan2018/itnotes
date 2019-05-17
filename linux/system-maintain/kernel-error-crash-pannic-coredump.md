@@ -50,3 +50,8 @@
   sudo sysctl -a|grep watchdog
   sysctl -w kernel.watchdog_thresh=30
   ```
+
+
+
+# coredump
+

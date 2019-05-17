@@ -86,7 +86,7 @@ vm.vfs_cache_pressure=50
 
 - `df -h`可查看使用tmpfs的情况。
 
-- 如今许多发行版默认对一些文件夹（如`/tmp`、`/dev/shm` ）使用tmpfs，**大小为物理内存的一半**。
+- 如今许多发行版默认对一些文件夹（如`/tmp`、`/dev/shm` ）使用tmpfs，默认tmpffs**大小为物理内存的一半**。
 
   如果遇到默认分配的tmpfs空间不够大，可以可在`/etc/fstab`中指定size。
 
@@ -99,23 +99,21 @@ vm.vfs_cache_pressure=50
 
   重启后生效。
 
+- 浏览器cache使用tmpfs
+  - firefox
 
-##  浏览器cache使用tmpfs
+    1. 在地址栏中输入 about:config 进入高级设置页
+    2. 点击右键新建一个 String ， name 为 `browser.cache.disk.parent_directory` ， value 为 `/dev/shm/firefox`。
 
-- firefox
+  - Chromium（或Chrome）
 
-  1. 在地址栏中输入 about:config 后回车，进入高级设置页
-  2. 点击右键新建一个 String ， name 为 `browser.cache.disk.parent_directory` ， value 为 `/dev/shm/firefox`。
+    找到Chromium程序图标所在位置（一般在`/usr/share/applications/chromium.desktop` ），编辑文件中`Exec`一行为：
 
-- Chromium（或Chrome）
+    ```shell
+    Exec=/usr/bin/chromium --disk-cache-dir="/dev/shm/chromium/"
+    ```
 
-  找到Chromium程序图标所在位置（一般在`/usr/share/applications/chromium.desktop` ），编辑文件中`Exec`一行为：
-
-  ```shell
-  Exec=/usr/bin/chromium --disk-cache-dir="/dev/shm/chromium/"
-  ```
-
-  建议复制`/usr/share/applications/chromium.desktop`到`~/.local/share/applications/chromium.desktop`，再对其修改。
+    建议复制`/usr/share/applications/chromium.desktop`到`~/.local/share/applications/chromium.desktop`，再对其修改。
 
   
 

@@ -87,13 +87,23 @@ exportfs -au #取消所有导出
 
 ## 挂载
 
-*示例挂载192.168.0.251的/share到客户端的/share*
+*示例挂载192.168.0.251的/share到客户端的/share。*
 
 - 使用mount 挂载
 
-  ```shell
-  mount -t nfs 192.168.0.251:/share /share
-  ```
+  - linux
+
+    ```shell
+    mount -t nfs 192.168.0.251:/share /share
+    ```
+
+  - windows
+
+    ```powershell
+    mount -o nolock \\192.168.0.251\! Z:
+    ```
+
+    挂载到Z盘。（可使用任务计划程序实现自动挂载）
 
 - 使用fstab挂载
 
@@ -102,6 +112,8 @@ exportfs -au #取消所有导出
   ```shell
   192.168.0.251:/share /share nfs default,_netdev	0 0
   ```
+
+- 其他图形界面工具
 
 ## 获取挂载信息showmount
 

@@ -2,9 +2,30 @@ Samba一种支持[SMB/CIFS](https://zh.wikipedia.org/wiki/%E4%BC%BA%E6%9C%8D%E5%
 
 # 服务端
 
-安装`samba`，启用`smb`和`nmb`服务（或名`smbd`或`nmbd`）。
+## Windows
 
-*因安全性问题，不推荐在互联网上使用samba。*
+添加用户：
+
+```powershell
+net user 用户名 密码 /add
+```
+
+如果需要将用户添加进超级管理员，可以使用下边命令（只是共享写读需要的话，可以不用加入超级管理员角色）：
+
+```
+net localgroup administrators 用户名 /add
+```
+
+ 共享文件夹：
+
+```powershell
+net share ShareFile=E:\要共享的文件夹 /GRANT:用户名,FULL
+net share
+```
+
+## Linux
+
+安装`samba`，启用`smb`和`nmb`服务（或名`smbd`或`nmbd`）。
 
 samba使用445 TCP/UDP端口：
 
@@ -15,9 +36,7 @@ samba使用445 TCP/UDP端口：
   - UDP 137： NetBIOS 命名服务（WINS）
   - UDP 138 ：NetBIOS 数据包
 
-*旧版本samba共享协议使用的139端口（作用同445端口）存在较大安全隐患，不推荐使用。*
-
-## 配置
+### 配置
 
 主配置文件`/etc/samba/smb.conf`：
 
@@ -108,7 +127,7 @@ samba配置中各项名字意义较为明了，也可参看[配置文件](https:
 - %T：目前的日期与时间
 - %v：samba版本号
 
-## 用户管理
+### 用户管理
 
 samba需要linux系统账户才能使用，虽然其使用linux用户名，但是仍需设置独立的密码（可以同系统用户名密码相同），设置密码示例：
 
@@ -144,7 +163,7 @@ hosts: files dns myhostname wins
   - 命令手动挂载
 
     ```shell
-    mount -t cifs //<SERVER/sharename> <mountpoint> -o user=<username>,password=<password>
+    mount -t cifs //<SERVER/sharedir> <mountpoint> -o user=<username>,password=<password>
     ```
 
     其他可用选项（均以逗号`,`分隔）：
@@ -179,7 +198,26 @@ hosts: files dns myhostname wins
   - -b (--broadcast) 使用广播模式
   - -N (-no-pass) 不询问密码
 
-
 ## windows
 
-连接到`\\samba服务器地址\路径`
+可使用任务计划程序实现自动挂载
+
+- 通过资源管理器管理
+
+  通过`\\samba服务器地址\路径`连接
+
+- 命令行
+
+  示例挂载主机host的share到Z盘
+  
+  ```powershell
+net use Z: \\host\share
+  ```
+  
+  卸载
+  
+  ```powershell
+  net share ShareFiel /del
+  ```
+  
+  

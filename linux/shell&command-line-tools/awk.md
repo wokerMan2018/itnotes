@@ -22,3 +22,9 @@ option：awk的选项；script：awk的语句；file：要处理的文件。
 -  **-v <var=value>**   赋值一个用户定义变量，将外部变量传递给awk
 -  **-f <scripfile>**  从脚本文件中读取awk命令
 -  **-m[fr] <val>**   对val值设置内在限制，-mf选项限制分配给val的最大块数目；-mr选项限制记录的最大数目。这两个功能是Bell实验室版awk的扩展功能，在标准awk中不适用。
+
+```shell
+#$NF获取最后一列 以下命令获取当前已经连接到网络的网卡名字
+ip a|grep -E "inet\s+" |grep -v 127.0.0.1|awk '{print $NF}'
+```
+

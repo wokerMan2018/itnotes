@@ -80,7 +80,9 @@
   让提交的命令分配的进程不成为当前终端的子进程。因此退出终端后，提交的命令不会收到HUP信号。
 
   ```shell
-  setsid ping z.cn &
+  setsid ping -c 10 z.cn
+  #不过当前进程的输出还是会打印在终端 可以将其重定向
+  setid ping -c 10 &> ping.log
   ```
 
 - `disown`

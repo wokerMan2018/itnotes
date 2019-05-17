@@ -1,3 +1,5 @@
+- shell文件格式化工具`shfmt`
+
 - 获取当前发行版信息
 
   ```shell
@@ -36,6 +38,13 @@
   testfile=$(mktemp)
   echo "test test" > $testfile
   cat $testfile  #test test
+  ```
+
+- 杀死一个进程以及其所有后代进程
+
+  ```shell
+  pid=1234  #1234是进程号
+  [[ $pid ]] && kill -9 $(pstree $pid -p|grep -oE "\([0-9]+\)"|grep -oE "[0-9]+")
   ```
 
   

@@ -11,8 +11,8 @@ password=
 expect -c "
   spawn ssh username@host -p $port
   expect {
-    "yes/no" { send "yes"\r }
-    "password" { send "$password"\r }
+    "yes/no*" { send "yes"\r }
+    "password*" { send "$password"\r }
   }
   interact
 "

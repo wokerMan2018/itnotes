@@ -121,15 +121,22 @@ bsub -Ip vim testfile.txt  #分配一个节点用以打开vim
   提示：该处`-n`指定的线程数是任务调度系统**分配给该作业的最大可用线程资源**，与该作业执行的程序是否多线程并行执行无必然联系，程序并行执行需要其自身进行并行调用操作。
 
   ```shell
-  #虽然分配了8线程供其使用，但vasp_std是单线程执行
-  bsub -n 8 vasp_std
   #分配了8线程资源 mpirun不带参数默认使用所有线程资源运行vasp_std
-  bsub -n 8 mpirun vasp_std  #等同于#bsub -n 6 mpirun -n 8 vasp_std
+  bsub -n 8 mpirun vasp_std  #等同于#bsub -n 8 mpirun -n 8 vasp_std
+  #虽然分配了8线程供其使用，但vasp_std是单线程执行 未调用mpi
+  bsub -n 8 vasp_std
+  ```
+
+  使用了-n指定后，`mpirun` 就无需再指定其自身的`-n`参数。不建议使用以下方式调度，其会造成实际使用资源与调度器统计的资源发生出入：
+
+  ```shell
   #为其分配了8线程资源 但mpirun指定只用4线程并行
   bsub -n 8 mpirun -n 4 vasp_std
-  #只为其分配了8线程资源 mpirun要求超出可用资源范围
+  #只为其分配了8线程资源 mpirun要求超出了调度器分配的资源范围 
   bsub -n 8 mpirun -n 16 vasp_std
   ```
+
+  
 
 - `-o <标准输出文件>`  指定作业执行中的**标准输出**（stdout）信息文件（可选）
 
@@ -150,6 +157,7 @@ bsub -Ip vim testfile.txt  #分配一个节点用以打开vim
 
 - `-i`  指定作业的输入文件（需要指定作业输入文件时使用）
 - `-Ip`  提交一个交互式作业并开启一个伪终端（交互式任务时必选）
+- `-W [hours:]minutes[/host_name | /host_model]`  限制作业运行时间（超时会被bkill）。
 
 ## 查询作业
 

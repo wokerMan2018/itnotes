@@ -52,19 +52,6 @@ CentOS7默认开启NetworkManager服务。
     nmcli con edit  #交互式编辑 可在edit后指定网口名如eth0
     ```
 
-# 常用源
-
-- epel
-- yum-utils
-
-可以直接使用yum安装这些源
-
-``` shell
-yum repolist  #查看所有yum源
-yum install epel-release  yum-utils #安装
-yum makecache  #更新yum 缓存
-yum update  #更新一下
-```
 # 防火墙和selinux
 
 centos7默认启用firewall和selinux进行安全策略配置。如果要关闭二者，参考如下：
@@ -104,17 +91,57 @@ systemctl start gdm  #启动gnome登录
 #cent7以下系统 修改/etc/inittab文件 将默认启动从3改为5
 ```
 
-## 移除初始化工具
+- 移除初始化工具
 
-移除该工具避免第一次进入桌面时（即使已经存在普通用户）强制要求创建一个新普通用户。
+  移除该工具避免第一次进入桌面时（即使已经存在普通用户）强制要求创建一个新普通用户。
+
+  ```shell
+  yum remove gnome-initial-setup
+  ```
+
+# 包管理器
+
+- yum
+  - yum-plugin-versionlock  锁定软件包版本
+  
+    ```shell
+    yum version lock kernel  #锁定kernel包 (一次可以锁定多个包)
+    yum versionlock list   #查看锁定的包
+    yum versionlock delet kernel  #解锁kernel包
+    yum versionlock clear  #解锁所有被锁定的包
+    ```
+  
+  - yum-axelget  提供axel插件并行下载
+  
+  - --downloadonly和--downloaddir 只下载而不安装软件包
+  
+    ```shell
+    #下载vim到/srv下且不安装  如不指定目录则下载到默认的/var/cache/yum
+    yum -y install --downloadonly vim --downloaddir=/srv
+    ```
+  
+    
+
+## 常用第三方源
+
+- epel-release
+
+  Extra Packages for Enterprise Linux
+
+- yum-utils
+
+可以直接使用yum安装这些源
 
 ```shell
-yum remove gnome-initial-setup
+yum repolist  #查看所有yum源
+yum install epel-release  yum-utils #安装
+yum makecache  #更新yum 缓存
+yum update  #更新一下
 ```
 
 # 常用工具
 
-某些工具在最小化安装后可能未提供，使用`yum provides 命令`来查询该命令属于哪个软件包。
+某些常用工具在最小化安装后可能未提供，使用`yum provides 命令`来查询该命令属于哪个软件包。
 
 例如：`yum provides lspci`查询得知lspci命令由pciutils软件包提供。
 
@@ -123,7 +150,6 @@ yum remove gnome-initial-setup
 - bash-completion
 - wget
 - lsof
-
 - pciutils -- `lspci`
 - psmisc -- `killall`
 
@@ -159,3 +185,14 @@ yum remove gnome-initial-setup
   systemctl stop chronyd
   yum remove chrony
   ```
+
+# 删除多余内核
+
+升级内核后需要手动删除旧内核 。
+
+```shell
+uname -r  #查看当前版本号
+rpm -qa | grep kernel | sort  #查看所有已经安装的内核
+#使用包管理器移除旧内核
+```
+

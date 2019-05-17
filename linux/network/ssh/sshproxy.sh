@@ -1,13 +1,12 @@
 #!/bin/bash
 log=./proxy.log
-if [[ ! -e $log ]]
-then
+if [[ ! -e $log ]]; then
     touch $log
 fi
-if [[ $(stat -c %s $log) -gt 10000 ]]
-then
-    echo "" > $log
+if [[ $(stat -c %s $log) -gt 10000 ]]; then
+    echo "" >$log
 fi
+
 #========远程转发======
 #远程主机地址 (在该主机上面的sshd_config中将GatewayPorts 设为yes)
 remoteHost=1wei.cc
@@ -39,40 +38,43 @@ options='-o TCPKeepAlive=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=10
 #======转发前检查
 
 #查找进程中是否已经存在指定进程
-#tunnelstate=$(ps aux|grep $proxyPort:$localHost:$localPort|grep -v grep)
-#if [[ -n $tunnelstate ]]
-#then
-#    echo "$(date) sshproxy is running" >> $log
-#    exit 1
-#fi
+tunnelstate=$(ps aux | grep $proxyPort:$localHost:$localPort | grep -v grep)
 
+#每天半夜3点断掉服务 重新启动一次
+clock=$(date +%H)
+if [[ $clock -eq 3 ]]; then
+    kill -9 $(ps -ef | grep $proxyPort | grep ssh | awk '{print $2}')
+    tunnelstate=''
+fi
+
+if [[ -n $tunnelstate ]]; then
+    echo "$(date) sshproxy is running" >>$log
+    exit 1
+fi
 
 #验证与远程主机通信状况
-if [[ -z $remoteHost ]]
-then
+if [[ -z $remoteHost ]]; then
     echo "not found remote host"
     exit 1
 fi
 
 #networkstate=`ping -c 2 z.cn`
-networkstate=$(timeout 5 curl $remoteHost:$remotePort 2>/dev/null |grep -i ssh)
+networkstate=$(timeout 5 curl $remoteHost:$remotePort 2>/dev/null | grep -i ssh)
 
-if [[ -z $networkstate ]]
-then
+if [[ -z $networkstate ]]; then
     echo "can not communicate with remote host ssh port, check remote host or ssh port"
     exit 1
 fi
 
 #检查密钥
-if [[ -f $key ]]
-then
+if [[ -f $key ]]; then
     echo "not find ssh public key"
     exit 1
 fi
 
 #====ssh转发
 
-echo "$(date) starting ssh proxy" >> $log
+echo "$(date) starting ssh proxy" >>$log
 ssh -gfCNTR $proxyPort:$localHost:$localPort $remoteUser@$remoteHost -i $key $options -p $remotePort
 
 ##ssh参数说明

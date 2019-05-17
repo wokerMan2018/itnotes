@@ -2,7 +2,7 @@
 
 ## 安装和初始化
 
-1. 安装postgresql(或有将服务端程序单独拆分为postgresql-server)
+1. 安装postgresql(服务端可能会被单独拆分为postgresql-server包)
 
 2. 初始化数据库
 
@@ -30,30 +30,19 @@
    systemctl enable postgresql
    ```
 
-   ---
-
-   不建议使用initdb初始化后提示的`pg_ctl -D`命令启动服务，如果要使用该命令启动服务，则执行
-
-   ```shell
-    sudo su - postgres -c  "pg_ctl -D /var/lib/postgres/data -l logfile start"
-   ```
-
-   如果`pg_ctl `启动报错，根据`/var/lib/postgres/logfile`信息解决。如果提示类似
+   如果在linux上使用包管理器postgresql，不建议使用initdb初始化后提示的`pg_ctl -D`命令启动服务，如果使用`pg_ctl `启动报错，根据`/var/lib/postgres/logfile`信息解决。如果提示类似
 
    > could not create lock file/run/postgresql/...
 
    创建该目录，授权给postgres用户，再重新启动即可：
-
+   
    ```shell
-   mkdir -p /run/postgresql/
+mkdir -p /run/postgresql/
    chown postgres:postgres /run/postgresql
    ```
 
-   ---
-
-   ## 更改默认数据库目录
-
-   *nix中安装postgres后，其默认目录一般是`/var/lib/pgsql/data`（或`/var/lib/postgres/data`），可根据需求修改位置。
+## 更改默认数据库目录   
+Linix中安装postgres后，其数据存储的目录一般是`/var/lib/pgsql/data`（或`/var/lib/postgres/data`），可根据需求修改位置。
 
    **不要使用软链接将新数据目录链接到默认的位置，其并会正常工作。**
 
@@ -62,39 +51,38 @@
    1. 创建目标目录
 
       ```shell
-      mkdir -p /home/pg/data
+   mkdir -p /home/pg/data
       chown -R postgres:postgrew /home/pg
       ```
+2. 停止postgresql服务
 
-   2. 停止postgresql服务
-
-      ```shell
+   ```shell
       systemctl stop postgresql
-      ```
+   ```
 
    3. 移动数据
 
       ```shell
       mv /var/lib/postgres/data/*   /home/pg/data
       ```
-
+   
       如果原来的`/var/lib/postgres/data/`并没有重要数据，只是新建一个位置存放数据，可以不移动内容，直接初始化新的数据目录即可：
 
       ```shell
       lang=en_US.UTF-8
       sudo su - postgres -c "initdb --locale $lang  -D  '/home/pg/data'"
       ```
-
-   4. 编辑postgresql的systemd units 文件（一般位于`/usr/lib/systemd/system`）
-
-      修改`Environment`和`PIDFile`
-
+   
+4. 编辑postgresql的systemd units 文件（一般位于`/usr/lib/systemd/system`）
+   
+   修改`Environment`和`PIDFile`
+   
       ```shell
       [Service]
       Environment=PGROOT=/home/postgres
-      PIDFile=/home/postgres/data/postmaster.pid
+   PIDFile=/home/postgres/data/postmaster.pid
       #如果要将/home 目录用作默认目录或表空间，需要添加：
-      ProtectHome=false
+   ProtectHome=false
       ```
 
 ## 配置文件
@@ -119,78 +107,87 @@
 
   ```shell
   #TYPE  DATABASE        USER            ADDRESS                 METHOD
-  host           all                      all             127.0.0.1/24              md5
-  ```
-
-  *提示：initdb方式初始化时为指定`-A`参数，则会自动为本地连接启动 "trust" 认证。*
-
-  注意：**pg_hba.conf 文件的更改对当前连接不影响，仅影响更改配置之后的新的连接。**
-
-  修改后可使用`pg_ctl reload -D /var/lib/pgsql/` 重载数据库。
-
-  `DATABASE`/`USER`值为`all`时表示所有数据库/用户。
-
-  METHOD取值：
-
-  - `reject`  拒绝
-
-  - `trust`  信任
-
-  - `md5`  双重MD5加密口令
-
-  - `ident`  服务器鉴别认证
-
-    通过联系客户端的 ident 服务器获取客户端的操作系统名，并且检查它是否匹配被请求的数据库用户名，只能在 TCIP/IP 连接上使用。
-
-    **当为本地连接指定该认证方式时，将用 `peer` 认证来替代。**
-
-  - `peer`  对等认证
-
-    从操作系统获得客户端的操作系统用户，并且检查它是否匹配被请求的数据库用户名，只对本地连接可用。
-
-  - `password`  未加密的口令
-
-    口令是以明文形式在网络上发送的，不要在不可信的网络上使用该方式。
-
-  - `gss`认证  只对TCP/IP 连接可用
-
-  - `sspi`认证  只在Windows 上可用。
-
-  - `ldap`服务器认证
-
-  - `radius`服务器认证
-
+  host           all                      all              127.0.0.1/24              trust
+  host           all                      all              192.168.1.0/24          md5
+```
+  
+*提示：initdb方式初始化时若使用`-A`参数，则会自动为本地连接启动 "trust" 认证。*
+  
+注意：**pg_hba.conf 文件的更改对当前连接不影响，仅影响更改配置之后的新的连接。**
+  
+修改后可使用`pg_ctl reload -D /var/lib/pgsql/` 重载数据库。
+  
+`DATABASE`/`USER`值为`all`时表示所有数据库/用户。
+  
+METHOD取值：
+  
+- `reject`  拒绝
+  
+- `trust`  信任
+  
+- `md5`  双重MD5加密口令
+  
+- `ident`  服务器鉴别认证
+  
+  通过联系客户端的 ident 服务器获取客户端的操作系统名，并且检查它是否匹配被请求的数据库用户名，只能在 TCIP/IP 连接上使用。
+  
+  **当为本地连接指定该认证方式时，将用 `peer` 认证来替代。**
+  
+- `peer`  对等认证
+  
+  从操作系统获得客户端的操作系统用户，并且检查它是否匹配被请求的数据库用户名，只对本地连接可用。
+  
+- `password`  未加密的口令
+  
+  口令是以明文形式在网络上发送的，不要在不可信的网络上使用该方式。
+  
+- `gss`认证  只对TCP/IP 连接可用
+  
+- `sspi`认证  只在Windows 上可用。
+  
+- `ldap`服务器认证
+  
+- `radius`服务器认证
+  
   - `cert`即 SSL 客户端证书认证
   - `pam`即操作系统提供的可插入认证模块服务（PAM）认证
   - `bsd`操作系统提供的BSD 认证服务进行认证
 
 ## 创建管理角色和数据库实例
 
-PostgreSQL安装时会自动创建名为`postgres`的系统用户。
+PostgreSQL安装时会自动创建名为`postgres`的系统用户（如无该用户则自行创建），切换到该用户有操作数据库：
 
 ```shell
 grep postgres /etc/passwd
-passwd postgres  #可以为postgres用户创建一个密码
 su -l postgres
 ```
 
-postgresql中的用户称为角色，默认会创建一个名为`postgres`的角色，该角色无密码。
+postgresql中的用户称为角色，默认会创建一个名为`postgres`的角色，该角色无密码（为避免将<u>数据库用户</u>和<u>操作系统用户</u>混淆，以下均称数据库中的用户为角色）。
 
-为避免和系统＂用户＂混淆，以下均称数据库中的用户为角色。
+- 创建新角色
 
-创建新角色：
+  ```shell
+  createuser dbuser  #创建一个名为dbuser角色
+  ```
 
-```shell
-createuser --interactive    #交互式创建用户
-#也可以直接创建
-createuser dbuser  #创建一个名为dbuser角色
-```
-创建数据库实例：
-```shell
-createdb -e -O dbuser dbname  #创建一个名为dbname的数据库实例，并将其归属于dbuser
-```
+  常用参数：
 
-*当然也可以在psql中使用SQL语句创建用户。*
+  - `-s`或`--superuser`  创建角色为超级用户
+  - `--interactive`  交互式创建角色、
+  - `-d`或`--createdb`  此角色可以创建新的数据库
+
+- 创建数据库
+
+  ```shell
+  createdb -e -O dbuser dbname  #创建一个名为dbname的数据库实例，并将其归属于dbuser
+  ```
+
+  常用参数：
+
+  - `-E`或`--encoding`  数据库编码
+  - `-O`或`--ownwer`  数据库的所有者
+
+*当然也可以在psql中使用SQL语句创建角色和数据库。*
 
 ## 修改数据库目录
 
@@ -217,48 +214,57 @@ ProtectHome=false
 
 # psql命令
 
-psql是postgreSQL的数据库管理命令，可以直接在系统shell下执行psql命令，也可以先执行`psql`进入其交互式命令行环境执行相关命令。
+psql是postgreSQL的数据库管理命令
 
-以下以`\`开始的均为进入`psql`环境后执行的命令。
-
-## 角色和数据库常用命令
-
-- 重置当前登录角色的密码：
-
-  ```shell
-  \password
-  ```
-
-- 修改指定角色的密码
-
-  ```shell
-  \password dbuser
-  ```
-
-- 其他常用postgresql命令
-  - 列出所有数据库：`\l`或`psql -l`
-  - 列出所有角色：`\du`
-  - 退出：`\q`
-
-## 连接数据库
-
-postgre服务默认监听于5432端口。
+可以直接在系统shell下使用psql的`-c`参数执行psql命令：
 
 ```shell
-psql -U dbuser -d dbname -h 127.0.0.1 -p 5432
-#或
-psql postgres://username:password@host:port/dbname
+psql -c "\l"
+psql -c "alter user postgres with password 'pwd123';"  #修改postgres角色密码为pwd123
 ```
 
-主要参数：
+psql常用参数：
 
-- `-h host`  指定连接的Postgres数据库IP地址
-- `-U username`  指定连接数据库的用户名
-- `-d database`  指定连接的数据库名
-- `-p port`  指定数据库连接的服务端口
+- `-h host`  指定连接的Postgres数据库IP地址（如不指定则为localhost）
+- `-U username`  指定连接数据库的用户名（如不指定则为当前shell用户名）
+- `-d database`  指定连接的数据库名（如不指定则为当前shell用户名）
+- `-p port`  指定数据库连接的服务端口（如不指定则为5432）
 - `-w`  不提示用户输入密码
 - `-W`  验证数据库用户密码
 - `-l`  列出Postgres可用的数据库信息
+
+进入psql命令行环境后可执行SQL及仅适用于psql的相关命令（*以下以`\`开始的命令*）。
+
+常用psql命令
+
+- psql命令帮助：`\?`
+
+- SQL命令帮助：`\h`
+
+- 
+
+- 列出所有数据库：`\l`或`psql -l`
+
+- 列出所有角色：`\du`
+
+- 退出：`\q`
+
+- 创建角色：`\c`
+
+- 修改角色密码`\password`
+
+  `\password username`修改某个角色的密码
+
+## 连接数据库
+
+postgre服务默认监听于5432端口，。
+
+```shell
+psql -h 127.0.0.1 -p 5432 -U dbuser -d dbname  #登录连接到指定数据库
+psql -h localhost -U dbuser  #登录到某个用户 端口默认时可省略
+#或
+psql postgres://username:password@host:port/dbname
+```
 
 ### 自动连接方式
 
@@ -281,7 +287,7 @@ psql postgres://username:password@host:port/dbname
   2. 直接连接目标数据库将读取`.pgpass`文件自动认证
 
      ```shell
-     psql -U dbuser -d dbname -h 127.0.0.1
+     psql -h 127.0.0.1 -U dbuser -d dbname
      ```
 
 # GUI工具

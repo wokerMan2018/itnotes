@@ -198,7 +198,7 @@ sort friut  #无分隔符，因此全文只有一个域，默认按第一个域�
 sort -k 1.2 friut   #对第一个域的第二个字符排序
 #排序依次是banana pear apple orange
 
-sort -n -k 2 -t : friut  #以:为分隔符，对第2域内容以数值进行排序 
+sort  -t : -k 2 -n friut  #以:为分隔符，对第2域内容以数值进行排序 
 #排序依次是apple orange banana pear
 ```
 
