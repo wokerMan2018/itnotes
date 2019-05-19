@@ -47,4 +47,20 @@
   [[ $pid ]] && kill -9 $(pstree $pid -p|grep -oE "\([0-9]+\)"|grep -oE "[0-9]+")
   ```
 
+- 获取当前终端端宽（列数）高（行数）
+
+  - 全局变量`COLUMNS`和`LINES`
+  - `tput cols`和`tput lines`
+  - `stty size`
+
+- 重复输出一个字符
+
+  ```shell
+  #打印30个*
+  s=$(printf "%-30s" "*")
+  echo -e "${s// /*}"
   
+  #根据当前终端宽度（列数）打印一整行=
+  s=$(printf "%-${COLUMNS}s" "=")
+  echo -e "${s// /=}"
+  ```
