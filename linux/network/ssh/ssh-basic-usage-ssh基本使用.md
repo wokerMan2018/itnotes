@@ -68,18 +68,20 @@ Host host1 #host1为所命名的别名
 
   跳板上的`/etc/ssh/ssh_config`或(`~/.ssh/config`)需要配置开启`ForwardAgent yes`。
 
-  1. 从客户端登录到跳板机，同时转发密钥到跳板机
+  
 
+  1. 从客户端登录到跳板机，同时转发密钥到跳板机
+  
      ```shell
-     ssh -A user@jump-host
+   ssh -A user@jump-host
      ```
 
   2. 从跳板机登录到目标主机——跳板机登录目标主机时即可以使用客户端登录时转发而来的密钥
-
+  
      ```shell
-     ssh user@target-host
+   ssh user@target-host
      ```
-
+  
      
 
 以下登录方式是直接在客户端上执行命令连接到目标主机，无需登录到跳板后再ssh登录到目标主机。

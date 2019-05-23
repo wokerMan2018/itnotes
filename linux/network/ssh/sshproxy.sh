@@ -1,81 +1,87 @@
 #!/bin/bash
+#===proxy log 日志
 log=./proxy.log
-if [[ ! -e $log ]]; then
-    touch $log
-fi
+touch $log
+
+#log file size control 日志文件大小控制 10000Bytes
 if [[ $(stat -c %s $log) -gt 10000 ]]; then
-    echo "" >$log
+    tmp_log=$(mktemp)
+    tail -n 20 >$tmp_log
+    cat $tmp_log >$log
 fi
 
-#========远程转发======
-#远程主机地址 (在该主机上面的sshd_config中将GatewayPorts 设为yes)
-remoteHost=1wei.cc
+#log timestamp
+echo "======$(date)======" >> $log
 
-#远程主机sshd端口
+#===cron task 周期任务
+user=$(whoami)
+script=$PWD/$0
+chmod +x $script
+if [[ ! $(crontab -l | grep $script) ]]; then
+    cronlist=$(mktemp)
+    echo -e "1 * * * * $script\n@reboot $script" >>$cronlist
+    crontab $cronlist
+fi
+
+#=====Remote Port Forward======远程主机转发
+#remote host addr 远程主机
+#the host as a proxy server 这个主机作为代理服务器
+remoteHost=    #IP or URL
+
+#remote host sshd port 远程主机的sshd端口
 remotePort=22
 
-#远程主机的转发端口(远程主机非root用户只能使用1024以上端口)
-proxyPort=1997
+#user on remote host 远程主机上的用户
+remoteUser=proxyuser
 
-#远程主机登录用户名
-remoteUser=proxy
+#remote host forward port 远程主机的转发端口
+#common users could only use ports above 1024 普通用户只能使用1024以上端口
+proxyPort=2001
 
-#本地主机地址
+#local host (this host) 本地主机（当前主机）
+#the host which excutes the forwarding command 这个主机是执行转发命令的主机
 localHost=localhost
 
-#本地主机sshd端口
+#local host sshd port 地主机sshd端口
 localPort=22
 
-#本地主机用户名
+#local host user 本地主机用户名
 localUser=$(whoami)
 
-#本地用户私钥（对应上传到远程主机的公钥）
+#ssh private key for above user 本地用户（上面那个localUser用户）的私钥（对应上传到远程主机的公钥）
 key="~/.ssh/id_rsa"
 
-#ssh选项（用以保持连接）
+#ssh options ssh选项（用以保持连接）
 options='-o TCPKeepAlive=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o ControlMaster=auto -o ControlPath=~/.ssh/%r@%h:%p -o ControlPersist=yes -o ControlPersist=600 -o StrictHostKeyChecking=no'
 
-#======转发前检查
+#======checking 转发前检查
 
-#查找进程中是否已经存在指定进程
-tunnelstate=$(ps aux | grep $proxyPort:$localHost:$localPort | grep -v grep)
+#check ssh process 查找进程中是否已经存在指定的ssh转发进程
+forwarding_process_info=$(ps -ef | grep $proxyPort:$localHost:$localPort | grep -v grep)
 
-#每天半夜3点断掉服务 重新启动一次
-clock=$(date +%H)
-if [[ $clock -eq 3 ]]; then
-    kill -9 $(ps -ef | grep $proxyPort | grep ssh | awk '{print $2}')
-    tunnelstate=''
+[[ -n $forwarding_process_info ]] && forwarding_pid=$(echo $forwarding_process_info | awk '{print $2}')
+
+#If the process already exists 如果转发进程已经存在
+if [[ -n $forwarding_process_info ]]; then
+    #check the forwarding port 检查转发端口连通情况
+    timeout 5 curl --silent $remoteHost:$proxyPort
+    if [[ $? -eq 0 ]]; then
+        echo "sshproxy is running" >>$log
+        exit 1
+    else
+        kill -9 $forwarding_pid
+    fi
 fi
 
-if [[ -n $tunnelstate ]]; then
-    echo "$(date) sshproxy is running" >>$log
-    exit 1
-fi
+#check remote host 验证与远程主机
+[[ -z $remoteHost ]] && echo "Missing remote host" >>$log && exit 1
 
-#验证与远程主机通信状况
-if [[ -z $remoteHost ]]; then
-    echo "not found remote host"
-    exit 1
-fi
+#check ssh key file 检查密钥文件
+[[ -f $key ]] && echo "Can not find ssh key file" >>$log && exit 1
 
-#networkstate=`ping -c 2 z.cn`
-networkstate=$(timeout 5 curl $remoteHost:$remotePort 2>/dev/null | grep -i ssh)
-
-if [[ -z $networkstate ]]; then
-    echo "can not communicate with remote host ssh port, check remote host or ssh port"
-    exit 1
-fi
-
-#检查密钥
-if [[ -f $key ]]; then
-    echo "not find ssh public key"
-    exit 1
-fi
-
-#====ssh转发
-
-echo "$(date) starting ssh proxy" >>$log
-ssh -gfCNTR $proxyPort:$localHost:$localPort $remoteUser@$remoteHost -i $key $options -p $remotePort
+#ssh forwarding 转发
+echo "starting ssh proxy" >>$log
+ssh -gfCNTR $proxyPort:$localHost:$localPort $remoteUser@$remoteHost -i $key -p $remotePort $options
 
 ##ssh参数说明
 #-g 允许远程主机连接转发端口

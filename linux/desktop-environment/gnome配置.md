@@ -84,7 +84,9 @@ shell扩展安装来源：
 
 # 相关配置
 
-## 自动登录
+## 桌面登录
+
+### 自动登录
 
 编辑`/etc/gdm/custom.conf`，添加：
 
@@ -104,25 +106,42 @@ AutomaticLoginEnable=True
 XSession=gnome-xorg
 ```
 
-## 将用户从登录列表中隐藏
+### 登录列表
 
-编辑`/var/lib/AccountsService/users/username`（username为要设置的用户）：
+- 将用户从登录列表隐藏
+
+  编辑`/var/lib/AccountsService/users/username`（username为要设置的用户）：
+
+  ```shell
+  [User]
+  SystemAccount=true
+  ```
+
+- 隐藏登录界面用户列表
+
+  通过dconf-editor修改/ogr/gnome/login-screen/disable-user-list，将其开启即可（值为true）。
+
+  或者使用：
+
+  ```shell
+  sudo su gdm -s /bin/bash
+  gsettings set org.gnome.login-screen disable-user-list true
+  ```
+
+## 锁屏管理
+
+在设置--隐私(Privacy)中可设置自动锁屏。
+
+使用命令行设置：
 
 ```shell
-[User]
-SystemAccount=true
+#false表示关闭自动锁屏，true则为开启
+gsettings set org.gnome.desktop.screensaver lock-enabled 'false'
+#延迟120秒锁屏，为0则表示无延迟
+gsettings set org.gnome.desktop.screensaver lock-delay 'uint32 120'
 ```
 
-### 隐藏登录界面用户列表
 
-通过dconf-editor修改/ogr/gnome/login-screen/disable-user-list，将其开启即可（值为true）。
-
-或者使用：
-
-```shell
-sudo su gdm -s /bin/bash
-gsettings set org.gnome.login-screen disable-user-list true
-```
 
 ## nautilus鹦鹉螺文件管理器
 
@@ -226,38 +245,67 @@ gnome3.24开始，在设置中带有该功能开关，夜光（night-light）默
 - gnome-todo  待办事项清单（可连接到todoist）
 - alacarte  gnome的菜单编辑器
 
-# 快捷键
+## 快捷键
 
-一些默认的快捷键：
+在 设置--设备--键盘
 
-|快捷键|作用|
-|--|--|
-|Super+h         | 隐藏当前窗口|
-|Super+Left/RIght| 窗口平铺于左/右侧|
-|Super+v	     | 显示通知清单|
-|Super+⬆         | 最大化窗口|
-|Super+⬇         | 还原最大化窗口为之前状态|
-|Super+⬅         | 平铺窗口到左侧|
-|Super+➡         | 平铺窗口到右侧|
-|PrtScn          | 截取屏幕为图片（建议设为super+print避免误按） |
-|Shift+PrtScn    | 截取当前屏幕为图片 |
-|Alt+PrtScn      | 截取当前窗口为图片 |
-|hift+Ctrl+Alt+r | 录制屏幕/停止录制 |
-三种截图快捷键在加上`Ctrl`后，则是截取图片到剪切板。
+一些常用的快捷键：
+
+- 窗口管理
+
+  - Super+h  隐藏当前窗口
+
+  - 最大化最小化
+
+    - Super+⬆  最大化窗口
+    - Super+⬇  还原最大化窗口为之前状态
+
+  - 窗口平铺
+
+    拖动窗口到屏幕左/右边缘会平铺该窗口到屏幕左/右
+
+    - Super+⬅  平铺窗口到左侧
+    - Super+➡  平铺窗口到右侧
+
+- 工作区
+
+  - 移动窗口到指定工作区
+    - Super+shift+Home 移动窗口到第一个工作区
+    - Super+shift+End 移动窗口到最后一个工作区
+    - Super+Shift+PageDown  移动窗口到下一个工作区
+    - Super+Shift+PageUp  移动窗口到下一个工作区
+  - 切换工作区
+    - Super+End  切换到最后一个工作区
+    - Super+Home  切换到第一个工作区
+
+- Super+v  显示通知清单
+
+- 截图
+
+  - PrtScn  截取屏幕为图片（建议设为super+print避免误按）
+  - Shift+PrtScn  截取当前屏幕为图片
+  - Alt+PrtScn  截取当前窗口为图片
+  - Shift+Ctrl+Alt+r  录制屏幕/停止录制
+
+  三种截图快捷键在加上`Ctrl`后，则是截取图片到剪切板
+
+  
+
+- Alt+F2    快速使用命令(`r`命令重启shell，`rt`命令重载shell主题）。
+
+- Alt+Space    可以弹出标题栏右键菜单。
 
 - 根据个人喜好设置的一些快捷键：
 
   在快捷键设置界面按下退格(backspace)可消除设定的快捷键。
-|快捷键|作用|
-|--|--|
-|Super+f1/f2/f3/f4 | 切换到不同工作区|
-|Ctrl+f1/f2/f3/f4   | 移动窗口到不同工作区|
-|Shift+Super+h     | 隐藏所有正常窗|
-|Super+e           | nautilus文件管理 |
-|Super+Return      | gnome-terminal终端|
-|Super+g           | gedit文件编辑器 |
-
-# 电源管理
+  
+  - Super+f1/f2/f3/f4  切换到不同工作区
+  - Ctrl+f1/f2/f3/f4  移动窗口到不同工作区
+  - Shift+Super+h  隐藏所有正常窗
+  - Super+e  nautilus文件管理
+  - Super+Return  gnome-terminal终端
+  - Super+g  gedit文件编辑器
+## 电源管理
 
 可参看[laptop笔记本相关](../laptop笔记本相关.md)
 
@@ -277,15 +325,21 @@ gnome3.24开始，在设置中带有该功能开关，夜光（night-light）默
 
 
 - 笔记本用户推荐安装[tlp](https://wiki.archlinux.org/index.php/TLP)或者[laptop-mode-tools]()
+
 - intel可安装[powertop](https://wiki.archlinux.org/index.php/Powertop)
 
-# 其他技巧
+- 息屏时间，默认为空闲五分钟，可在设置(gnome-control-center)--电源(Prower)--息屏中设置。
+
+  使用命令设置：
+
+  ```shell
+  #300为空闲时间，单位为秒，如果设置为0则表示不息屏
+  gsettings set org.gnome.desktop.session idle-delay 'uint32 300'
+  ```
+
+  
+
+## 其他
 
 - 恢复gnome初始设置`dconf reset -f /`。
 - 关闭部分软件启动时提示输入密码：删除`~/.local/share/keyrings/login.keyring`
-- `Alt+F2`    快速使用命令(`r`命令重启shell，`rt`命令重载shell主题）。
-- 开启application menu扩展可以在右上角添加分类程序菜单（默认`alt+f1`)。
-- `Alt+Space`    可以弹出标题栏右键菜单。
-- 按住`Alt`键时关机按钮会变成暂停（suspend）按钮。
-- 鼠标滚轮（鼠标中键）或`Ctrl`点击dock上的图标会打开一个程序的新窗口。
-- 拖动窗口到屏幕左/右边缘会平铺该窗口到屏幕左/右。

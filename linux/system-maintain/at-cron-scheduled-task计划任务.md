@@ -58,9 +58,13 @@ systemctl enable atd  #开机atd自启动
 
 cron有多个软件实现，如cronie、fcron、dcron等等。确保实现cron的服务已经作为守护进程运行（如ronie或crond）。
 
-`/etc/crontab`是系统的crontab文件，通常只被 root 用户或守护进程用于配置系统级别的任务。其余用户使用`crontab -e`编辑周期任务列表，cron列表每一行一个任务。
+`/etc/crontab`是系统的crontab文件，通常只被 root 用户或守护进程用于配置系统级别的任务。
 
-root用户和具有sudo权限的用户可以使用`crontab -u username -e`编辑其他用的任务列表 （username是其用户名）
+
+
+用户的crontab列表存储在`/var/spool/cron`下，文件与用户名一致。默认情况，普通用户是不能直接用编辑器添加或编辑该文件的（当然root用户可以编辑，或者对该文件进行权限重设，但不建议）。
+
+用户应使用`crontab -e`编辑周期任务列表，cron列表**每一行一个任务**。root用户和具有sudo权限的用户可以使用`crontab -u username -e`编辑其他用的任务列表 （username是其用户名）。
 
 提示：默认的cron文件编辑器一般是vi，可使用以下命令修改：
 
@@ -68,7 +72,15 @@ root用户和具有sudo权限的用户可以使用`crontab -u username -e`编辑
 export EDITOR="/usr/bin/vim" `  临时修改默认编辑器为vim
 ```
 
-用户的cron文件位于`/var/spool/cron/`目录下，文件名与用户名相同，因此也可以直接编辑该目录下相应的文件管理用户的周期任务列表。
+
+
+如果需要使用命令直接添加任务而不是使用`crontab -e`进行编辑添加，可以在一个文件中先写好任务列表，再使用crontab读取该文件一添加到用户任务列表中：
+
+```shell
+  cronlist=$(mktemp)
+  echo "1 * * * * whoami" >> $cronlist
+  crontab $cronlist
+```
 
 
 

@@ -1,3 +1,18 @@
+- install和cp
+
+  一些程序安装脚本以及Makefile里会用到install进行文件复制，它与cp主要区别：
+
+  - 如果目标文件存在，cp会先清空文件后往里写入新文件，而install则会先删除掉原先的文件然后写入新文件
+
+    这是因为往正在使用的文件中写入内容可能会导致一些问题，比如写入正在执行的文件可能会失败，已经在持续写入的文件句柄中写入新文件会产生错误的文件。使用  install先删除后写入（会生成新的文件句柄）的方式去安装就能避免这些问题
+
+  - install命令会恰当地处理文件权限的问题。
+
+    - `install -c a /path/to/b`  把目标文件b的权限设置为`-rwxr-xr-x`
+    - `install -m0644  a /path/to/b`  把目标文件b的权限设置为`-rw-r--r--`
+
+  - install命令可以打印出更多更合适的debug信息，还会自动处理SElinux上下文的问题。
+
 - shell文件格式化工具`shfmt`
 
 - 获取当前发行版信息
@@ -32,14 +47,6 @@
   xdg-open testfile  #使用默认编辑器打开testfile文件
   ```
 
-- 临时文件
-
-  ```shell
-  testfile=$(mktemp)
-  echo "test test" > $testfile
-  cat $testfile  #test test
-  ```
-
 - 杀死一个进程以及其所有后代进程
 
   ```shell
@@ -51,16 +58,41 @@
 
   - 全局变量`COLUMNS`和`LINES`
   - `tput cols`和`tput lines`
-  - `stty size`
+  - `stty size`  (输出两个数字，以空格分开，前面为行数--高，后面为列数-宽）
 
 - 重复输出一个字符
 
+  - 使用printf
+
+    ```shell
+    #打印30个*
+    s=$(printf "%-30s" "*")
+    echo -e "${s// /*}"
+    
+    #根据当前终端宽度（列数）打印一整行=
+    s=$(printf "%-${COLUMNS}s" "=")
+    echo -e "${s// /=}"
+    
+    #使用sed
+    printf "%-${COLUMNS}s" "="|sed "s/ /=/g"
+    ```
+
+  - 使用seq
+
+    根据当前终端宽度（列数）打印一整行`=`：
+
+    ```shell
+     seq -s "=" ${COLUMNS}|sed -E "s/[0-9]//g"
+    ```
+
+    seq以`=`为分隔符生成与终端宽度字符数量相等的数字（形如`1=2=3=4`）
+
+    sed正则匹配所有数字并替换为空字符串。
+
+- gzexe给脚本加密（普通文件亦可）
+
   ```shell
-  #打印30个*
-  s=$(printf "%-30s" "*")
-  echo -e "${s// /*}"
-  
-  #根据当前终端宽度（列数）打印一整行=
-  s=$(printf "%-${COLUMNS}s" "=")
-  echo -e "${s// /=}"
+  gzexe a.sh
   ```
+
+   例如给a.sh加密，该命令执行完成后将有两份文件，`a.sh`和`a.sh~`，带`~`的是原来的文件，不带`~`的是加密过的文件。

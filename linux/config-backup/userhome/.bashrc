@@ -4,6 +4,7 @@
 [[ $- != *i* ]] && return
 
 #******** Default display ********
+#===PS
 function git-branch-name {
   git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3
 }
@@ -16,6 +17,8 @@ PS1="\u@\h \[\e[0;36m\]\W\[\e[0m\]\[\e[0;32m\]\$(git-branch-prompt)\[\e[0m\] \$ 
 
 #PS1="\e[1m\u\e[0m @ \e[36m\h\e[0m |$(date +%D) > \w ] \$ "
 
+#===PS end
+
 innerip=`ip addr | grep -o -P '1[^2]?[0-9]?(\.[0-9]{1,3}){3}(?=\/)'`
 gateway=`ip route | grep 'via' |cut -d ' ' -f 3 |uniq`
 
@@ -23,14 +26,11 @@ echo -e "\e[36mHello, \e[1m`whoami`\e[0m
 \e[1m`uname -srm`\e[0m
 \e[1;36m`date`\e[0m
 \e[1;32m$gateway\e[0m <-- \e[1;31m$innerip\e[0m
-
 \e[1;34mTo grow, we all need to suffer.\e[0m
-
 \e[37m+++++++=====\e[0m\e[37;5m Tips \e[0m\e[37m=====+++++++\e[0m
 \e[1mrecord terminal: rec\e[0m
 \e[1mplay recordfile: play [filename]\e[0m
 \e[1mbackup configs : backupconfigs\e[0m
-
 \e[37m+++++=====\e[0m\e[37;5mLet's Begin\e[0m\e[37m====+++++\e[0m"
 
 ### bash settings ###
@@ -39,36 +39,29 @@ HISTSIZE="5000"
 # input !^ then press space-button
 bind Space:magic-space
 
-#******** PATH ********
-#proxy | use privoxy transfer socks5 to http
-#export ALL_PROXY="socks5://127.0.0.1:1080"
-#export no_proxy=
-#export ftp_proxy=
-#export socket_proxy=
-#export http_proxy="http://127.0.0.1:8080"
-#export https_proxy="http://127.0.0.1:8080"
-
-alias proxyon="export http_proxy='http://127.0.0.1:8080';export https_proxy='http://127.0.0.1:8080'"
-alias proxyoff="unset https_proxy;unset https_proxy"
-
-# ******** important configs backup******
-configs_files=( .bashrc .gitconfig .vimrc .makepkg.conf .bash-powerline.sh)
+# ******** important files backup******
+configs_files=(.ssh/config .bashrc .gitconfig .vimrc .makepkg.conf .bash-powerline.sh)
 path_for_bakcup=~/Documents/it/itnotes/linux/config-backup/userhome
 
 function backupconfigs(){
-    cd ~
-    for config in ${configs_files[*]}
-    do
-        \cp -av ~/$config $path_for_bakcup
-    done
+  cd ~
+  for config in ${configs_files[*]}
+  do
+    if [[ $config == .ssh/config ]]
+    then
+      \cp -av $config ~/Documents/network/ssh/
+    else
+      \cp -av ~/$config $path_for_bakcup
+    fi
+  done
 }
 
 function restoreconfigs(){
-    cd ~
-    for config in ${configs_files[*]}
-    do
-        \cp -av $path_for_bakcup/$config ~
-    done
+  cd ~
+  for config in ${configs_files[*]}
+  do
+    \cp -av $path_for_bakcup/$config ~
+  done
 }
 
 # ******** alias ********
@@ -120,7 +113,7 @@ alias beep='sudo rmmod pcspkr && sudo echo "blacklist pcspkr" > /etc/modprobe.d/
 alias bluetoothon='sudo systemctl start bluetooth'
 alias bluetoothoff='sudo systemctl stop bluetooth'
 
-#---print---
+#---printer---
 alias printer='sudo systemctl start org.cups.cupsd.service'
 
 #===system commands===
@@ -131,17 +124,19 @@ alias pacman='sudo pacman'
 alias orphan='pacman -Rscn $(pacman -Qtdq)'
 alias pacclean='sudo paccache -rk 2'
 
-#upgrade OS
+#upgrade
 alias up='yay && pacclean -rk 2 && orphan'
 
-#makepkg aur packing
+#makepkg aur
 alias aurinfo='makepkg --printsrcinfo > .SRCINFO ; git status'
 
 #---temporary locale---
+#startx (.xinitrc)
 alias x='export LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8 LC_MESSAGES=en_US.UTF-8 && startx'
 alias xtc='export LANG=zh_TW.UTF-8 LC_CTYPE=zh_TW.UTF-8 LC_MESSAGES=zh_TW.UTF-8 && startx'
 alias xsc='export LANG=zh_CN.UTF-8 LC_CTYPE=zh_CN.UTF-8 LC_MESSAGES=zh_CN.UTF-8 && startx'
 
+#lang
 alias cn='export LANG=zh_CN.UTF-8 LC_CTYPE=zh_CN.UTF-8 LC_MESSAGES=zh_CN.UTF-8'
 alias en='export LANGUAGE=en_US.UTF-8'
 
@@ -165,10 +160,6 @@ alias grep='grep --color'
 
 alias tree='tree -C -L 1 --dirsfirst'
 
-alias atd='systemctl start atd'
-
-# clean unused files
-alias cleanoldlinks='sudo rm $(find -xtype l -print)'
 
 # ===common tools short commands===
 
@@ -196,14 +187,16 @@ alias privoxyrestop='sudo systemctl stop privoxy'
 alias lnmphp='sudo systemctl start nginx php-fpm'
 alias lnmpython='systemctl start nginxln'
 
-#---nmap
+# database
+#alias mariadb
+#alias psqlstart='sudo systemctl start postgresql'
+
+# nmap
 #scan alive hosts
 alias 'nmap-hosts'="sudo nmap -sS `echo $gateway|cut -d '.' -f 1-3`.0/24"
 
 #install/update geoip database
 alias geoipdata="cd /tmp && wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz && wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && wget http://download.maxmind.com/download/geoip/database/asnum/GeoIPASNum.dat.gz && gunzip GeoIP.dat.gz && gunzip GeoIPASNum.dat.gz && gunzip GeoLiteCity.dat.gz && sudo cp GeoIP.dat GeoIPASNum.dat GeoLiteCity.dat /usr/share/GeoIP/ && cd -"
-
-#---convert tools----
 
 #iconv -- file content encoding
 alias iconvgbk='iconv -f GBK -t UTF-8'
@@ -223,9 +216,6 @@ alias dockerstart='sudo systemctl start docker && docker ps -a'
 #libvirtd
 alias virt='sudo modprobe virtio && sudo systemctl start libvirtd ebtables dnsmasq'
 
-#youdao dict
-alias yd='ydcv'
-
 #npm -g list --depth=0
 alias npmlistg='sudo npm -g list --depth=0'
 alias npmtaobao=' --registry=https://registry.npm.taobao.org'
@@ -240,12 +230,26 @@ alias matrix='cmatrix'
 #starwar
 alias starwar='telnet towel.blinkenlights.nl'
 
-#ssl key log
-SSLKEYLOGFILE=$PWD/ssl.log
 #=======
 # my scripts PATH
 [[ -d ~/Documents/scripts ]] && export PATH=~/Documents/scripts:$PATH
 
 #bash-powerline : https://github.com/riobard/bash-powerline
 [[ -f ~/.bash-powerline.sh ]] &&  source ~/.bash-powerline.sh
-[[ -f /etc/profile.d/autojump.bash ]] &&  source /etc/profile.d/autojump.bash
+[[ -f /etc/profile.d/autojump.zsh ]] && source /etc/profile.d/autojump.sh
+#安装中文古诗词
+function install_fortune_gushici(){
+  git clone --recursive https://github.com/shenyunhang/fortune-zh-data.git
+  cd fortune-zh-data
+  sudo cp * /usr/share/fortunes/
+}
+if [[ $(which fortune 2>/dev/null) ]]
+then
+  fortune -e tang300 song100 #先秦 两汉 魏晋 南北朝 隋代 唐代 五代 宋代 #金朝 元代 明代 清代
+  #if [[ ! -e /usr/share/fortunes/先秦.dat ]]
+  #then
+  #echo "可使用命令"install_fortune_gushici"下载古诗词数据"
+  #fi
+fi
+
+#PATH

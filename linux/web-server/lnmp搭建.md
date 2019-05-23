@@ -61,11 +61,16 @@ LNMP（linux,nginx,mariadb,php）部署，以下默认在root权限下操作，�
 在`/etc/nginx/conf.d/`中新建一个.conf文件，如website.conf，内容如下(据情况修改)：
 ```nginx
 server{
-  listen 80;
-  server_name localhost;
-  root /srv;
-  index index.html index.php;
-  charset utf-8,gbk;
+    listen 80;
+    server_name localhost;
+    root /srv;
+    index index.html index.php;
+    charset utf-8,gbk;
+    
+    #为一个单页应用配置解析的示例
+    location single_page_app {
+        try_files $uri $uri/ /index.html;
+    }
 }
 ```
 
@@ -189,14 +194,22 @@ autoindex_localtime on;
 
      在/etc/nginx/nginx.conf文件中加载fancy模块（例如该模块位于/usr/lib/nginx/modules下）：`load_module "/usr/lib/nginx/modules/ngx_http_fancyindex_module.so";` 。
 
-- 目录浏览加密
+### 页面加密
 
-  可以用htpasswd工具来生成密码，然后在要加密的目录的location中单独[配置](nginx/conf.d/indexview/passlock)：
+可以用htpasswd工具来生成密码，使用以下命令生成一个密码文件：
 
-  ```nginx
-  auth_basic "passwd";  #passwd是使用htpasswd生成的密码
-  auth_basic_user_file /var/www/html/.htpasswd;  #密码文件路径
-  ```
+```shell
+#username是要添加的用以在加密页面登录的用户
+#password是对应的用户名
+htpasswd -c /etc/nginx/conf.d/lock username password
+```
+
+然后在要加密的目录的location中单独[配置](nginx/conf.d/passlock)：
+
+```nginx
+auth_basic "passwd";  #passwd是使用htpasswd生成的密码
+auth_basic_user_file /etc/nginx/conf.d/lock;  #密码文件路径
+```
 
 ## phpmyadmin配置
 
