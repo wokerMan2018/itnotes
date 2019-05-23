@@ -6,7 +6,19 @@ LSF和openlava
 
 > openlava兼容IBM Spectrum LSF的工作负载调度器，支持各种高性能计算和分析应用。
 
-# 资源信息
+# 程序管理
+
+以下命令可能需要root（或sudo）用户才能执行。
+
+```shell
+lsid  #查看集群说明信息
+#启动/停止程序
+openlava start  #启动
+openlava stop  #停止
+openlava status  #状态
+```
+
+# 获取信息
 
 - host：主机（集群中的一个节点，一般是指一台单独的设备）
 
@@ -285,76 +297,3 @@ bresume 1234  #删除1234号任务
 bkill  <作业编号>
 bkill 1234  #删除1234号任务
 ```
-
-
-
-# 程序管理
-
-以下命令可能需要root（或sudo）用户才能执行。
-
-```shell
-lsid  #查看集群说明信息
-#启动/停止程序
-openlava start  #启动
-openlava stop  #停止
-openlava status  #状态
-```
-
-## 资源限制
-
-资源管理配置文件`config/lsb.resources`，可调控用户在集群中可使用的资源配额。
-
-可针对不同用户类型设置多种类型资源的使用限制。可配置的资源类型和用户类型如下：
-
-- 资源类型（Resource types）
-  - SLOT或SLOT_PER_PROCESSOR（工作槽）
-  - MEM（内存）
-  - SWP（交换空间）
-  - TMP（临时空间）
-  - JOBS（作业数量，包含RUN、SSUSP和USUSP[状态](#作业状态)的作业）
-  - RESOURCE（其他共享资源）
-- 用户类型（Consumer types）
-  - USERS或PER_USER（用户）
-    - `all`  所有用户
-    - `user1 user2 ... userN`  指定的用户（以空格分隔）
-  - QUEUES或PER_QUEUE（队列）
-  - HOSTS或PER_HOST（主机）
-  - PROJECTS或PER_PROJECT（项目）
-  - LIC_PROJECTS或PER_LIC_PROJECT
-
-
-
-限制策略示例：
-
-```shell
-Begin Limit  #限制策略开始标志
-NAME=limit1  #限制策略的名字
-PER_USER=all  #限制用于所有用户
-SLOTS=10  #限制作业槽---一般等于cpu数量
-End Limit  #限制策略结束标志
-```
-
-### 节点
-
-- 增加节点
-
-  1. 修改`/share/openlava/etc/lsb.hosts`配置文件，将新节点的`hostname`添加新节点到队列数组中
-
-  2. 更新lsf配置
-
-     ```shell
-     lsadmin reconfig
-     ```
-
-  3. 在新计算节点上启动lsf相关服务
-
-     ```shell
-     source  /share/openlava/etc/openlava.sh
-     /share/openlava/etc/openlava start
-     ```
-
-- 删改节点
-
-参照增加节点的方法，删除和修改`/share/openlava/etc/lsb.hosts`配置，然后更新lsf配置。
-
-## 配置

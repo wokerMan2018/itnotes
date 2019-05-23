@@ -3,7 +3,7 @@
 如果非单一节点的情况：
 
 - 选定一个节点作为openlava服务器（管理节点），配置该节点到其他节点的ssh密钥登录。
-- 确保所有节点使用同一用户运行openlava（可使用nis等服务）。
+- 确保所有节点使用同一用户运行openlava（可使用nis等服务管理集群用户）。
 - 在管理节点的hosts文件（`/etc/hosts`）中加入其他节点的hostname解析
 - 关闭各个节点防火墙或者开放相应的端口（在openlava的etc目录下lsf.conf中可查看各个服务的监听端口）
 
@@ -15,14 +15,7 @@
 - ncurses-devel
 - tcl-devel
 
-修改集群说明信息(lsid)，编辑`lsf/lsftools/lsid.c`中相关说明文字。(todo)
-
-```shell
-clusterName='xxxhpc'
-userName='manage\ node\ is'
-sed -i s/'My cluster name is %s'/$clusterName\\n/ lsf/lsftools/lsid.c
-sed -i s/'My master name is'/$clusterName/ lsf/lsftools/lsid.c
-```
+修改集群说明信息(lsid)，编辑`lsf/lsftools/lsid.c`中相关说明文字。
 
 以编译安装安装到`/opt/openlava`为例，下同。
 
@@ -39,7 +32,7 @@ cd $dest/etc
 \rm Makefile* *.in -f
 ```
 
-# 应用配置
+# 基本配置
 
 - 执行用户和环境变量
 
