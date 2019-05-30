@@ -6,16 +6,17 @@ touch $log
 #log file size control 日志文件大小控制 10000Bytes
 if [[ $(stat -c %s $log) -gt 10000 ]]; then
     tmp_log=$(mktemp)
-    tail -n 20 >$tmp_log
+    tail -n 20 $log >$tmp_log
     cat $tmp_log >$log
 fi
 
 #log timestamp
-echo "======$(date)======" >> $log
+echo "======$(date)======" >>$log
 
 #===cron task 周期任务
 user=$(whoami)
-script=$PWD/$0
+#script is this script file path
+[[ $(echo $0 | grep $PWD) ]] && script=$0 || script=$PWD/$0
 chmod +x $script
 if [[ ! $(crontab -l | grep $script) ]]; then
     cronlist=$(mktemp)
@@ -26,7 +27,7 @@ fi
 #=====Remote Port Forward======远程主机转发
 #remote host addr 远程主机
 #the host as a proxy server 这个主机作为代理服务器
-remoteHost=    #IP or URL
+remoteHost= #IP or URL
 
 #remote host sshd port 远程主机的sshd端口
 remotePort=22

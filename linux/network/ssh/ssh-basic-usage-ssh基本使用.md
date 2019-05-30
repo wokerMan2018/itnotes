@@ -58,93 +58,104 @@ Host host1 #host1为所命名的别名
 
 ## 跳板登录
 
-在某些情况下，需要先登录跳板机（可能不止一个跳板机），再从跳板机登录到目标服务器：
+在某些网络限制的情况下，需要通过跳板机（可能不止一个跳板机）登录到目标服务器：
 
 **客户端** ---> **跳板机** ---> **目标主机**
 
-- 登录到跳板主机，再从跳板主机登录到目标就主机——转发密钥`-A`
+### 登录方式
 
-  如果客户端上有和目标主机匹配的密钥，但跳板主机上没有和目标主机匹配的密钥（一般多是为了安全没有在跳板机和目标主机进行密钥认证），可使用密钥转发功能将客户端密钥转发到跳板机上。
-
-  跳板上的`/etc/ssh/ssh_config`或(`~/.ssh/config`)需要配置开启`ForwardAgent yes`。
-
-  
-
-  1. 从客户端登录到跳板机，同时转发密钥到跳板机
-  
-     ```shell
-   ssh -A user@jump-host
-     ```
-
-  2. 从跳板机登录到目标主机——跳板机登录目标主机时即可以使用客户端登录时转发而来的密钥
-  
-     ```shell
-   ssh user@target-host
-     ```
-  
-     
-
-以下登录方式是直接在客户端上执行命令连接到目标主机，无需登录到跳板后再ssh登录到目标主机。
-
-- 分配伪终端跳转登录到目标主机`-t`
+- 先从客户端登录到跳板主机，再从跳板主机登录到目标就主机
 
   ```shell
-  ssh -t user@jump-host ssh -t user@target-host
+  ssh user@jump-host
+  ssh user@target-host
   ```
+  
+- 直接从客户端执行命令登录到目标主机
 
-  多个跳板机时，按顺序逐个`ssh -t`即可。
+  - 使用`-t`分配伪终端
 
-  如果以上**各步骤的ssh登录都实现了ssh密钥验证，将直接登录到目标主机**。如果某一步登录无法密钥验证，将会提示输入密码。
+    相当于合并多次ssh命令：
 
-- 跳跃登录到目标主机`-J`
+    ```shell
+    ssh -t user@jump-host ssh -t user@target-host
+    ```
 
-  原理是在跳板机上建立TCP转发，让客户端ssh数据直接转发到目标服务器上等ssh端口。
+  - 使用代理跳跃登录（`-J`参数或`ProxyJump`配置）
 
+    原理是在跳板机上建立TCP转发，让客户端ssh数据直接转发到目标服务器上等ssh端口。
+
+    ```shell
+    #注意，跳板机的端口需要直接在地址后面添加 以冒号分隔
+    ssh -J user@jum[:port] user@target -p <port>
+    #如有多个跳板机使用逗号隔开
+    ssh -J user@jump1,user@jump2:2333 user@target -p 22
+    ```
+
+    `-J`是`ProxyJump`的快捷使用方式。使用`ProxyJump`实现Jump直接跳跃登录功能：
+
+    ```shell
+    ssh user@target -o ProxyCommand='ssh user@jump-host -W %h:%p'
+    ```
+
+    或者在`~/.ssh/config`中进行配置如下内容，然后使用`ssh target`直接登录到target：
+
+    ```shell
+    Host jump #跳板机配置
+        HostName 10.10.1.1
+        Port 2333
+        User user1
+      
+    Host target #目标主机配置
+        HostName 10.10.10.10
+        Port 1010
+        User user
+        ForwardAgent yes
+        ProxyCommand ssh jump -q -W %h:%p
+    ```
+
+### 转发认证
+
+为了方便，一般我们会配置，客户端到跳板机的密钥认证，以及跳板机到目标主机的密钥认证（甚至使用同一套密钥）：
+
+> 客户端---ssh-keys--->跳板机
+>
+> 跳板机---ssh-keys--->目标主机
+
+但在某些对安全性有较高要求的情况下，我们**不希望跳板机可以通过密钥认证登录到目标主机**（可能没有配置跳板机到目标主机的密钥认证，甚至为了安全关闭了目标主机的密码登录），而是**将客户端的公钥直接存放到目标服务器**。
+
+> 客户端：私钥<===匹配===>公钥：目标服务器
+
+为了实现使用客户端使用密钥登录的目标服务，可以使用转发密钥认证的方式实现。
+
+不过，如果**使用`J`跳跃登录无需使用认证转发功能**即可实现上诉密钥登录要求，跳板机仅作为一个流量转发者。
+
+实现认证转发的方法：
+
+- 配置`ForwardAgent yes`
+
+  在客户端的`/etc/ssh/ssh_config`或`~/.ssh/config`中配置`ForwardAgent yes`即可。
+
+- `-A` 参数
+
+  如未配置`ForwardAgent yes`，也可以使用`-A`参数，其作用是：
+
+  > 允许转发认证代理的连接
+
+  逐步跳跃登录的方式：
+  
   ```shell
-  ssh -J user@jum[:port] user@target -p <port>
-  #如有多个跳板机使用逗号隔开
-  ssh -J user@jump1,user@jump2:2333 user@target -p 22
+  #1. 从客户端登录到跳板机 并将密钥交给agent 以供跳板机使用
+  ssh -A user@jump-host
+  #2. 从跳板机登录到目标主机将使用来自客户端的密钥
+  ssh user@target-host
   ```
-
-  如果**客户端和跳板机**以及**客户端和目标主机**均有匹配的密钥，则可以无需输入密码直接登录到目标主机。
-
-  如果客户端和目标主机无密钥认证，即使跳板和目标主机有密钥认证，也无法直接免密码登录到目标主机。
-
-  注意：只有跳板机才能使用`:`进行端口指定，后面的目标服务器端口指定仍然只能使用`-p`指定。
-
-- 代理命令`proxyCommand`跳转登录到目标主机
-
+  
+  分配伪终端`-t`登录的方式：
+  
   ```shell
-  ssh user@target -o ProxyCommand='ssh user@jump -W %h:%p'
+  ssh -t -A user@jump-host ssh -t user@target-host
   ```
-
-  为了简化操作可使用[别名登录](#别名登录)：
-
-  ```shell
-  Host jump #跳板机配置
-    HostName 10.10.1.1
-    Port 2333
-    User user1
-
-  Host target #目标主机配置
-    HostName 10.10.10.10
-    Port 1010
-    User user
-    ForwardAgent yes
-    ProxyCommand ssh jump -q -W %h:%p
-  ```
-
-  直接`ssh target`即可登录。
-
-## 密钥转发
-
-`-A`参数可将客户端密钥转发到目标服务器上。
-
-也可以在ssh配置文件中添加`ForwardAgent yes`开启转发。
-
-```shell
-ssh -A -t user@jump ssh -A -t user@target
-```
 
 ## 连接复用
 
@@ -588,39 +599,49 @@ fusermount -u /share
 
 - ssh命令中使用参数`-v`可输出详细的调试信息
 
-- 各种登录失败问题
-  - 确保`.ssh`文件夹权限为700，`authorized_keys`及公私钥文件的权限为`600`
+- `error fetching identities for protocol 1: agent refused operation`
 
-    ```shell
-    chmod 600 ~/.ssh/* && chmod 700 ~/.ssh
-    ```
+  > 本地的`ssh-agent` 是一种用来控制公要身份验证的所使用的程序，在使用`ssh-keygen`新添加了私钥公钥之后，需要使用`ssh-add`将当前新的秘钥交给`agent`管理。
 
-  - 客户端存在多个密钥对时，可能需要指定使用的私钥
+  ```shell
+  eval "$(ssh-agent -s)"
+  ssh-add
+  ```
 
-    使用`-i`指定**私钥** ：
+## 各种登录失败问题
 
-    ```shell
-    ssh -i /path/to/private-key/ [-p port] user@host
-    ```
+- 确保`.ssh`文件夹权限为700，`authorized_keys`及公私钥文件的权限为`600`
 
-  - ` REMOTE HOST IDENTIFICATION HAS CHANGED` 远程主机公钥未能通过主机密钥检查
+  ```shell
+  chmod 600 ~/.ssh/* && chmod 700 ~/.ssh
+  ```
 
-    客户端首次登录ssh服务器时，客户端会记录服务器的公钥信息到`~/.ssh/known_hosts`（已知主机列表）文件中，每个主机一行。
+- 客户端存在多个密钥对时，可能需要指定使用的私钥
 
-    如果连接服务器时，服务器公钥与know_hosts列表中记录的公钥不同（例如远程主机更改了密钥），就会校验不通过。
+  使用`-i`指定**私钥** ：
 
-    解决方案：
-    - 删除客户端`.ssh/known_hosts`文件中检查不通过的ssh服务器的公钥信息
-    - 关闭客户端的严格主机密钥检查(strict host key check)
+  ```shell
+  ssh -i /path/to/private-key/ [-p port] user@host
+  ```
 
-    在`.ssh/config`（或`/etc/ssh/ssh_config`）中添加
+- ` REMOTE HOST IDENTIFICATION HAS CHANGED` 远程主机公钥未能通过主机密钥检查
 
-    ```shell
-    StrictHostKeyChecking no
-    ```
+  客户端首次登录ssh服务器时，客户端会记录服务器的公钥信息到`~/.ssh/known_hosts`（已知主机列表）文件中，每个主机一行。
 
-    如果无需严格的主机密钥检查，也可以将已知主机信息文件指向`/dev/null`。
+  如果连接服务器时，服务器公钥与know_hosts列表中记录的公钥不同（例如远程主机更改了密钥），就会校验不通过。
 
+  解决方案：
+  - 删除客户端`.ssh/known_hosts`文件中检查不通过的ssh服务器的公钥信息
+  - 关闭客户端的严格主机密钥检查(strict host key check)
+
+  在`.ssh/config`（或`/etc/ssh/ssh_config`）中添加
+
+  ```shell
+  StrictHostKeyChecking no
+  ```
+
+  如果无需严格的主机密钥检查，也可以将已知主机信息文件指向`/dev/null`。
+  
 - `command not found` 执行远程命令提示找不到命令
 
   使用远程主机上的**非root用户**执行位于远程主机上`/sbin`（或`/usr/sbin/`）目录下的程序时，会提示"command not found"，解决方法：
@@ -635,7 +656,7 @@ fusermount -u /share
   /usr/sbin/ip a
     /usr/sbin/lspci
     ```
-  
+
 - `Permission denied (publickey,gssapi-keyex,gssapi-with-mic)`
 
   检查`/etc/ssh/sshd_config`是否关闭了密码登录。如需开启密码登录，修改该行：
