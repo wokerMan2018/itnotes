@@ -45,7 +45,7 @@ NAT服务器负责将内部网络的流量（来自网口2）转换到外部网�
 
    ```shell
    #查看开启状态 1为开启 0为关闭
-    sysctl -a |grep ip_forward
+   sudo sysctl -n net.ipv4.ip_forward
    #或sysctl net.ipv4.ip_forward
    #或 cat /proc/sys/net/ipv4/ip_forward
    
@@ -53,12 +53,14 @@ NAT服务器负责将内部网络的流量（来自网口2）转换到外部网�
    echo 1 > /proc/sys/net/ipv4/ip_forward
    sysctl -w net.ipv4.ip_forward=1
    
-   #永久生效
+   #永久生效（配置须在重启后才被启用）
    echo "
    net.ipv4.ip_forward=1
    net.ipv6.conf.default.forwarding=1
    net.ipv6.conf.all.forwarding=1
    " > /sysctl.d/ip_forward.conf
+   #使用该命令可以立即读取上面增加的配置文件 使配置生效
+   sysctl --system
    ```
 
 2. 端口转发
@@ -104,14 +106,16 @@ NAT服务器负责将内部网络的流量（来自网口2）转换到外部网�
    
      ```shell
      #1. 添加SNAT规则  示例
-     # 172.16.1.0/24为内网网卡eno2的子网　10.0.0.61为外网网卡eno1的IP
+     # 172.16.1.0/24为内网网卡eno2的子网　192.168.1.1为外网网卡eno1的IP
      iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o eno2 -j SNAT --to-source 192.168.1.1
+     #或
+     #iptables -A POSTROUTING -t nat -o eno2 -j MASQUERADE
      
      #2. 保存设置的规则
      service iptables save            
-     service iptables restart
+   service iptables restart
      ```
-   
+     
      
 
 ## NAT客户端配置

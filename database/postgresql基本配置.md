@@ -173,22 +173,21 @@ Linix中安装postgres后，其数据存储的目录一般是`/var/lib/pgsql/dat
   #以dbuser身份，创建一个名为dbname的数据库实例，并将其归属于dbuser
   createdb -U dbuser -O dbuser dbname
   ```
-```
   
-参数说明：
+  参数说明：
   
-  - `-E`或`--encoding`  数据库编码
-  - `-O`或`--ownwer`  数据库的所有者
-
-*当然也可以在psql中使用SQL语句创建用户和数据库。*
-
-- 删除数据库dropdb
+    - `-E`或`--encoding`  数据库编码
+    - `-O`或`--ownwer`  数据库的所有者
+  
+  *当然也可以在psql中使用SQL语句创建用户和数据库。*
+  
+  - 删除数据库dropdb
 
 ## 修改数据库存放目录
 
 *nix中安装postgres后，其默认目录一般是`/var/lib/pgsql/data`（或`/var/lib/postgres/data`），可根据需求修改位置。示例迁移位置为`/home/pgdata`：
 
-​```shell
+```shell
 pg_root=/home/postgres
 data_dir=$pg_root/data
 mkdir -p $data_dir
@@ -204,8 +203,6 @@ PIDFile=/home/postgres/data/postmaster.pid
 #如果要将/home 目录用作默认目录或表空间，需要添加：
 ProtectHome=false
 ```
-
-
 
 # psql命令
 

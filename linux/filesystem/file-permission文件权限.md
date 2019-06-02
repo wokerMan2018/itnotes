@@ -61,16 +61,14 @@ rwx是最基本的权限。
   - 执行过程中，执行者将具有该程序拥有者(owner)的权限。
 
   注意：如果所有者是 root 的话，那么该文件的执行者就有超级用户的特权。
-
-
-
-  当`s` 标志出现在文件权限信息中所有者的x权限位置时，则此程序被设置了SUID特殊权限。
-
+  
+  查看具有SUID的文件权限信息，可看到**`s` 标志替换原所有者的`x`标志**：
+  
   > [root@cent7 ~]# ls -l /usr/bin/passwd                                                                                   -rwsr-xr-x. 1 root root 27832 Jun 10  2014 /usr/bin/passwd
 
 - SGID
 
-  特点同SUID，只是`s`出现在文件权限信息中所属群组的x位置，SGID权限对该群组（group）用户有效。
+  特点同SUID，只是**`s`替换文件权限信息中所属群组的`x`标志**，SGID权限对该群组（group）用户有效。
 
   > [root@cent7 ~]# ls -l /usr/bin/wall -a
   > -r-xr-sr-x. 1 root tty 15344 Jun 10  2014 /usr/bin/wall
@@ -164,7 +162,7 @@ ACL 通过以下对象来控制权限：
 ```shell
 getfacl <file>  #获取文件的权限信息
 
-#setfacl [-bkndRLP] { -m|-M|-x|-X ... } <acl规则>
+setfacl [-bkndRLP] { -m|-M|-x|-X ... } <acl规则>
 #设置文件权限示例： set -m <u|g|o|m]:[name]:[rwx-] <file>
 ```
 
@@ -173,18 +171,22 @@ setfacl使用：
 - 参数
 
   - 设置规则的参数
-    - `-m`  设置后面的acl规则
-    - `-M`  从文件或标准输入读取acl规则
-    - `-R`  递归设置后面的acl规则，包括子目录
-    - `-d`  设置默认acl规则 （子文件将继承目录ACL权限规则）
+    - `-m`或`--modify`  设置后面的acl规则
+    - `-M`或`--modify-file`  从文件或标准输入读取acl规则
+    - `-R`或`--recursive`  递归设置后面的acl规则，包括子目录
+    - `-d`或`--default`  设置默认acl规则 （子文件将继承目录ACL权限规则）
 
   - 删除规则的参数
 
-    - `-x`  删除后面的acl规则
-    - `-X`  从文件或标准输入读取acl规则
-    - `-b`  删除全部的acl规则
-    - `-k`  删除默认的acl规则  （子文件将继承目录ACL权限规则）
-
+    - `-x`或`--remove`  删除后面的acl规则
+    - `-X`或`--remove-file`  从文件或标准输入读取acl规则
+    - `-b`或`--remove-all`  删除全部的acl规则
+    - `-k`或`--remove-default`  删除默认的acl规则  （子文件将继承目录ACL权限规则）
+    -  `--set`  从指定文件（可指定多个）中读取acl规则
+      - `--set-file=file`  从文件中读取acl规则
+      - `--mask`  重新计算有效权限
+    - `-n`或`--no-mask`  不要重新计算有效权限
+    
     注意：最基本的ugo三个规则不能删除。
 
 - 规则写法：`default:用户类型:名称:权限` （default也可简写为d）

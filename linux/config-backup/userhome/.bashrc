@@ -122,7 +122,7 @@ alias printer='sudo systemctl start org.cups.cupsd.service'
 #pacman
 alias pacman='sudo pacman'
 alias orphan='pacman -Rscn $(pacman -Qtdq)'
-alias pacclean='sudo paccache -rk 2'
+alias pacclean='sudo paccache -rk 2 2>/dev/null'
 
 #upgrade
 alias up='yay && pacclean -rk 2 && orphan'
@@ -143,14 +143,14 @@ alias en='export LANGUAGE=en_US.UTF-8'
 # ---logs---
 # clear 2 weeks ago logs
 alias logclean='sudo journalctl --vacuum-time=2weeks'
+alias lastb='sudo lastb'
+alias lastlog='lastlog|grep -Ev  "\*{2}.+\*{2}"'
 
 #---file operation---
 
 alias ls='ls --color=auto'
 alias ll='ls -lh'
 alias la='ls -lah'
-
-[[ $(which bat 2>/dev/null) ]] && alias cat=bat
 
 [[ -d ~/.local/share/Trash/files ]] && alias rm='mv -f --target-directory=$HOME/.local/share/Trash/files/'
 
@@ -217,7 +217,7 @@ alias dockerstart='sudo systemctl start docker && docker ps -a'
 alias virt='sudo modprobe virtio && sudo systemctl start libvirtd ebtables dnsmasq'
 
 #npm -g list --depth=0
-alias npmlistg='sudo npm -g list --depth=0'
+alias npmlistg='sudo npm -g list --depth=0 2>/dev/null'
 alias npmtaobao=' --registry=https://registry.npm.taobao.org'
 
 #docker container
@@ -253,3 +253,9 @@ then
 fi
 
 #PATH
+
+#科学上网
+#if [[ ! $(ps -ef |grep ssh |grep fCND |grep -v grep) ]]
+#then
+#  ssh -fCND 1080 levin@webcape.xyz > /tmp/ssh.log &
+#fi

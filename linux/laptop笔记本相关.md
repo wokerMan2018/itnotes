@@ -267,7 +267,7 @@ nvidia建议使用官方驱动，amd建议使用开源mesa（无需额外配置�
     ```shell
     sudo pacman -S bumblebee bbswitch --noconfirm
     sudo usermod -aG bumblebee ${whoami}
-    echo '
+    echo "
     [Unit]
     Description=Enable NVIDIA card
     DefaultDependencies=no
@@ -278,7 +278,7 @@ nvidia建议使用官方驱动，amd建议使用开源mesa（无需额外配置�
     
     [Install]
     WantedBy=shutdown.target
-    ' > /etc/systemd/system/nvidia-enable.service
+    " > /etc/systemd/system/nvidia-enable.service
     
     sudo systemctl enable bumblebeed nvidia-enable
     

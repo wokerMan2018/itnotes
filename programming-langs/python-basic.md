@@ -509,7 +509,14 @@ python写法：
   '数字是0' if x==0 else '数字不是0'
   ```
 
-- `判断条件 and 为真时的值 else 为假时的值`
+- `('为假时的值','为真时的值')[判断条件]`（注意表达式为真时的值在后面的位置）
+
+  ```shell
+  x=0
+  ('数字不是0','数字是0')[x==0]
+  ```
+
+- `判断条件 and 为真时的值 else 为假时的值`（慎用，了解即可。）
 
   （类似shell `[[ 判断条件 ]] && 为真时执行 || 为假时执行`）
 
@@ -518,12 +525,14 @@ python写法：
   x==0 and '数字是0' or  '数字不是0'
   ```
 
-- `('为假时的值','为真时的值')[判断条件]`（注意表达式为真时的值在后面的位置）
+  **注意，**如果 and后面的值本身是一个False值（如空字符串、0等），即使前面表达式为True，也会返回or后面的值。
 
   ```shell
-  x=0
-  ('数字不是0','数字是0')[x==0]
+  a=0
+  b=isinstance(a,int) and a or 'xxx' #b的值反而为xxx
   ```
+
+  
 
 ## 循环
 
@@ -976,19 +985,28 @@ with Test():
 
 参看python文档的标准库部分。
 
+- `__future__`模块 将新版本的特性导入到当前版本
+
+  例如在运行于python2.7的代码中导入`__future__`，可像python3.x一样使用`'a-unicode-str'`而不是`u'a-unicode-str'`表示unicode字符串（即不加`u`）。
+
 - os模块  主要用于操作系统相关命令，如UNIX/Linux进程管理，文件目录操作等
 
   - 多进程：UNIX/Linux使用`os.fork()`，另有跨平台的multiprocessing模块。
   - 多线程：threading模块
   - 文件属性：`os.path`  `os.chown()`  `os.chmod()`等等 （参照Unix/Linux的各种命令行工具）
   - 操作文件：`os.open()`  `os.read()`  `os.write()`  `os.close()`等
+  
 - 执行shell命令：
   - os模块：`os.system()`  `os.popen()` 
   - command模块：`command.getstatusoutput()`
   - subprocess模块：`subprocess.call()`
+  
 - 正则表达式模块  re
+
 - json模块
+
 - 时间相关模块：time datetime
+
 - 数学库：math random statistics
 
 ## 安装第三方模块
