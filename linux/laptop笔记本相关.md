@@ -252,66 +252,51 @@ max_freq="2.5GHz"    #最大频率
 
 ## 显卡管理
 
-nvidia建议使用官方驱动，amd建议使用开源mesa（无需额外配置）。
+amd使用开源mesa（无需额外配置）即可，以下描述中的独显均指Linus钦点的F**k Nvidia，且只讨论显卡用于图像输出的问题。
 
-### 双显卡切换
+参看[archwiki-NVIDIA](https://wiki.archlinux.org/index.php/NVIDIA)
 
-在Linux中可使用以下方法来切换。参看连接的相关资料进行配置：
+### 显卡切换Optimus
 
-- [prime](https://wiki.archlinux.org/index.php/PRIME_%28%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%29)（NVIDIA和ATI均支持）
-- [NVIDIA optimus](https://wiki.archlinux.org/index.php/NVIDIA_Optimus_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))（NVIDIA的方案，这里主要推荐以下两个）
-  - [bumblebee](https://wiki.archlinux.org/index.php/Bumblebee_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
+[archwiki-NVIDIA_Optimus](https://wiki.archlinux.org/index.php/NVIDIA_Optimus)
 
-    默认情况下使用bbswitch关闭独显，需要使用独显时，使用`optirun %command`来运行程序。
+Nvidia Optimus技术可根据需求在集成GPU和Nvidia GPU之间实时无缝切换，已达到节能省电的目的（因此在笔记本电脑上有使用该技术的需求），但在Linux下该功能的实现效果较差。
+
+如果BIOS支持选择输出显卡，可在BIOS中选择使用指定卡（但不是所有设备都具有该功能），例如只使用集成显卡或独立显卡。
+
+目前Optimus可选方案：
+
+- 由NVIDIA提供的Optimus方案，性能好，但目前bug丛生。
+
+- 放弃NVIDIA驱动，改用开源nouveau驱动，其PRIME技术可实现Optimus，但性能差。
+
+- 使用第三方程序
+
+  - [bumblebee](https://wiki.archlinux.org/index.php/Bumblebee_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))　稳定、配置简单、使用较方便，（使用NVIDIA运行程序时）性能比不上官方Optimus。
+
+    一般会配合[bbswitch](https://github.com/Bumblebee-Project/bbswitch)使用，默认情况下使用bbswitch禁用NVIDIA，需要运行使用NVIDIA的程序时，使用特定的命令运行该程序。
+
+    安装bumblebee和bbswitch，并启用`bumblebeed`服务，此外还需要将用户加入到bumblebee组中：
 
     ```shell
-    sudo pacman -S bumblebee bbswitch --noconfirm
-    sudo usermod -aG bumblebee ${whoami}
-    echo "
-    [Unit]
-    Description=Enable NVIDIA card
-    DefaultDependencies=no
-    
-    [Service]
-    Type=oneshot
-    ExecStart=/bin/sh -c 'echo ON > /proc/acpi/bbswitch'
-    
-    [Install]
-    WantedBy=shutdown.target
-    " > /etc/systemd/system/nvidia-enable.service
-    
-    sudo systemctl enable bumblebeed nvidia-enable
-    
-    echo "reboot your system , use command lspci|grep Nvidia for checking"
+    pacman -S bumblebee bbswitch --noconfirm  #以archlinux为例
+    usermod -aG bumblebee ${whoami}  #需要将普通用户加入bumblebee组
     ```
-
     
-
-  - ###### [nvidia-xrun](https://github.com/Witko/nvidia-xrun)
-
-### 禁用独显
-
-如果不需要运行大量耗费GPU资源的程序，可以禁用独立显卡，只使用核心显卡，一些禁用方法如：
-
-- 在BIOS中关闭独立显卡（不是所有设备都具有该功能）
-
-- 执行`echo OFF > /sys/kernel/debug/vgaswitcheroo/switch`临时关闭独立显卡（注意，如果使用了bbswtich那么应该是没有这个文件的！）。
-
-- 使用bbswitch
-
-  ```shell
-  #设置bbswitch模块参数
-  echo 'bbswitch load_state=0 unload_state=1' > /etc/modprobe.d/bbswitch.conf
-  #开机自动加载bbswitch模块
-  echo 'bbswitch ' > /etc/modules-load.d/bbswitch.conf
+    可根据需要编辑bumblebee配置文件`/etc/bumblebee/bumblebee.conf`。
+    
+    需要使用NVDIA运行程序时，可使用以下方案单独运行该程序：
+    
+    - `optirun`
+    
+      Bumblee中的命令，使用`optirun [options] <application>`运行程序。
+    
+    - `primusrun`  [primus](https://github.com/amonakov/primus)方案
+    
+      比optirun性能更好，使用`primusrun [options] <application>`运行程序。
+    
+    - `pvkrun`  [primus_vk](https://github.com/felixdoerre/primus_vk)方案 支持vulkan
+    
+  - [nvidia-xrun](https://github.com/Witko/nvidia-xrun)  启动后使用核显，默认不加载NVIDIA驱动。需要时使用`nvidia-xrun <application>`启动程序。
   
-  modprobe -r nvidia nvidia_modeset nouveau #卸载相关模块
-  sudo mkinitcpio -p linux  #重新生成initramfs--系统引导时的初始文件系统
-  ```
-
-  可使用以下命令控制bbswitch进行开关显卡：
-
-  ```shell
-  sudo tee /proc/acpi/bbswitch <<<OFF  #关闭独立显卡
-  sudo tee /proc/acpi/bbswitch <<<ON  #开启独立显卡
-  ```
+- [optimus-manager](https://github.com/Askannz/optimus-manager)  目前支持Archlinux及其衍生版，仅支持Xorg。（具体支持进度以项目说明为准）
