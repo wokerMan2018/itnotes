@@ -281,6 +281,7 @@ Nvidia Optimus技术可根据需求在集成GPU和Nvidia GPU之间实时无缝�
     ```shell
     pacman -S bumblebee bbswitch --noconfirm  #以archlinux为例
     usermod -aG bumblebee ${whoami}  #需要将普通用户加入bumblebee组
+    systemctl enable bumblebeed
     ```
     
     可根据需要编辑bumblebee配置文件`/etc/bumblebee/bumblebee.conf`。

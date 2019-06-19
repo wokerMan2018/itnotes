@@ -53,7 +53,7 @@ localUser=$(whoami)
 key="~/.ssh/id_rsa"
 
 #ssh options ssh选项（用以保持连接）
-options='-o TCPKeepAlive=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o ControlMaster=auto -o ControlPath=~/.ssh/%r@%h:%p -o ControlPersist=yes -o ControlPersist=600 -o StrictHostKeyChecking=no'
+options='-o TCPKeepAlive=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o ControlMaster=auto -o ControlPath=~/.ssh/%r@%h:%p -o ControlPersist=yes -o StrictHostKeyChecking=no'
 
 #======checking 转发前检查
 

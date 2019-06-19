@@ -41,82 +41,90 @@ NAT服务器负责将内部网络的流量（来自网口2）转换到外部网�
 
 下文所述为使用端口多路复用方式配置内部网络主机访问外部网络资源的示例。
 
-1. 开启ip转发
+## IP转发
 
-   ```shell
-   #查看开启状态 1为开启 0为关闭
-   sudo sysctl -n net.ipv4.ip_forward
-   #或sysctl net.ipv4.ip_forward
-   #或 cat /proc/sys/net/ipv4/ip_forward
-   
-   #临时开启（暂时开启，重启后失效）
-   echo 1 > /proc/sys/net/ipv4/ip_forward
-   sysctl -w net.ipv4.ip_forward=1
-   
-   #永久生效（配置须在重启后才被启用）
-   echo "
-   net.ipv4.ip_forward=1
-   net.ipv6.conf.default.forwarding=1
-   net.ipv6.conf.all.forwarding=1
-   " > /sysctl.d/ip_forward.conf
-   #使用该命令可以立即读取上面增加的配置文件 使配置生效
-   sysctl --system
-   ```
+```shell
+#查看开启状态 1为开启 0为关闭
+sudo sysctl -n net.ipv4.ip_forward
+#或sysctl net.ipv4.ip_forward
+#或 cat /proc/sys/net/ipv4/ip_forward
 
-2. 端口转发
+#临时开启（暂时开启，重启后失效）
+echo 1 > /proc/sys/net/ipv4/ip_forward
+sysctl -w net.ipv4.ip_forward=1
 
-   - firewall
+#永久生效（配置须在重启后才被启用）
+echo "
+net.ipv4.ip_forward=1
+net.ipv6.conf.default.forwarding=1
+net.ipv6.conf.all.forwarding=1
+" > /sysctl.d/ip_forward.conf
+#使用该命令可以立即读取上面增加的配置文件 使配置生效
+sysctl --system
+```
 
-     - 外部网口：eno1 地址192.168.1.1/24
-     - 内部网口：eno2 地址172.16.1.1/24
-   
-     ```shell
-     #1修改接口区域
-     #1.1 将外部网络网口eno1（网口1）的网络区域设置为external
-     firewall-cmd --permanent --zone=external --change-interface=eno1
-     
-     #1.2 将内部网络网口eno2（网口2）的网络区域设置为internal
-     firewall-cmd --permanent --zone=internal --change-interface=eno2
-     
-     #2. 设置地址伪装
-     firewall-cmd --permanent  --zone=external --add-masquerade
-     
-     #3. NAT规则　将eno2接收的来自内网172.16.1.0/24子网的数据转发到外部网口eno1上
-     firewall-cmd --permanent --direct --passthrough ipv4 -t nat -I POSTROUTING -o eno1 -j MASQUERADE -s 172.16.1.0/24
-     
-     #3. 重载配置
-     firewall-cmd --reload
-     ```
-   
-     相关命令
-   
-     ```shell
-     #查看网口的网络区域
-     firewall-cmd --get-zone-of-interface=eno1
-     firewall-cmd --get-zone-of-interface=eno2
-     
-     # 查看所有外部网络区域配置
-     firewall-cmd --zone=external --list-all
-     ```
-   
-   - iptables
-   
-     - 外部网口：eno1 地址192.168.1.1/24
-     - 内部网口：eno2 地址172.16.1.1/24
-   
-     ```shell
-     #1. 添加SNAT规则  示例
-     # 172.16.1.0/24为内网网卡eno2的子网　192.168.1.1为外网网卡eno1的IP
-     iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o eno2 -j SNAT --to-source 192.168.1.1
-     #或
-     #iptables -A POSTROUTING -t nat -o eno2 -j MASQUERADE
-     
-     #2. 保存设置的规则
-     service iptables save            
-   service iptables restart
-     ```
-     
-     
+## 端口转发
+
+可使用firewalld或iptables进行转发
+
+### firewall
+
+- 外部网口：eno1 地址192.168.1.1/24
+- 内部网口：eno2 地址172.16.1.1/24
+
+```shell
+#1修改接口区域
+#1.1 将外部网络网口eno1（网口1）的网络区域设置为external
+firewall-cmd --permanent --zone=external --change-interface=eno1
+
+#1.2 将内部网络网口eno2（网口2）的网络区域设置为internal
+firewall-cmd --permanent --zone=internal --change-interface=eno2
+
+#2. 设置地址伪装
+firewall-cmd --permanent  --zone=external --add-masquerade
+
+#3. NAT规则　将eno2接收的来自内网172.16.1.0/24子网的数据转发到外部网口eno1上
+firewall-cmd --permanent --direct --passthrough ipv4 -t nat -I POSTROUTING -o eno1 -j MASQUERADE -s 172.16.1.0/24
+
+#3. 重载配置
+firewall-cmd --reload
+```
+
+相关命令
+
+```shell
+#查看网口的网络区域
+firewall-cmd --get-zone-of-interface=eno1
+firewall-cmd --get-zone-of-interface=eno2
+
+# 查看所有外部网络区域配置
+firewall-cmd --zone=external --list-all
+```
+
+### iptables
+
+- 外部网口：eno1 地址192.168.1.1/24
+- 内部网口：eno2 地址172.16.1.1/24
+
+```shell
+#1. 添加SNAT规则  示例
+# 172.16.1.0/24为内网网卡eno2的子网　192.168.1.1为外网网卡eno1的IP
+iptables -A POSTROUTING -t nat -o eno2 -j MASQUERADE
+#或
+#iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o eno2 -j SNAT --to-source 192.168.1.1
+
+#改变TCP MSS以适应PMTU(Path MTU)
+#iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+#或设置固定tcp mss
+#通常以太网的mtu为1500，tcp的mss就是1460（1500-20（IP头）-20（tcp头）
+# iptables -A FORWARD -p tcp --syn -s 172.6.1.0/24 -j TCPMSS --set-mss 1460
+
+#2. 保存设置的规则
+service iptables save            
+service iptables restart
+```
+
+
 
 ## NAT客户端配置
 
@@ -124,21 +132,3 @@ NAT服务器负责将内部网络的流量（来自网口2）转换到外部网�
 
 - GATEWAY：为NAT服务器的内部网络网口（网口2，eno2）的IP地址
 - DNS：同NAT服务器
-
-
-
-## firewall端口转发
-
-将NAT客户端指定端口映射到NAT服务器的指定端口上
-
-```shell
-firewall-cmd --zone=external --add-forward-port=port=10022:proto=tcp:toport=22:toaddr=192.168.1.1 --permanent
-firewall-cmd --reload
-```
-
-firewall开放端口
-
-```shell
-firewall-cmd --add-port=3000/tcp --permanent
-```
-

@@ -287,7 +287,7 @@ new htmlWebpackPlugin({
 postcss常用辅助插件（参看[github:postcss](https://github.com/postcss/postcss/blob/master/README-cn.md)）：
 
   - autoprefixer  添加不同浏览器前缀（使用[Can I use](https://caniuse.com/)数据）
-  - precss  可以在使用像sass/less等预处理语言的特性
+  - precss  可以在使用像sass/less等预处理语言的特性（例如嵌套）
   - postcss-import 监听并编译@import引用的css文件
   - postcss-sorting 给规则的内容以及@规则排序
   - postcss-cssnext 允许使用未来的 CSS 特性（实验性特性）

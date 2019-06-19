@@ -22,7 +22,7 @@
 
 
 
-- <kbd>Alt</kbd><kbd>f</kbd>  像前移动到下一个单词尾部
+- <kbd>Alt</kbd><kbd>f</kbd>  向前移动到下一个单词尾部
 - <kbd>Alt</kbd><kbd>b</kbd>  向后移动到上一个单词头部
 
 

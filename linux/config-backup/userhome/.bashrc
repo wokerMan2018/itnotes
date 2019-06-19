@@ -142,7 +142,7 @@ alias en='export LANGUAGE=en_US.UTF-8'
 
 # ---logs---
 # clear 2 weeks ago logs
-alias logclean='sudo journalctl --vacuum-time=2weeks'
+alias logclean='sudo journalctl --vacuum-time=1weeks'
 alias lastb='sudo lastb'
 alias lastlog='lastlog|grep -Ev  "\*{2}.+\*{2}"'
 
@@ -160,8 +160,9 @@ alias grep='grep --color'
 
 alias tree='tree -C -L 1 --dirsfirst'
 
+alias topmem='ps -ef|head -1;ps aux|sort -nrk +4|head'
 
-# ===common tools short commands===
+# ===some short commands===
 
 #---network---
 # proxychains
