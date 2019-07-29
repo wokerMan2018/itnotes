@@ -253,10 +253,9 @@ then
   #fi
 fi
 
-#PATH
+# rust chinese mirror
+RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+#rustup install stable
 
 #科学上网
-#if [[ ! $(ps -ef |grep ssh |grep fCND |grep -v grep) ]]
-#then
-#  ssh -fCND 1080 levin@webcape.xyz > /tmp/ssh.log &
-#fi
+#[[ $(pgrep brook) ]] || brook-client

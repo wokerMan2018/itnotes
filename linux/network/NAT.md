@@ -80,10 +80,10 @@ firewall-cmd --permanent --zone=external --change-interface=eno1
 #1.2 将内部网络网口eno2（网口2）的网络区域设置为internal
 firewall-cmd --permanent --zone=internal --change-interface=eno2
 
-#2. 设置地址伪装
+#2. 为外部网口eno１（网口１）设置地址伪装
 firewall-cmd --permanent  --zone=external --add-masquerade
 
-#3. NAT规则　将eno2接收的来自内网172.16.1.0/24子网的数据转发到外部网口eno1上
+#3. NAT规则　将来自内网172.16.1.0/24子网的数据转发到外部网口eno1上
 firewall-cmd --permanent --direct --passthrough ipv4 -t nat -I POSTROUTING -o eno1 -j MASQUERADE -s 172.16.1.0/24
 
 #3. 重载配置
@@ -97,8 +97,14 @@ firewall-cmd --reload
 firewall-cmd --get-zone-of-interface=eno1
 firewall-cmd --get-zone-of-interface=eno2
 
+firewall-cmd --query-masquerade
+
 # 查看所有外部网络区域配置
 firewall-cmd --zone=external --list-all
+
+# 特定端口转发
+firewall-cmd --add-forward-port=proto=80:proto=tcp:toaddr=192.168.0.1
+firewall-cmd --add-forward-port=proto=80:proto=tcp:toaddr=192.168.0.1:toport=8080
 ```
 
 ### iptables

@@ -6,7 +6,9 @@ window.addEventListener('resize', setBaseFontSize, false)
 
 //c. 缩放浏览器时调整
 
-// 提示：浏览器缩放后，页面的documentElement元素的尺寸会随之反比例变化，因此无需获取window.devicePixelRatio缩放比例来调整大小
+// 提示：浏览器缩放后，页面的documentElement元素的尺寸会随之反比例变化
+//可获取window.devicePixelRatio缩放比例 用以调整缩放大小
+
 // 没有单独对浏览器缩放的监测事件
 // 但是可以监测crtl+鼠标滚轮（缩放）事件和键盘事件(快捷键ctrl +/-/0缩放)来实现监听
 
@@ -27,21 +29,22 @@ document.addEventListener('keydown', function (e) {
     setBaseFontSize()
   }
 })
+
 //===
 
 //设置html标签的基准字体
 function setBaseFontSize() {
-
-  let viewportWidth = document.documentElement.scrollWidth || document.body.scrollWidth || window.innerWidth || document.documentElement.getBoundingClientRect().width;
-
-
+  const viewportWidth = window.innerWidth || document.documentElement.scrollWidth ||
+    document.body.scrollWidth || document.documentElement.getBoundingClientRect().width;
   //浏览器缩放值(1表示未缩放)
   const ratio = window.devicePixelRatio
 
-  //自定义默认缩放基础比例(为了将最终设置的值)
-  const defaultScale = 125
+  //自定义默认缩放基础比例
+  const defaultScale = 100
+  //原始设计稿宽度（px）
+  const originDesignDraftWidth = 1440
 
-  const fontSize = viewportWidth / 1920 * defaultScale * ratio + 'px';
+  const fontSize = viewportWidth * defaultScale / originDesignDraftWidth * ratio + 'px';
 
   document.querySelector('html').style.fontSize = fontSize;
 }

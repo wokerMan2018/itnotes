@@ -300,4 +300,9 @@ Nvidia Optimus技术可根据需求在集成GPU和Nvidia GPU之间实时无缝�
     
   - [nvidia-xrun](https://github.com/Witko/nvidia-xrun)  启动后使用核显，默认不加载NVIDIA驱动。需要时使用`nvidia-xrun <application>`启动程序。
   
-- [optimus-manager](https://github.com/Askannz/optimus-manager)  目前支持Archlinux及其衍生版，仅支持Xorg。（具体支持进度以项目说明为准）
+- [optimus-manager](https://github.com/Askannz/optimus-manager)
+
+  图形前端：
+
+  - [optimus-manager-qt](https://github.com/Shatur95/optimus-manager-qt)
+  - [optimus-manager-argos](https://github.com/inzar98/optimus-manager-argos)（GNOME shell扩展）

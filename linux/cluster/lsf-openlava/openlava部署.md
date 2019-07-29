@@ -41,6 +41,7 @@ cd $dest/etc
   user=hpcadmin
   #创建运行openlava的用户 r创建为系统用户 M不创建家目录 s指定shell
   useradd -M /sbin/nologin $user
+  #make -C /var/yp  #一般会使用用户信息管理工具如yp
   chown -R $user $dest
   sed -i s/openlava/$user/ $dest/etc/lsf.cluster.openlava
   
@@ -127,6 +128,18 @@ lsadmin ckconfig
 
 # 排错
 
+- 查看log
+
 - 节点的`openlava status`各项服务正常启动，但状态为`unreach`，查看该节点`sbatch`日志提示`Unable to reach slave batch server`
 
   关闭防火墙或放行相关端口。
+  
+- 注意各个节点的openlava/lsf的管理员uid是否一致。
+
+- 如果hosts文件中，某个IP对应有多个hostname，需要将lsf.cluster.xx文件中使用的主机名优先解析。例如主机192.168.1.1设置了主机名g0101和主机名c01，在lsf.cluster.xx中填写的c01，那么hosts文件中就要将c01写在最前面。
+
+  ```shell
+  192.168.1.1 c01 g0101
+  ```
+
+  

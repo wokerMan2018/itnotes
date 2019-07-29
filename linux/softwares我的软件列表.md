@@ -87,7 +87,7 @@
 - megasync   [mega](https:www.mega.nz)（在存储空间限制大小内的无限份历史版本）
 - nutstore  [坚果云](https://www.jianguoyuan.com) （支持webDav，增量同步，支持历史版本）
 - dropbox  [dropbox](https://www.dropbox.com/)
-- 百度云：[baidupcs](https://github.com/GangZhuo/BaiduPCS) （命令行） | [bcloud](https://github.com/Yufeikang/bcloud) （图形界面）
+- [百度云](https://pan.baidu.com/download)
 - google-drive  配合nautilus等文件管理器管理谷歌云盘
 - nextcloud和seafile  私有云
 

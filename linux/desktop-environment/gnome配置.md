@@ -141,8 +141,6 @@ gsettings set org.gnome.desktop.screensaver lock-enabled 'false'
 gsettings set org.gnome.desktop.screensaver lock-delay 'uint32 120'
 ```
 
-
-
 ## nautilus鹦鹉螺文件管理器
 
 ### 右键菜单添加新建文件
@@ -343,3 +341,4 @@ gnome3.24开始，在设置中带有该功能开关，夜光（night-light）默
 
 - 恢复gnome初始设置`dconf reset -f /`。
 - 关闭部分软件启动时提示输入密码：删除`~/.local/share/keyrings/login.keyring`
+- gsettings所有的scemas都存储在`/usr/share/glib-2.0/schemas`下，均为xml文件。

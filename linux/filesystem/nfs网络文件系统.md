@@ -110,7 +110,7 @@ exportfs -au #取消所有导出
   写入`/etc/fstab`， 示例：
 
   ```shell
-  192.168.0.251:/share /share nfs default,_netdev	0 0
+  192.168.0.251:/share /share nfs defaults,_netdev	0 0
   ```
 
 - 其他图形界面工具

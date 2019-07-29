@@ -199,8 +199,7 @@ autoindex_localtime on;
 可以用htpasswd工具来生成密码，使用以下命令生成一个密码文件：
 
 ```shell
-#username是要添加的用以在加密页面登录的用户
-#password是对应的用户名
+#username是要添加的用以在加密页面登录的用户 password是对应的密码
 htpasswd -c /etc/nginx/conf.d/lock username password
 ```
 

@@ -34,6 +34,20 @@
   readlink -f `dirname $0`
   ```
 
+- 获取当前执行文件所在的目录
+
+  ```shell
+  path=$(dirname $(readlink -f "$0"))
+  ```
+
+  或
+
+  ```shell
+  path=$(cd $(dirname $0) ; pwd)
+  ```
+
+  
+
 - 获取文件大小
 
   ```shell
@@ -98,3 +112,28 @@
   ```
 
    例如给a.sh加密，该命令执行完成后将有两份文件，`a.sh`和`a.sh~`，带`~`的是原来的文件，不带`~`的是加密过的文件。
+
+- 脚本修改密码
+
+  - passwd的`--stdin`参数（某些发行版的passwd可能不支持）
+
+    ```shell
+    echo "new_pwd" | passwd --stdin [username]
+    ```
+
+  - chpasswd 读取文件
+
+    创建一个含有用户名和密码的文件，每行一个用户信息，使用`:`分隔用户名和密码，形如`username:password`，例如该文件为`/tmp/pwds`，内容为：
+
+    ```txt
+    root:123456
+    user1:123456
+    ```
+
+    使用chpasswd读取该文件：
+
+    ```shell
+    chpasswd < /tmp/pwds
+    ```
+
+    

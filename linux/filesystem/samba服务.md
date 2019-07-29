@@ -129,9 +129,10 @@ samba配置中各项名字意义较为明了，也可参看[配置文件](https:
 
 ### 用户管理
 
-samba需要linux系统账户才能使用，虽然其使用linux用户名，但是仍需设置独立的密码（可以同系统用户名密码相同），设置密码示例：
+samba中使用的账户必须是linux系统中已经存在的账户，但是仍需单独将该系统账户添加到samba中并设置独立的密码（当然，可以同系统用户名密码相同），设置密码示例：
 
 ```shell
+#添加到samba账户前确保该用户已经存在
 smbpasswd -a <username>  #添加samba用户并设置密码
 smbpasswd <username>  #修改samba用户密码
 ```

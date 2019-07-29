@@ -115,6 +115,13 @@ timedatectl set-timezone <time zone>  #设置时区
 
 另有图形界面工具如`system-config-date`等。
 
+如果开启了防火墙，需要放行NTP的端口：
+
+```shell
+firewall-cmd --add-service=ntp --permanent
+firewall-cmd --reload
+```
+
 ## chrony
 
 安装`chrony`并启用`chronyd`服务
@@ -125,7 +132,7 @@ timedatectl set-timezone <time zone>  #设置时区
 #时钟服务器
 server 0.centos.pool.ntp.org iburst
 server 1.centos.pool.ntp.org iburst
-server 127.127.1.0 prefer
+server 127.127.1.1 prefer  #chrony中使用本机时间 127.127.1.1
 allow all
 
 #同步源的层级
@@ -168,7 +175,6 @@ server master #master为服务端主机名（或使用ip地址）
 **chronyc**是用来监控chronyd性能和配置其参数的用户界面。
 
 ```shell
-chronyc makestep  #手动校准
 sudo hwclock -s -u #将rtc时钟时间设为系统时间并使用utc
 ```
 
