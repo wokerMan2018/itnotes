@@ -1,14 +1,16 @@
 .src.rpm包是包含了源代码的rpm包，在安装时需要进行编译。这类软件包有多种安装方法。
 
-以下示例中报名为test.src.rpm
+需要安装rpmbuild及其他相关依赖（如果缺少，rpmbuild操作会中断并提示）。
+
+以下示例在x8_64的centos中构建test.src.rpm。
 
 - `rpmbuild -bb`构建
 
   ```shell
   pkg=test
-  rpm -i $test.src.rpm
+  rpm -i $test*.src.rpm
   cd ~/rpmbuild/SPECS
-  rpmbuild -bb $test.spec
+  rpmbuild -bb $test*.spec
   cd ../RPM/x86_64
   yum install *.rpm
   ```
@@ -17,9 +19,9 @@
 
   ```shell
   pkg=test
-  rpm -i $test.src.rpm
+  rpm -i $test.*src.rpm
   cd ~/rpmbuild/SPECS
-  rpmbuild -bp $test.spec
+  rpmbuild -bp $test*.spec
   cd ../BUILD/
   #根据需求自行编译
   ./configure

@@ -37,7 +37,7 @@ NAT实现了内部网络中的主机访问外部资源，以及外部网络中�
 
 NAT服务器负责将内部网络的流量（来自网口2）转换到外部网络（网口1）。
 
-## NAT服务器配置
+# NAT服务器配置
 
 下文所述为使用端口多路复用方式配置内部网络主机访问外部网络资源的示例。
 
@@ -74,6 +74,8 @@ sysctl --system
 
 ```shell
 #1修改接口区域
+#这里为了示例中区分方便使用 external和internal区域分别表示访问外网的连接和访问内网的连接，具体区域名以实际情况为准
+
 #1.1 将外部网络网口eno1（网口1）的网络区域设置为external
 firewall-cmd --permanent --zone=external --change-interface=eno1
 
@@ -130,9 +132,7 @@ service iptables save
 service iptables restart
 ```
 
-
-
-## NAT客户端配置
+# NAT客户端配置
 
 修改内部网络中主机的网络连接参数：
 

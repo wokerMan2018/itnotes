@@ -1,44 +1,87 @@
-TCP/IP网络性能的测试工具
+# 监控工具
 
-> netperf基于C/S（client-server）模型设计。netserver运行在目标服务器上，netperf运行在客户机上。netperf控制netserver，netperf把配置数据发送到netserver，产生网络流量，从一个独立于测试连接的控制连接获取netserver的结果。在测试过程中，在控制连接中没有数据交流，所以不会对结果产生影响。netperf压测工具也有提供报表的功能，包括CPU使用率。
+- iftop
+- nethogs
+- nload
 
-全局选项：
+- [mtr](#mtr)
 
-    -A 设置本地接收和发送缓冲的调整
+# 测试工具
 
-    -b 爆发大量流测试包
+## 网络可用性测试
 
-    -H 远程机器
+主要用以监测和诊断网络是否连通。
 
-    -t 测试流量类型
-        TCP_STREAM 大量数据传输测试
-        TCP_MAERTS 和TCP_STREAM很像，只是流的方向相反
-        TCP_SENDFILE 和TCP_STREAM很像，只是使用sendfile()，而不是send()。会引发zero-copy操作
-        UDP_STREAM 和TCP_STREAM很像，只不过是UDP
-        TCP_RR 请求响应报文测试
-        TCP_CC TCP的连接/关闭测试。不产生请求和响应报文。
-        TCP_CRR 执行连接/请求/响应/关闭的操作。和禁用HTTP keepalive的HTTP1.0/1.1相似。
-        UDP_RR 和TCP_RR一样，只不过是UDP。
+### ping
 
-    -l 测试长度。如果是一个正值，netperf会执行testlen秒。如果值为负，netperf一直执行，直到大量数据传输测试中交换testlen字节，或者在请求/响应次数达到testlen。
+`ping <host>`
 
-    -c 本地CPU使用率报告
+### ibping
 
-    -C 远程服务器CPU使用率报告
+Infiniband 网络测试，一般附带在Infiniband套件中，比通常的Ping功能更多。
 
-    在某些平台上，CPU使用率的报告可能不准确。在性能测试之前，请确保准确性。
+### curl
 
-    -I 这个选项是用来维护结果可信度的。可信级别应该设置为99%或者95% 。为了保证结果可信度级别，netperf会把多次重复测试。例如-I 99 5，代表在100次的99次中，测试结果和真实情况有5%（+-2.5%）的浮动区间。
+ping被禁止时可以用curl检查端口的可用性
 
-    -i 这个选项限制了最大和最小的重复次数。-i 10 3表示，netperf重复同样的测试，最多10次，最少3次。如果重复次数超过最大值，结果就不在-I指定的可信任级别中，将在结果中显示一个警告。
+`curl <host>:<port>`
 
-    -s , -S 修改发送和接收的本地和远程缓冲大小。这个会影响到窗口大小。
+### telnet
 
-TCP_STREAM,TCP_MAERTS,TCP_SENDFILE,UDP_STREAM的选项
+`telnet <host> <port>`
 
-    -m , -M 指定传给send()和recv()函数的缓冲大小。分别控制每个调用的发送和接收大小。
+## 路由追踪
 
-TCP_RR,TCP_CC,TCP_CRR,UDP_RR的选项：
+### traceroute和tracepath
 
-    -r ,-R 分别指定请求和响应的大小。例如-r 128,8129意思是netperf发送128字节包到netserver，然后它响应一个8129字节的包给netperf。
+用于追踪并显示报文从数据源（source）主机到达目的（destination）主机所经过的路由信息，给出网络路径中每一跳（hop）的信息。
+
+traceroute专门用户追踪路由，追踪速度更快；tracepath可以检测MTU值。
+
+另*windows下有tracert*。
+
+```shell
+tracepath [-n] z.cn
+traceroute z.cn
+```
+
+### mtr
+
+mtr是My traceroute的缩写，是一个把ping和traceroute并入一个程序的网络诊断工具。
+
+直接运行`mtr`会进入ncurses编写的实施监测界面。此外还有该工具的其他图形界面前端实现，如mtr-gtk。
+
+```shell
+mtr --report -c 10 -n z.cn  #检测z.cn的traceroute
+```
+
+## 网络性能测试
+
+### iperf和netperf
+
+二者均是客户端-服务端模式（C/S client-server），先在服务端开启监听服务，然后客户端向服务端发起连接。
+
+简单示例（更多参数查看帮助）：
+
+- iperf
+
+  - 服务端：`iperf -s `
+  - 客户端：`iperf -c <server> `
+
+  ```shell
+  iperf -s [-p port] [-i 2]  #p监听的端口 i报告刷新时间间隔
+  iperf -c <server> [-p port] [-i 2] [-t 10]  #t测试总时间
+  ```
+
+- netperf
+
+  - 服务端：`netserver `
+  - 客户端：`netperf -H <server>`
+
+  ``` shell
+  netserver [-p port] [-L localip]  #p端口 L本地ip
+  netperf -H <server> [-p port] [-m send_data_size] [-l total_time] #m发送数据大小  l测试总时间
+  ```
+
+  
 

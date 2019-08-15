@@ -317,6 +317,24 @@ bkill 1234  #删除1234号任务
 
 ## 作业工作目录被设置为`/tmp`
 
-提交任务时，如果调度器无法获取到环境变量`$LS_SUBCWD`的值（默认是当前文件夹，current working dir），就会将该变量值设置为`tmp`。
+http://www-01.ibm.com/support/docview.wss?uid=isg3T1014883
 
-可以在提交前设置该环境变量的值（如`export $LS_SUBCWD=$PWD`）以确保工作目录正确。
+linux下，调度器由于未找到相关的环境变量设定以下变量的值，于是将这些变量的值设置为`/tmp`：
+
+- `$LS_SUBCWD`
+
+  提交任务的home dir，默认是PWD变量的值，如果没找到PWD变量，则设置为CWD变量的值
+
+- `LS_EXECCWD`
+
+  交任务的work dir，默认是执行提交命令时文件夹
+
+windows下(lsf)，`LS_SUBCWD`会被设置到用户目录下的`AppData\Local\Temp`，`LS_EXECCWD`会被设置到LSF安装目录下的`tmp`。
+
+> LS_EXECCWD: Sets the current working directory for job execution. 
+>
+> LS_SUBCWD: This is the directory on the submission when the job was submitted. This is different
+> from PWD only if the directory is not shared across machines or when the execution account is
+> different from the submission account as a result of account mapping.
+
+可以在提交前设置该环境变量的值，以确保工作目录正确。

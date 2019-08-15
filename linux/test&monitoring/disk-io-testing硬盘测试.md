@@ -1,22 +1,35 @@
-# dd
+# io监控工具
+
+- iotop
+- iostat
+
+# 测试工具
+
+## dd
 
 ```shell
-disk=/dev/sdy
-of=test
-bs=1M
-count=20480
-time dd if=$disk of=$of bs=$bs count=$count
+if=/dev/zearo  #读取的文件
+of=test_file     #写入到该文件
+bs=4k                #block size  每个块文件的大小
+count=64k      #块文件个数 64k=64000
+time dd if=/dev/zero of=$of bs=$bs count=$count oflag=dsync
 ```
 
+if文件也可以是已经存在的一个文件。（创建一个测试用的大文件可以使用`fallocate -l <size> <filename>`。）
 
+of文件位于要测试的硬盘的挂载目录中。
 
-# iozone
+oflag值为dsync，表示使用同步I/O，每次读取bs指定的块文件大小的内容后，就要立即将其写入硬盘，再读取下一个bs指定大小的块文件，可以去除缓存的影响。
+
+## iozone
 
 > IOZONE主要用来测试操作系统文件系统性能的测试工具。使用iozone可以在多线程、多cpu，并指定cpu cache空间大小以及同步或异步I/O读写模式的情况下进行测试文件操作性能。
 
 iozone可测试项包括：Read, write, re-read,re-write, read backwards, read strided, fread, fwrite, random read, pread,mmap, aio_read, aio_write 。
 
 通常情况下，测试的文件大小要求至少是系统cache的两倍以上，测试的结果才是真是可信的。如果小于cache的两倍，文件的读写测试读写的将是cache的速度，测试的结果大打折扣。 
+
+iozone的测试以表格形式输出：顶部横行为每次读/写的块文件大小（单位Kbytes），左侧纵列为测试文件的大小（单位Kbytes），其余为对应的读写速度。
 
 常用参数
 
@@ -136,7 +149,7 @@ iozone可测试项包括：Read, write, re-read,re-write, read backwards, read s
 
 - Freread: 与上面的fread 类似，除了在这个测试中被读文件是最近才刚被读过。这将导致更高的性能，因为操作系统缓存了文件数据。
 
-# gnuplot生成图画
+# 其他测试工具
 
-安装gnuplot后，可以
-
+- hparm
+- gnome-disks的测试工具

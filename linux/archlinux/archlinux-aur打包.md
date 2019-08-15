@@ -64,18 +64,19 @@ makepkg -s  # 可自动安装依赖
 
     ```shell
     #在服务器上建立一个名为name.git的新仓库(name一般是软件包名)
-    git clone git+ssh://aur@aur.archlinux.org/name.git
+    name=edk2-avmf
+    git clone git+ssh://aur@aur.archlinux.org/$name.git
     #初始化仓库
     git init
     #连接远程仓库
-    git remote add origin git+ssh://aur@aur.archlinux.org/name.git
+    git remote add origin git+ssh://aur@aur.archlinux.org/$name.git
     ```
 
   - 连接已经存在的aur仓库
 
     ```shell
     #连接仓库(name是该仓库名)
-    git remote add origin git+ssh://aur@aur.archlinux.org/name.git
+    git remote add origin git+ssh://aur@aur.archlinux.org/$name.git
     #从服务器同步内容
     git pull origin master
     ```
